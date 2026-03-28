@@ -853,6 +853,18 @@ button[aria-disabled="true"]:focus-visible,
   margin-bottom: 6px;
 }
 
+.capture-status-title-layout {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.capture-status-title-layout .operations-json-download {
+  margin-left: auto;
+}
+
 .request-panel-actions {
   display: flex;
   justify-content: flex-end;

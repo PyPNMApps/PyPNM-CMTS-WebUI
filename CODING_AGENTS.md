@@ -10,6 +10,9 @@
 ## Reuse-First Rules (Required)
 
 - Reuse existing UI components/hooks/services before creating new ones.
+- Assume new user-requested UI/logic behavior should be implemented as
+  common-code by default. Only keep behavior endpoint-specific when there is a
+  concrete technical reason, and ask the user before diverging from common-code.
 - When multiple visuals need the same metadata rendering or formatting behavior, extract it into `src/components/common` or `src/lib` instead of duplicating it inside a feature view.
 - Keep endpoint integrations isolated in feature/service modules.
 - Centralize API transport concerns (base URL, headers, timeout, interceptors) in one API client.
