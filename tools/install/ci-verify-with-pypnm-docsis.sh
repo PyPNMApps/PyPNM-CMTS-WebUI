@@ -4,6 +4,7 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 PYPNM_PATH=""
 STACK_PID=""
+WEBUI_PORT="${WEBUI_PORT:-4175}"
 
 log() {
   printf '[ci][with-pypnm-docsis] %s\n' "$1"
@@ -129,7 +130,7 @@ main() {
   trap cleanup EXIT INT TERM
 
   wait_for_url "http://127.0.0.1:8000/health" "PyPNM health endpoint"
-  wait_for_url "http://127.0.0.1:4173" "PyPNM-WebUI dev server"
+  wait_for_url "http://127.0.0.1:${WEBUI_PORT}" "PyPNM-CMTS-WebUI dev server"
 
   log "Running live WebUI health integration test against installed stack"
   RUN_LIVE_PYPNM_HEALTH=1 \

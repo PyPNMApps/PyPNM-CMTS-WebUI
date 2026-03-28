@@ -15,12 +15,8 @@ vi.mock("@/components/layout/InstanceSelector", () => ({
   InstanceSelector: () => <div>Instance Selector</div>,
 }));
 
-vi.mock("@/features/operations/components/OperationsMenu", () => ({
-  OperationsMenu: () => <button type="button">Operations</button>,
-}));
-
 describe("navigation structure", () => {
-  it("renders Files first and Settings just before About", () => {
+  it("renders Serving Group, Health, Settings, and About as top-level nav links", () => {
     render(
       <ThemeProvider>
         <MemoryRouter>
@@ -39,13 +35,10 @@ describe("navigation structure", () => {
         return interactive?.textContent?.trim() ?? element.textContent?.trim() ?? null;
       })
       .filter(Boolean);
-    expect(navLabels[0]).toBe("Files");
-    expect(navLabels.indexOf("Settings")).toBeGreaterThan(-1);
-    expect(navLabels.indexOf("About")).toBeGreaterThan(-1);
-    expect(navLabels.indexOf("Settings")).toBe(navLabels.indexOf("About") - 1);
+    expect(navLabels).toEqual(["Serving Group", "Health", "Settings", "About"]);
   });
 
-  it("renders Operations before Spectrum Analyzer before Single Capture", () => {
+  it("removes legacy top-level sections while keeping serving-group shell", () => {
     render(
       <ThemeProvider>
         <MemoryRouter>
@@ -64,8 +57,13 @@ describe("navigation structure", () => {
         return interactive?.textContent?.trim() ?? element.textContent?.trim() ?? null;
       })
       .filter(Boolean);
-    expect(navLabels.indexOf("Operations")).toBeLessThan(navLabels.indexOf("Spectrum Analyzer"));
-    expect(navLabels.indexOf("Spectrum Analyzer")).toBeLessThan(navLabels.indexOf("Single Capture"));
+    expect(navLabels).toContain("Serving Group");
+    expect(navLabels).toContain("Health");
+    expect(navLabels).not.toContain("Advanced");
+    expect(navLabels).not.toContain("Operations");
+    expect(navLabels).not.toContain("Files");
+    expect(navLabels).not.toContain("Spectrum Analyzer");
+    expect(navLabels).not.toContain("Single Capture");
   });
 
   it("keeps Spectrum Analyzer routes out of the Operations menu data set", () => {

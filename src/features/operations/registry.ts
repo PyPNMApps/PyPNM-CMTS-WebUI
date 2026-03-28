@@ -1,133 +1,142 @@
 import type { OperationFolderGroup, OperationNode } from "@/features/operations/types";
 
-export const operationRegistry: OperationNode[] = [
-  {
-    id: "multi-rxmer-start",
-    label: "Start",
-    categoryPath: ["PNM", "MultiCapture", "Downstream", "RxMER"],
-    method: "POST",
-    endpointPath: "/advance/multi/ds/rxMer/start",
-    workflowType: "start-status-results",
-    visualType: "json",
-    description: "Create a multi-capture RxMER job and return an operation id.",
-  },
-  {
-    id: "multi-rxmer-status",
-    label: "Status",
-    categoryPath: ["PNM", "MultiCapture", "Downstream", "RxMER"],
-    method: "GET",
-    endpointPath: "/advance/multi/ds/rxMer/status/{operation_id}",
-    workflowType: "start-status-results",
-    visualType: "json",
-    dependsOn: ["multi-rxmer-start"],
-    description: "Poll the capture job state until the job reaches completion.",
-  },
-  {
-    id: "multi-rxmer-results",
-    label: "Results",
-    categoryPath: ["PNM", "MultiCapture", "Downstream", "RxMER"],
-    method: "GET",
-    endpointPath: "/advance/multi/ds/rxMer/results/{operation_id}",
-    workflowType: "start-status-results",
-    visualType: "json",
-    dependsOn: ["multi-rxmer-start"],
-    description: "Fetch the completed multi-capture RxMER payload for a given operation id.",
-  },
-  {
-    id: "multi-rxmer-analysis-min-avg-max",
-    label: "Min / Avg / Max",
-    categoryPath: ["PNM", "MultiCapture", "Downstream", "RxMER", "Analysis"],
-    method: "POST",
-    endpointPath: "/advance/multi/ds/rxMer/analysis",
-    workflowType: "analysis-from-operation",
-    visualType: "json",
-    dependsOn: ["multi-rxmer-results"],
-    description: "Run a min/avg/max analysis against a completed multi-capture RxMER operation.",
-  },
-  {
-    id: "multi-rxmer-analysis-heatmap",
-    label: "Heat Map",
-    categoryPath: ["PNM", "MultiCapture", "Downstream", "RxMER", "Analysis"],
-    method: "POST",
-    endpointPath: "/advance/multi/ds/rxMer/analysis",
-    workflowType: "analysis-from-operation",
-    visualType: "json",
-    dependsOn: ["multi-rxmer-results"],
-    description: "Render time/frequency density for a completed RxMER capture set.",
-  },
-  {
-    id: "multi-rxmer-analysis-echo-1",
-    label: "Echo Detection 1",
-    categoryPath: ["PNM", "MultiCapture", "Downstream", "RxMER", "Analysis"],
-    method: "POST",
-    endpointPath: "/advance/multi/ds/rxMer/analysis",
-    workflowType: "analysis-from-operation",
-    visualType: "echo-analysis",
-    dependsOn: ["multi-rxmer-results"],
-    description: "Run the ECHO_REFLECTION_1 analysis and render the engineering visual.",
-  },
-  {
-    id: "multi-rxmer-analysis-profile-performance-1",
-    label: "Profile Performance 1",
-    categoryPath: ["PNM", "MultiCapture", "Downstream", "RxMER", "Analysis"],
-    method: "POST",
-    endpointPath: "/advance/multi/ds/rxMer/analysis",
-    workflowType: "analysis-from-operation",
-    visualType: "json",
-    dependsOn: ["multi-rxmer-results"],
-    description: "Run profile-performance scoring for a completed RxMER operation.",
-  },
-];
+interface OperationSeriesDefinition {
+  idPrefix: string;
+  endpointBase: string;
+  categoryPath: [string, string, string, string];
+  descriptionPrefix: string;
+}
+
+function buildStartStatusResultsSeries(definition: OperationSeriesDefinition): OperationNode[] {
+  return [
+    {
+      id: `${definition.idPrefix}-start-capture`,
+      label: "Start Capture",
+      categoryPath: [...definition.categoryPath],
+      method: "POST",
+      endpointPath: `${definition.endpointBase}/startCapture`,
+      workflowType: "start-status-results",
+      visualType: "json",
+      description: `Start ${definition.descriptionPrefix} capture operation.`,
+    },
+    {
+      id: `${definition.idPrefix}-status`,
+      label: "Status",
+      categoryPath: [...definition.categoryPath],
+      method: "POST",
+      endpointPath: `${definition.endpointBase}/status`,
+      workflowType: "start-status-results",
+      visualType: "json",
+      dependsOn: [`${definition.idPrefix}-start-capture`],
+      description: `Get status for ${definition.descriptionPrefix} capture operation.`,
+    },
+    {
+      id: `${definition.idPrefix}-results`,
+      label: "Results",
+      categoryPath: [...definition.categoryPath],
+      method: "POST",
+      endpointPath: `${definition.endpointBase}/results`,
+      workflowType: "start-status-results",
+      visualType: "json",
+      dependsOn: [`${definition.idPrefix}-start-capture`],
+      description: `Get results for ${definition.descriptionPrefix} capture operation.`,
+    },
+    {
+      id: `${definition.idPrefix}-cancel`,
+      label: "Cancel",
+      categoryPath: [...definition.categoryPath],
+      method: "POST",
+      endpointPath: `${definition.endpointBase}/cancel`,
+      workflowType: "start-status-results",
+      visualType: "json",
+      dependsOn: [`${definition.idPrefix}-start-capture`],
+      description: `Cancel ${definition.descriptionPrefix} capture operation.`,
+    },
+  ];
+}
+
+const rxMerSeriesDefinition: OperationSeriesDefinition = {
+  idPrefix: "cmts-sg-ds-ofdm-rxmer",
+  endpointBase: "/cmts/pnm/sg/ds/ofdm/rxmer",
+  categoryPath: ["CMTS", "PNM", "Serving Group", "Downstream OFDM RxMER"],
+  descriptionPrefix: "serving-group downstream OFDM RxMER",
+};
+
+export const operationRegistry: OperationNode[] = buildStartStatusResultsSeries(rxMerSeriesDefinition);
+
+export function getOperationById(operationId: string): OperationNode | undefined {
+  return operationRegistry.find((operation) => operation.id === operationId);
+}
 
 export const operationFolderGroups: OperationFolderGroup[] = [
   {
-    id: "multi-rxmer-workflow",
-    label: "PNM / MultiCapture / Downstream / RxMER",
-    operations: operationRegistry.filter((operation) => operation.categoryPath.slice(0, 4).join("/") === "PNM/MultiCapture/Downstream/RxMER"),
+    id: "cmts-sg-rxmer-workflow",
+    label: "CMTS / PNM / Serving Group / Downstream OFDM RxMER",
+    operations: operationRegistry,
   },
 ];
 
+const cmtsStartCaptureRequestExample = {
+  cmts: {
+    serving_group: {
+      id: [],
+    },
+    cable_modem: {
+      mac_address: [],
+      pnm_parameters: {
+        tftp: {
+          ipv4: "string",
+          ipv6: "string",
+        },
+        capture: {
+          channel_ids: [0],
+        },
+      },
+      snmp: {
+        snmpV2C: {
+          community: "string",
+        },
+      },
+    },
+  },
+  execution: {
+    max_workers: 16,
+    retry_count: 3,
+    retry_delay_seconds: 5,
+    per_modem_timeout_seconds: 30,
+    overall_timeout_seconds: 120,
+  },
+};
+
+const cmtsOperationLookupRequestExample = {
+  operation: {
+    pnm_capture_operation_id: "{{pnm_capture_operation_id}}",
+  },
+};
+
+const cmtsResultsRequestExample = {
+  operation: {
+    pnm_capture_operation_id: "{{pnm_capture_operation_id}}",
+  },
+  selection: {
+    serving_group_ids: [],
+    channel_ids: [],
+    mac_addresses: [],
+  },
+  analysis: {
+    type: "BASIC",
+  },
+  output: {
+    type: "json",
+  },
+};
+
 export function buildOperationRequestExample(operation: OperationNode): string {
-  switch (operation.id) {
-    case "multi-rxmer-start":
-      return JSON.stringify(
-        {
-          cable_modem: {
-            mac_address: "{{cm_mac_address}}",
-            ip_address: "{{cm_ip_address}}",
-            pnm_parameters: {
-              tftp: { ipv4: "{{tftp_server_ipv4}}", ipv6: "{{tftp_server_ipv6}}" },
-              capture: { channel_ids: ["{{channel_ids}}"] },
-            },
-            snmp: { snmpV2C: { community: "{{cm_snmp_community_rw}}" } },
-          },
-          capture: {
-            parameters: {
-              measurement_duration: "{{measurement_duration}}",
-              sample_interval: 1,
-            },
-          },
-          measure: { mode: 1 },
-        },
-        null,
-        2,
-      );
-    case "multi-rxmer-status":
-      return JSON.stringify({ operation_id: "{{rxmer_multi_operation_id}}" }, null, 2);
-    case "multi-rxmer-results":
-      return JSON.stringify({ operation_id: "{{rxmer_multi_operation_id}}" }, null, 2);
-    default:
-      return JSON.stringify(
-        {
-          analysis: {
-            type: "ECHO_REFLECTION_1",
-            output: { type: "json" },
-            plot: { ui: { theme: "dark" } },
-          },
-          operation_id: "{{rxmer_multi_operation_id}}",
-        },
-        null,
-        2,
-      );
+  if (operation.id.endsWith("-start-capture")) {
+    return JSON.stringify(cmtsStartCaptureRequestExample, null, 2);
   }
+  if (operation.id.endsWith("-status") || operation.id.endsWith("-cancel")) {
+    return JSON.stringify(cmtsOperationLookupRequestExample, null, 2);
+  }
+  return JSON.stringify(cmtsResultsRequestExample, null, 2);
 }

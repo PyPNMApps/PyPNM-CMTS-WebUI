@@ -2,13 +2,9 @@ import { useTheme } from "@/app/useTheme";
 import { NavLink } from "react-router-dom";
 
 import { InstanceSelector } from "@/components/layout/InstanceSelector";
-import { OperationsMenu } from "@/features/operations/components/OperationsMenu";
 
 const links = [
-  ["/files", "Files"],
-  ["/spectrum-analyzer", "Spectrum Analyzer"],
-  ["/single-capture", "Single Capture"],
-  ["/advanced", "Advanced"],
+  ["/serving-group/rxmer", "Serving Group"],
   ["/health", "Health"],
   ["/settings", "Settings"],
   ["/about", "About"],
@@ -40,22 +36,12 @@ export function AppTopNav() {
 
   return (
     <header className="top-nav">
-      <NavLink to="/" end className="top-nav-brand" aria-label="PyPNM CMTS WebUI home">
+      <NavLink to="/serving-group/rxmer" end className="top-nav-brand" aria-label="PyPNM CMTS WebUI home">
         <PyPnmWebUiIcon />
         <h1>PyPNM CMTS WebUI</h1>
       </NavLink>
       <nav className="top-nav-links">
-        <NavLink to={links[0][0]} className={({ isActive }) => (isActive ? "nav-link active" : "nav-link")}>
-          {links[0][1]}
-        </NavLink>
-        <OperationsMenu />
-        <NavLink to={links[1][0]} className={({ isActive }) => (isActive ? "nav-link active" : "nav-link")}>
-          {links[1][1]}
-        </NavLink>
-        <NavLink to={links[2][0]} className={({ isActive }) => (isActive ? "nav-link active" : "nav-link")}>
-          {links[2][1]}
-        </NavLink>
-        {links.slice(3).map(([to, label]) => (
+        {links.map(([to, label]) => (
           <NavLink key={to} to={to} className={({ isActive }) => (isActive ? "nav-link active" : "nav-link")}>
             {label}
           </NavLink>
