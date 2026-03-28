@@ -9,6 +9,9 @@ const AboutPage = lazy(() =>
 const AdvancedPage = lazy(() =>
   import("@/pages/AdvancedPage").then((module) => ({ default: module.AdvancedPage })),
 );
+const CmtsSgRxMerWorkflowPage = lazy(() =>
+  import("@/pages/CmtsSgRxMerWorkflowPage").then((module) => ({ default: module.CmtsSgRxMerWorkflowPage })),
+);
 const AnalysisViewerPage = lazy(() =>
   import("@/pages/AnalysisViewerPage").then((module) => ({ default: module.AnalysisViewerPage })),
 );
@@ -46,19 +49,20 @@ export function AppRoutes() {
     <Suspense fallback={<RouteLoadingFallback />}>
       <Routes>
         <Route element={<AppLayout />}>
-          <Route path="/" element={<Navigate to="/about" replace />} />
+          <Route path="/" element={<Navigate to="/advanced/rxmer" replace />} />
           <Route path="/health" element={<HealthPage />} />
           <Route path="/about" element={<AboutPage />} />
-          <Route path="/advanced" element={<AdvancedPage />} />
+          <Route path="/advanced" element={<Navigate to="/advanced/rxmer" replace />} />
           <Route path="/advanced/rxmer" element={<AdvancedPage />} />
-          <Route path="/advanced/channel-estimation" element={<AdvancedPage />} />
-          <Route path="/advanced/ofdma-pre-eq" element={<AdvancedPage />} />
+          <Route path="/advanced/channel-estimation" element={<Navigate to="/advanced/rxmer" replace />} />
+          <Route path="/advanced/ofdma-pre-eq" element={<Navigate to="/advanced/rxmer" replace />} />
           <Route path="/single-capture" element={<Navigate to="/single-capture/rxmer" replace />} />
           <Route path="/single-capture/:operationId" element={<EndpointExplorerPage />} />
           <Route path="/spectrum-analyzer" element={<Navigate to="/spectrum-analyzer/friendly" replace />} />
           <Route path="/spectrum-analyzer/:operationId" element={<EndpointExplorerPage />} />
           <Route path="/endpoints" element={<Navigate to="/operations" replace />} />
-          <Route path="/operations" element={<EndpointExplorerPage />} />
+          <Route path="/operations" element={<Navigate to="/operations/cmts-sg-ds-ofdm-rxmer" replace />} />
+          <Route path="/operations/cmts-sg-ds-ofdm-rxmer" element={<CmtsSgRxMerWorkflowPage />} />
           <Route path="/operations/:operationId" element={<EndpointExplorerPage />} />
           <Route path="/operations/spectrum-analyzer" element={<Navigate to="/spectrum-analyzer/friendly" replace />} />
           <Route path="/operations/spectrum-analyzer-full-band" element={<Navigate to="/spectrum-analyzer/full-band" replace />} />
