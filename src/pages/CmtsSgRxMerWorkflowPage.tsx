@@ -1,5 +1,4 @@
 import { useInstanceConfig } from "@/app/useInstanceConfig";
-import { PageHeader } from "@/components/common/PageHeader";
 import { Panel } from "@/components/common/Panel";
 import {
   ServingGroupCaptureRequestForm,
@@ -27,10 +26,6 @@ export function CmtsSgRxMerWorkflowPage() {
           </NavLink>
         ))}
       </nav>
-      <PageHeader
-        title="CMTS SG Downstream OFDM RxMER"
-        subtitle=""
-      />
       <Panel
         title={(
           <div className="capture-request-title-layout">
