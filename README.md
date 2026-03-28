@@ -74,13 +74,13 @@ Reset local install artifacts for a clean reinstall:
 ## Run locally
 
 ```bash
-pypnm-webui serve
+pypnm-cmts-webui serve
 ```
 
 Start same-machine backend (PyPNM) + frontend from the normal serve flow:
 
 ```bash
-pypnm-webui serve --start-local-pypnm-docsis
+pypnm-cmts-webui serve --start-local-pypnm-docsis
 ```
 
 Default local URL:
@@ -89,41 +89,22 @@ Default local URL:
 CLI help:
 
 ```bash
-pypnm-webui --help
-pypnm-webui serve --help
-pypnm-webui config-menu --help
-pypnm-webui kill-pypnm-webui --help
+pypnm-cmts-webui --help
+pypnm-cmts-webui serve --help
+pypnm-cmts-webui config-menu --help
+pypnm-cmts-webui kill-pypnm-webui --help
 ```
-
-## UI gallery
-
-- [MkDocs UI Preview Gallery](docs/user/ui-previews/index.md)
-- [MkDocs Operations Gallery](docs/user/ui-previews/operations.md)
-
-| Signal Capture | Operations | Advanced |
-| --- | --- | --- |
-| [![Signal Capture RxMER](docs/images/ui-previews/single-capture-rxmer.png)](docs/user/ui-previews/signal-capture.md) | [![Operations OFDM Channel Stats](docs/images/ui-previews/operations-ds-ofdm-channel-stats.png)](docs/user/ui-previews/operations.md) | [![Advanced RxMER Heat Map](docs/images/ui-previews/advanced-rxmer-rxmer-heat-map.png)](docs/user/ui-previews/advanced.md) |
 
 ## User docs
 
 - [Documentation Index](docs/index.md)
 - [Getting Started](docs/user/getting-started.md)
 - [Install And Bootstrap](docs/user/install-and-bootstrap.md)
-- [Local Combined Install](docs/user/local-combined-install.md)
-- [Release Helpers](docs/user/release-helpers.md)
 - [Runtime Configuration](docs/user/runtime-configuration.md)
-- [UI Overview](docs/user/using-the-ui.md)
-- [Navigation And Agent Selection](docs/user/ui-navigation.md)
-- [Single Capture](docs/user/single-capture.md)
-- [Operations And Spectrum Analyzer](docs/user/operations-and-spectrum.md)
-- [Advanced Analysis](docs/user/advanced-workflows.md)
-- [Files, Health, Settings, And About](docs/user/supporting-pages.md)
+- [Serving Group RxMER](docs/user/serving-group-rxmer.md)
 - [Troubleshooting](docs/user/troubleshooting.md)
-- [Release Workflow](docs/user/release-workflow.md)
 
 ## Development docs
 
-- [Development Field Hints](docs/development/field-hints.md)
-- [Git Helpers](docs/development/git-helpers.md)
 - [Development Workflow](docs/development/workflow.md)
-- [Development Logging](docs/development/logging.md)
+- [CI Workflows](docs/development/ci-workflows.md)

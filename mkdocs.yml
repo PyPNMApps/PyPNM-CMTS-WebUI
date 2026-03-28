@@ -28,94 +28,20 @@ markdown_extensions:
   - admonition
   - attr_list
   - tables
-  - pymdownx.arithmatex:
-      generic: true
   - toc:
       permalink: true
-extra_javascript:
-  - javascripts/mathjax.js
-  - https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js
 nav:
   - Home: index.md
   - User Guide:
-      - Start Here:
-          - Getting Started: user/getting-started.md
-          - Install And Bootstrap: user/install-and-bootstrap.md
-          - Local Combined Install: user/local-combined-install.md
-          - Runtime Configuration: user/runtime-configuration.md
-      - Using The UI:
-          - UI Overview: user/using-the-ui.md
-          - Navigation And Agent Selection: user/ui-navigation.md
-          - Live Endpoint Form Examples: user/live-endpoint-examples.md
-          - Signal Capture:
-              - Overview: user/signal-capture/overview.md
-              - Shared Behavior: user/signal-capture/shared-behavior.md
-              - RxMER: user/signal-capture/rxmer.md
-              - Channel Estimation: user/signal-capture/channel-estimation.md
-              - Histogram: user/signal-capture/histogram.md
-              - FEC Summary: user/signal-capture/fec-summary.md
-              - Constellation Display: user/signal-capture/constellation-display.md
-              - Modulation Profile: user/signal-capture/modulation-profile.md
-              - OFDMA PreEqualization: user/signal-capture/ofdma-preequalization.md
-              - Spectrum Analyzer:
-                  - Overview: user/signal-capture/spectrum-analyzer/overview.md
-                  - Friendly: user/signal-capture/spectrum-analyzer/friendly.md
-                  - Full Band: user/signal-capture/spectrum-analyzer/full-band.md
-                  - OFDM: user/signal-capture/spectrum-analyzer/ofdm.md
-                  - SCQAM: user/signal-capture/spectrum-analyzer/scqam.md
-          - Operations:
-              - Overview: user/operations/overview.md
-              - Device: user/operations/device.md
-              - DOCSIS 3.0: user/operations/docsis-3-0.md
-              - DOCSIS 3.1: user/operations/docsis-3-1.md
-              - DOCSIS 4.0: user/operations/docsis-4-0.md
-          - Advanced Analysis:
-              - Overview: user/advanced/overview.md
-              - Workbench Layout: user/advanced/workbench-layout.md
-              - RxMER:
-                  - Overview: user/advanced/rxmer/overview.md
-                  - Min / Avg / Max: user/advanced/rxmer/min-avg-max.md
-                  - Heat Map: user/advanced/rxmer/heat-map.md
-                  - Echo Detection 1: user/advanced/rxmer/echo-detection-1.md
-                  - OFDM Profile Performance 1: user/advanced/rxmer/ofdm-profile-performance-1.md
-              - Channel Estimation:
-                  - Overview: user/advanced/channel-estimation/overview.md
-                  - Min / Avg / Max: user/advanced/channel-estimation/min-avg-max.md
-                  - Group Delay: user/advanced/channel-estimation/group-delay.md
-                  - LTE Detection Phase Slope: user/advanced/channel-estimation/lte-detection-phase-slope.md
-                  - Echo Detection IFFT: user/advanced/channel-estimation/echo-detection-ifft.md
-              - OFDMA PreEq:
-                  - Overview: user/advanced/ofdma-preeq/overview.md
-                  - Min / Avg / Max: user/advanced/ofdma-preeq/min-avg-max.md
-                  - Group Delay: user/advanced/ofdma-preeq/group-delay.md
-                  - Echo Detection IFFT: user/advanced/ofdma-preeq/echo-detection-ifft.md
-          - Math:
-              - RxMER Selection Insights: user/math/rxmer-selection-insights.md
-          - UI Preview Gallery:
-              - Overview: user/ui-previews/index.md
-              - Signal Capture: user/ui-previews/signal-capture.md
-              - Spectrum Analyzer: user/ui-previews/spectrum-analyzer.md
-              - Advanced: user/ui-previews/advanced.md
-              - Operations: user/ui-previews/operations.md
-              - Platform: user/ui-previews/platform.md
-          - Files, Health, Settings, And About: user/supporting-pages.md
-          - Input Validation: user/input-validation.md
-          - Troubleshooting: user/troubleshooting.md
-      - Release And Versioning:
-          - Release Helpers: user/release-helpers.md
-          - Release Workflow: user/release-workflow.md
+      - Getting Started: user/getting-started.md
+      - Install And Bootstrap: user/install-and-bootstrap.md
+      - Runtime Configuration: user/runtime-configuration.md
+      - Serving Group RxMER: user/serving-group-rxmer.md
+      - Troubleshooting: user/troubleshooting.md
   - Development:
-      - Daily Workflow:
-          - Workflow: development/workflow.md
-          - CI Workflows: development/ci-workflows.md
-          - Git Helpers: development/git-helpers.md
-          - Logging: development/logging.md
-          - Field Hints: development/field-hints.md
+      - Workflow: development/workflow.md
+      - CI Workflows: development/ci-workflows.md
   - Reference:
-      - System Reference:
-          - Architecture: architecture.md
-          - API Integration: api-integration.md
-          - Environment: env.md
-          - Roadmap: roadmap.md
-  - Planning:
-      - Repository Plan: planning/pypnm-webui-repo-plan.md
+      - Architecture: architecture.md
+      - API Integration: api-integration.md
+      - Environment: env.md

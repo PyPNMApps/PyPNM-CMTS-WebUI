@@ -1,6 +1,6 @@
 # Getting Started
 
-## 1. Install and bootstrap
+## 1. Install
 
 From the repo root:
 
@@ -8,86 +8,47 @@ From the repo root:
 ./install.sh
 ```
 
-If you also want Python docs/release tooling installed into `.venv`:
+If you also want docs/release tooling in `.venv`:
 
 ```bash
 ./install.sh --development
 ```
 
-Details:
-- [Install And Bootstrap](install-and-bootstrap.md)
-- [Local Combined Install](local-combined-install.md)
-
-Optional dependency security check:
-
-```bash
-npm audit
-```
-
-Expected output after a current install is `found 0 vulnerabilities`.
-
-## 2. Configure API endpoint
-
-If `pypnm-docsis` and WebUI are on the same machine and you want the installer
-to configure the local backend automatically, use:
+If WebUI and local backend are on the same machine:
 
 ```bash
 ./install.sh --with-pypnm-docsis
 ```
 
-Combined local-stack details:
-- [Local Combined Install](local-combined-install.md)
-
-Edit `.env` if your PyPNM API is not local default:
-
-```env
-VITE_PYPNM_API_BASE_URL=http://127.0.0.1:8080
-VITE_REQUEST_TIMEOUT_MS=30000
-```
-
-Runtime instance selection details:
-- [Runtime Configuration](runtime-configuration.md)
-
-To edit agent entries and per-agent request defaults interactively:
+## 2. Start the WebUI
 
 ```bash
-pypnm-webui config-menu
+pypnm-cmts-webui serve
 ```
 
-That writes the active local override file:
+Default URL:
+
+- `http://127.0.0.1:4175`
+
+## 3. Configure runtime instances
+
+Use the interactive menu:
+
+```bash
+pypnm-cmts-webui config-menu
+```
+
+This writes machine-local runtime overrides to:
 
 - `public/config/pypnm-instances.local.yaml`
 
-## 3. Start the UI
+## 4. First operator check
 
-```bash
-pypnm-webui serve
-```
+1. open `Health` and confirm the selected CMTS API is reachable
+2. open `Serving Group -> RxMER`
+3. pick serving groups and confirm cable modems populate
+4. verify request JSON using the `Request JSON` popup in the Capture Request header
 
-Open:
-- `http://127.0.0.1:4175`
+See:
 
-## 4. First checks
-
-- Use the top-bar `PyPNM Agent` dropdown to confirm the active instance from the runtime YAML config.
-- Open `Health` page and verify backend connectivity.
-- Open `Single Capture` and confirm the PNM capture pages are using the selected
-  instance defaults.
-- Confirm the `Capture Inputs` chip turns green when the current MAC, IP, and SNMP community can be verified through `/system/sysDescr`.
-- Confirm the execution button stays grayed out until that chip reports
-  `Online`.
-- Open `About` and confirm the loaded WebUI version.
-
-## 5. Common first workflows
-
-- `Single Capture` for one-shot PNM capture flows such as RxMER, histogram, FEC summary, modulation profile, and OFDMA pre-equalization
-- `Advanced -> RxMER`, `Channel Estimation`, or `OFDMA PreEq` for stateful multi-capture, polling, stop, results ZIP, and reusable analysis
-- `Spectrum Analyzer` for friendly, full-band, OFDM, and SCQAM capture flows
-- `Files` for stored capture search, hexdump, JSON inspection, and file analysis
-
-Request forms validate common network fields before submit:
-
-- `MAC Address`
-- `IP Address`
-- `TFTP IPv4`
-- `TFTP IPv6`
+- [Serving Group RxMER](serving-group-rxmer.md)
