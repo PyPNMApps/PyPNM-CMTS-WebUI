@@ -31,7 +31,7 @@ export function CmtsSgRxMerWorkflowPage() {
   return (
     <OperationSeriesWorkflowPage
       title="CMTS SG Downstream OFDM RxMER"
-      subtitle="Run Start -> Status -> Results -> Cancel against /cmts/pnm/sg/ds/ofdm/rxmer."
+      subtitle="Run Start -> Status -> Results -> Cancel. Rules: serving_group.id=[] means all, mac_address=[] means all, channel_ids=[0] means all."
       workflowId="cmts-sg-rxmer"
       steps={[...rxMerWorkflowSteps]}
     />

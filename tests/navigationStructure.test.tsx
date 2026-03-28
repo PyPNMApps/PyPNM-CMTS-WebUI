@@ -16,7 +16,7 @@ vi.mock("@/components/layout/InstanceSelector", () => ({
 }));
 
 describe("navigation structure", () => {
-  it("renders RxMER as the only top-level nav link", () => {
+  it("renders Serving Group, Health, Settings, and About as top-level nav links", () => {
     render(
       <ThemeProvider>
         <MemoryRouter>
@@ -35,10 +35,10 @@ describe("navigation structure", () => {
         return interactive?.textContent?.trim() ?? element.textContent?.trim() ?? null;
       })
       .filter(Boolean);
-    expect(navLabels).toEqual(["RxMER"]);
+    expect(navLabels).toEqual(["Serving Group", "Health", "Settings", "About"]);
   });
 
-  it("removes legacy top-level sections while in rxmer-only mode", () => {
+  it("removes legacy top-level sections while keeping serving-group shell", () => {
     render(
       <ThemeProvider>
         <MemoryRouter>
@@ -57,11 +57,9 @@ describe("navigation structure", () => {
         return interactive?.textContent?.trim() ?? element.textContent?.trim() ?? null;
       })
       .filter(Boolean);
-    expect(navLabels).toContain("RxMER");
+    expect(navLabels).toContain("Serving Group");
+    expect(navLabels).toContain("Health");
     expect(navLabels).not.toContain("Advanced");
-    expect(navLabels).not.toContain("Health");
-    expect(navLabels).not.toContain("Settings");
-    expect(navLabels).not.toContain("About");
     expect(navLabels).not.toContain("Operations");
     expect(navLabels).not.toContain("Files");
     expect(navLabels).not.toContain("Spectrum Analyzer");

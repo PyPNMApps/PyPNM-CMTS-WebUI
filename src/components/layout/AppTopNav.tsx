@@ -4,7 +4,10 @@ import { NavLink } from "react-router-dom";
 import { InstanceSelector } from "@/components/layout/InstanceSelector";
 
 const links = [
-  ["/advanced/rxmer", "RxMER"],
+  ["/serving-group/rxmer", "Serving Group"],
+  ["/health", "Health"],
+  ["/settings", "Settings"],
+  ["/about", "About"],
 ] as const;
 
 function PyPnmWebUiIcon() {
@@ -33,7 +36,7 @@ export function AppTopNav() {
 
   return (
     <header className="top-nav">
-      <NavLink to="/advanced/rxmer" end className="top-nav-brand" aria-label="PyPNM CMTS WebUI home">
+      <NavLink to="/serving-group/rxmer" end className="top-nav-brand" aria-label="PyPNM CMTS WebUI home">
         <PyPnmWebUiIcon />
         <h1>PyPNM CMTS WebUI</h1>
       </NavLink>

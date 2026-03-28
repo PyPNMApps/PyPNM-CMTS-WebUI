@@ -85,16 +85,16 @@ const cmtsStartCaptureRequestExample = {
       mac_address: [],
       pnm_parameters: {
         tftp: {
-          ipv4: null,
-          ipv6: null,
+          ipv4: "string",
+          ipv6: "string",
         },
         capture: {
-          channel_ids: [],
+          channel_ids: [0],
         },
       },
       snmp: {
         snmpV2C: {
-          community: null,
+          community: "string",
         },
       },
     },
