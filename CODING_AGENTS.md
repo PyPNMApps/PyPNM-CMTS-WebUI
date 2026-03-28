@@ -191,3 +191,7 @@
 - Do not assume endpoint response shapes beyond documented contracts.
 - Do not hardcode endpoint-specific behavior into shared generic components.
 - Preserve room for future auth/RBAC integration without premature complexity.
+- Work in this repo (`PyPNM-CMTS-WebUI`) by default.
+- Do not make changes in other repositories unless the user explicitly asks.
+- If a task appears to require touching another repository, ask for approval
+  first before making any cross-repo changes.

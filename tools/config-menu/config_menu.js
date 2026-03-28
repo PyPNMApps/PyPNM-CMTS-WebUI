@@ -17,36 +17,7 @@ const DEFAULT_CONFIG = {
       level: "INFO",
     },
   },
-  instances: [
-    {
-      id: "default",
-      label: "Default",
-      base_url: "http://127.0.0.1:8080",
-      enabled: true,
-      tags: ["env"],
-      capabilities: ["health", "analysis"],
-      polling: {
-        enabled: true,
-        interval_ms: 5000,
-      },
-      request_defaults: {
-        cable_modem: {
-          mac_address: "",
-          ip_address: "",
-        },
-        tftp: {
-          ipv4: "",
-          ipv6: "",
-        },
-        capture: {
-          channel_ids: [],
-        },
-        snmp: {
-          rw_community: "private",
-        },
-      },
-    },
-  ],
+  instances: [],
 };
 const RESERVED_LOCAL_AGENT_ID = "local-pypnm-agent";
 const RESERVED_LOCAL_AGENT_TAG = "combined-install";
@@ -66,6 +37,17 @@ function normalizeLogLevel(value) {
     default:
       return "INFO";
   }
+}
+
+function normalizeHealthPath(value, fallback = "/health") {
+  const raw = typeof value === "string" ? value.trim() : "";
+  if (raw === "") {
+    return fallback;
+  }
+  if (raw.startsWith("/")) {
+    return raw;
+  }
+  return `/${raw}`;
 }
 
 export function isReservedLocalAgentInstance(instance) {
@@ -280,19 +262,17 @@ export function normalizeConfig(raw) {
         ? raw.defaults.request_timeout_ms
         : base.defaults.request_timeout_ms,
     health_path:
-      typeof raw?.defaults?.health_path === "string" && raw.defaults.health_path.trim() !== ""
-        ? raw.defaults.health_path.trim()
-        : base.defaults.health_path,
+      normalizeHealthPath(raw?.defaults?.health_path, base.defaults.health_path),
     logging: {
       level: normalizeLogLevel(raw?.defaults?.logging?.level ?? base.defaults.logging.level),
     },
   };
 
-  const instances = Array.isArray(raw?.instances) && raw.instances.length > 0
+  const instances = Array.isArray(raw?.instances)
     ? raw.instances.map((instance) => normalizeInstance(instance, defaults))
     : base.instances.map((instance) => normalizeInstance(instance, defaults));
 
-  if (!instances.some((instance) => instance.id === defaults.selected_instance)) {
+  if (instances.length > 0 && !instances.some((instance) => instance.id === defaults.selected_instance)) {
     defaults.selected_instance = instances[0].id;
   }
 
@@ -301,6 +281,55 @@ export function normalizeConfig(raw) {
     defaults,
     instances,
   };
+}
+
+function validateConfig(config) {
+  if (!config || typeof config !== "object") {
+    return "Config is missing or invalid.";
+  }
+
+  if (!Number.isInteger(config?.defaults?.poll_interval_ms) || config.defaults.poll_interval_ms <= 0) {
+    return "defaults.poll_interval_ms must be a positive integer.";
+  }
+
+  if (!Number.isInteger(config?.defaults?.request_timeout_ms) || config.defaults.request_timeout_ms <= 0) {
+    return "defaults.request_timeout_ms must be a positive integer.";
+  }
+
+  const normalizedHealthPath = normalizeHealthPath(config?.defaults?.health_path, "/health");
+  if (typeof config?.defaults?.health_path !== "string" || config.defaults.health_path !== normalizedHealthPath) {
+    return "defaults.health_path must start with '/'.";
+  }
+
+  if (!Array.isArray(config?.instances)) {
+    return "instances must be an array.";
+  }
+
+  const ids = new Set();
+  for (const instance of config.instances) {
+    const id = typeof instance?.id === "string" ? instance.id.trim() : "";
+    if (id === "") {
+      return "Every instance must have a non-empty id.";
+    }
+    if (ids.has(id)) {
+      return `Duplicate instance id found: ${id}`;
+    }
+    ids.add(id);
+
+    const url = tryNormalizeBaseUrl(instance?.base_url);
+    if (!url.ok) {
+      return `Invalid base_url for instance '${id}': ${url.error}`;
+    }
+  }
+
+  const selectedId = typeof config?.defaults?.selected_instance === "string"
+    ? config.defaults.selected_instance.trim()
+    : "";
+  if (config.instances.length > 0 && (selectedId === "" || !ids.has(selectedId))) {
+    return "defaults.selected_instance must reference an existing instance id.";
+  }
+
+  return null;
 }
 
 function loadConfig(configPath, fallbackPath) {
@@ -321,6 +350,10 @@ function backupPathFor(configPath) {
 }
 
 export function saveConfig(configPath, config) {
+  const validationError = validateConfig(config);
+  if (validationError) {
+    throw new Error(validationError);
+  }
   fs.mkdirSync(path.dirname(configPath), { recursive: true });
   const nextContent = stringify(config, { indent: 2 });
   if (fs.existsSync(configPath)) {
@@ -351,6 +384,55 @@ export function ensureLocalRuntimeConfig(configPath, fallbackPath) {
 function printConfig(configPath, config) {
   process.stdout.write(`\nConfig Path: ${configPath}\n`);
   process.stdout.write(`${stringify(config, { indent: 2 })}\n`);
+}
+
+export function buildRuntimeConfigSchemaExample() {
+  return {
+    version: 1,
+    defaults: {
+      selected_instance: "pypnm-agent-1",
+      poll_interval_ms: 5000,
+      request_timeout_ms: 30000,
+      health_path: "/health",
+      logging: {
+        level: "INFO",
+      },
+    },
+    instances: [],
+  };
+}
+
+function printRuntimeConfigSchema() {
+  process.stdout.write("\nRuntime Config Schema (Minimal)\n===============================\n");
+  process.stdout.write(`${stringify(buildRuntimeConfigSchemaExample(), { indent: 2 })}\n`);
+  process.stdout.write(
+    [
+      "Optional instance entry shape:",
+      "- id: pypnm-agent-1",
+      "  label: pypnm-agent-1",
+      "  base_url: http://127.0.0.1:8000",
+      "  enabled: true",
+      "  tags: []",
+      "  capabilities:",
+      "    - health",
+      "    - analysis",
+      "  polling:",
+      "    enabled: true",
+      "    interval_ms: 5000",
+      "  request_defaults:",
+      "    cable_modem:",
+      "      mac_address: \"\"",
+      "      ip_address: \"\"",
+      "    tftp:",
+      "      ipv4: \"\"",
+      "      ipv6: \"\"",
+      "    capture:",
+      "      channel_ids: []",
+      "    snmp:",
+      "      rw_community: private",
+      "",
+    ].join("\n"),
+  );
 }
 
 function slugifyId(value) {
@@ -423,6 +505,10 @@ async function promptBaseUrl(rl, current) {
 }
 
 export async function promptSelectedInstance(rl, instances, currentInstanceId) {
+  if (!Array.isArray(instances) || instances.length === 0) {
+    process.stdout.write("No configured agents available; keeping current selected_instance.\n");
+    return currentInstanceId;
+  }
   process.stdout.write("\nAvailable selected_instance values:\n");
   instances.forEach((instance, index) => {
     process.stdout.write(`${index + 1}) ${instance.id} | ${instance.label}\n`);
@@ -457,10 +543,17 @@ async function editRuntimeDefaults(rl, config) {
   process.stdout.write("\nRuntime Defaults\n================\n");
   config.defaults.poll_interval_ms = await promptNumber(rl, "Default poll interval ms", config.defaults.poll_interval_ms);
   config.defaults.request_timeout_ms = await promptNumber(rl, "Request timeout ms", config.defaults.request_timeout_ms);
-  config.defaults.health_path = await promptLine(rl, "Health path", config.defaults.health_path);
+  config.defaults.health_path = normalizeHealthPath(
+    await promptLine(rl, "Health path", config.defaults.health_path),
+    config.defaults.health_path,
+  );
   config.defaults.logging.level = await promptLine(rl, "Logging level (DEBUG/INFO/WARN/ERROR/OFF)", config.defaults.logging.level);
   config.defaults.logging.level = normalizeLogLevel(config.defaults.logging.level);
-  config.defaults.selected_instance = await promptSelectedInstance(rl, config.instances, config.defaults.selected_instance);
+  if (config.instances.length === 0) {
+    process.stdout.write("No configured agents found. Add an agent before changing selected_instance.\n");
+  } else {
+    config.defaults.selected_instance = await promptSelectedInstance(rl, config.instances, config.defaults.selected_instance);
+  }
 }
 
 async function addAgent(rl, config) {
@@ -562,6 +655,10 @@ async function editAgent(rl, config) {
       );
       return;
     }
+    if (nextId !== priorId && config.instances.some((candidate) => candidate.id === nextId)) {
+      process.stdout.write(`Agent id ${nextId} already exists. Choose a unique id.\n`);
+      return;
+    }
     instance.id = nextId;
   }
   instance.base_url = await promptBaseUrl(rl, instance.base_url);
@@ -646,6 +743,7 @@ async function manageAgents(rl, config, configPath) {
         "1) Add agent",
         "2) Edit agent",
         "3) Delete agent",
+        "s) Show local runtime YAML schema",
         "p) Print current YAML",
         "b) Back",
       ].join("\n") + "\n",
@@ -657,24 +755,40 @@ async function manageAgents(rl, config, configPath) {
     }
     if (choice === "1") {
       await addAgent(rl, config);
-      saveConfig(configPath, config);
-      process.stdout.write(`Saved ${configPath}\n`);
+      try {
+        saveConfig(configPath, config);
+        process.stdout.write(`Saved ${configPath}\n`);
+      } catch (error) {
+        process.stdout.write(`Config validation failed: ${error instanceof Error ? error.message : String(error)}\n`);
+      }
       continue;
     }
     if (choice === "2") {
       await editAgent(rl, config);
-      saveConfig(configPath, config);
-      process.stdout.write(`Saved ${configPath}\n`);
+      try {
+        saveConfig(configPath, config);
+        process.stdout.write(`Saved ${configPath}\n`);
+      } catch (error) {
+        process.stdout.write(`Config validation failed: ${error instanceof Error ? error.message : String(error)}\n`);
+      }
       continue;
     }
     if (choice === "3") {
       await deleteAgent(rl, config);
-      saveConfig(configPath, config);
-      process.stdout.write(`Saved ${configPath}\n`);
+      try {
+        saveConfig(configPath, config);
+        process.stdout.write(`Saved ${configPath}\n`);
+      } catch (error) {
+        process.stdout.write(`Config validation failed: ${error instanceof Error ? error.message : String(error)}\n`);
+      }
       continue;
     }
     if (choice === "p") {
       printConfig("public/config/pypnm-instances.local.yaml", config);
+      continue;
+    }
+    if (choice === "s") {
+      printRuntimeConfigSchema();
       continue;
     }
     process.stdout.write("Invalid selection.\n");
@@ -704,6 +818,7 @@ export async function runConfigMenu(metaUrl) {
           "=======================",
           "1) Edit runtime defaults",
           "2) Manage PyPNM agents",
+          "s) Show local runtime YAML schema",
           "p) Print current pypnm-instances.local.yaml",
           "q) Quit",
         ].join("\n") + "\n",
@@ -717,8 +832,12 @@ export async function runConfigMenu(metaUrl) {
       }
       if (choice === "1") {
         await editRuntimeDefaults(rl, config);
-        saveConfig(configPath, config);
-        process.stdout.write(`Saved ${configPath}\n`);
+        try {
+          saveConfig(configPath, config);
+          process.stdout.write(`Saved ${configPath}\n`);
+        } catch (error) {
+          process.stdout.write(`Config validation failed: ${error instanceof Error ? error.message : String(error)}\n`);
+        }
         continue;
       }
       if (choice === "2") {
@@ -727,6 +846,10 @@ export async function runConfigMenu(metaUrl) {
       }
       if (choice === "p") {
         printConfig(configPath, config);
+        continue;
+      }
+      if (choice === "s") {
+        printRuntimeConfigSchema();
         continue;
       }
       process.stdout.write("Invalid selection.\n");

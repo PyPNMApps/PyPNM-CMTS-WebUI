@@ -5,6 +5,7 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 
 import {
+  buildRuntimeConfigSchemaExample,
   ensureLocalRuntimeConfig,
   hasReservedLocalAgent,
   isReservedLocalAgentInstance,
@@ -17,6 +18,22 @@ import {
 } from "../tools/config-menu/config_menu.js";
 
 describe("config_menu normalization", () => {
+  it("builds the minimal local runtime schema example", () => {
+    expect(buildRuntimeConfigSchemaExample()).toEqual({
+      version: 1,
+      defaults: {
+        selected_instance: "pypnm-agent-1",
+        poll_interval_ms: 5000,
+        request_timeout_ms: 30000,
+        health_path: "/health",
+        logging: {
+          level: "INFO",
+        },
+      },
+      instances: [],
+    });
+  });
+
   it("keeps per-instance request defaults and selected_instance", () => {
     const config = normalizeConfig({
       version: 1,
@@ -141,6 +158,18 @@ describe("config_menu normalization", () => {
     expect(config.instances[0]?.base_url).toBe("http://172.19.8.28:8000");
   });
 
+  it("normalizes health_path to always include a leading slash", () => {
+    const config = normalizeConfig({
+      defaults: {
+        selected_instance: "lab-local",
+        health_path: "healthz",
+      },
+      instances: [{ id: "lab-local", label: "Lab Local", base_url: "http://127.0.0.1:8080" }],
+    });
+
+    expect(config.defaults.health_path).toBe("/healthz");
+  });
+
   it("falls back for invalid base_url values", () => {
     const config = normalizeConfig({
       defaults: { selected_instance: "lab-local" },
@@ -190,6 +219,22 @@ describe("config_menu normalization", () => {
     expect(fs.readFileSync(path.join(tempDir, backupFiles[0]), "utf8")).toContain("selected_instance: lab-local");
   });
 
+  it("rejects saving config with duplicate agent ids", () => {
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "pypnm-webui-config-menu-invalid-"));
+    const configPath = path.join(tempDir, "pypnm-instances.yaml");
+    const badConfig = normalizeConfig({
+      defaults: {
+        selected_instance: "lab-local",
+      },
+      instances: [
+        { id: "lab-local", label: "Lab Local", base_url: "http://127.0.0.1:8080" },
+        { id: "lab-local", label: "Lab Local 2", base_url: "http://127.0.0.1:8081" },
+      ],
+    });
+
+    expect(() => saveConfig(configPath, badConfig)).toThrow("Duplicate instance id found: lab-local");
+  });
+
   it("auto generates a local runtime yaml when none exists", () => {
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "pypnm-webui-runtime-config-"));
     const localConfigPath = path.join(tempDir, "pypnm-instances.local.yaml");
@@ -217,6 +262,23 @@ describe("config_menu normalization", () => {
     expect(generated.config.defaults.selected_instance).toBe("lab-local");
     expect(fs.readFileSync(localConfigPath, "utf8")).toContain("selected_instance: lab-local");
     expect(fs.readFileSync(localConfigPath, "utf8")).toContain("label: Lab Local");
+  });
+
+  it("preserves a minimal template with empty instances", () => {
+    const config = normalizeConfig({
+      version: 1,
+      defaults: {
+        selected_instance: "pypnm-agent-1",
+        poll_interval_ms: 5000,
+        request_timeout_ms: 30000,
+        health_path: "/health",
+        logging: { level: "INFO" },
+      },
+      instances: [],
+    });
+
+    expect(config.instances).toEqual([]);
+    expect(config.defaults.selected_instance).toBe("pypnm-agent-1");
   });
 
   it("detects reserved local-pypnm-agent entries only when combined-install tagged", () => {
