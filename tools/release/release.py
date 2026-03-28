@@ -179,26 +179,6 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--skip-test", action="store_true", help="Skip npm run test")
     parser.add_argument("--skip-build", action="store_true", help="Skip npm run build")
     parser.add_argument(
-        "--with-docs-previews",
-        action="store_true",
-        help="Include npm run docs:capture-ui-previews in release flow (default: off)",
-    )
-    parser.add_argument(
-        "--skip-docs-previews",
-        action="store_true",
-        help="Alias for not running docs UI previews (default behavior)",
-    )
-    parser.add_argument(
-        "--with-live-endpoint-examples",
-        action="store_true",
-        help="Include npm run docs:capture-live-endpoint-examples in release flow (default: off)",
-    )
-    parser.add_argument(
-        "--skip-live-endpoint-examples",
-        action="store_true",
-        help="Alias for not running live endpoint examples (default behavior)",
-    )
-    parser.add_argument(
         "--skip-sanitize-runtime-config",
         action="store_true",
         help="Skip sanitizing public/config/pypnm-instances.yaml and generating the release runtime-config artifact",
@@ -212,9 +192,6 @@ def main() -> None:
     args = build_parser().parse_args()
     _print_banner()
     _init_release_logging()
-
-    if args.with_live_endpoint_examples and args.skip_live_endpoint_examples:
-        raise RuntimeError("Cannot use --with-live-endpoint-examples and --skip-live-endpoint-examples together.")
 
     if not args.allow_dirty:
         try:
@@ -241,16 +218,6 @@ def main() -> None:
     _run_step("npm-lint", _npm_cmd("lint"), enabled=not args.skip_lint)
     _run_step("npm-test", _npm_cmd("test"), enabled=not args.skip_test)
     _run_step("npm-build", _npm_cmd("build"), enabled=not args.skip_build)
-    _run_step(
-        "npm-live-endpoint-examples",
-        _npm_cmd("docs:capture-live-endpoint-examples"),
-        enabled=args.with_live_endpoint_examples and not args.skip_live_endpoint_examples,
-    )
-    _run_step(
-        "npm-docs-previews",
-        _npm_cmd("docs:capture-ui-previews"),
-        enabled=args.with_docs_previews and not args.skip_docs_previews,
-    )
     _run_step(
         "sanitize-runtime-config",
         [sys.executable, str(SANITIZE_RUNTIME_CONFIG_SCRIPT), "--rewrite-input"],

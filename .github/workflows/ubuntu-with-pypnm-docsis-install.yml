@@ -32,16 +32,16 @@ jobs:
           - "3.13"
 
     steps:
-      - name: Checkout PyPNM-WebUI
+      - name: Checkout PyPNM-CMTS-WebUI
         uses: actions/checkout@v4
         with:
-          path: PyPNM-WebUI
+          path: PyPNM-CMTS-WebUI
 
-      - name: Checkout PyPNM
+      - name: Checkout PyPNM-CMTS
         uses: actions/checkout@v4
         with:
-          repository: PyPNMApps/PyPNM
-          path: PyPNM
+          repository: PyPNMApps/PyPNM-CMTS
+          path: PyPNM-CMTS
 
       - name: Set Up Python
         uses: actions/setup-python@v5
@@ -49,16 +49,16 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Make CI Helper Executable
-        working-directory: PyPNM-WebUI
+        working-directory: PyPNM-CMTS-WebUI
         run: |
           chmod +x tools/install/ci-verify-with-pypnm-docsis.sh
           chmod +x tools/install/with-pypnm-docsis.sh
           chmod +x tools/install/start-local-stack.sh
 
       - name: Verify Combined Install
-        working-directory: PyPNM-WebUI
+        working-directory: PyPNM-CMTS-WebUI
         run: |
-          ./tools/install/ci-verify-with-pypnm-docsis.sh --pypnm-path ../PyPNM
+          ./tools/install/ci-verify-with-pypnm-docsis.sh --pypnm-path ../PyPNM-CMTS
 
       - name: Dump Combined Stack Logs On Failure
         if: failure()

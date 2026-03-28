@@ -16,7 +16,7 @@ permissions:
 
 jobs:
   integration:
-    name: Ubuntu ${{ matrix.os }} · Live PyPNM Health
+    name: Ubuntu ${{ matrix.os }} · Python ${{ matrix.python-version }} · Live CMTS Health
     runs-on: ${{ matrix.os }}
 
     strategy:
@@ -25,40 +25,35 @@ jobs:
         os:
           - ubuntu-22.04
           - ubuntu-24.04
+        python-version:
+          - "3.10"
+          - "3.11"
+          - "3.12"
+          - "3.13"
 
     steps:
-      - name: Checkout PyPNM-WebUI
+      - name: Checkout PyPNM-CMTS-WebUI
         uses: actions/checkout@v4
-        with:
-          path: PyPNM-WebUI
-
-      - name: Checkout PyPNM
-        uses: actions/checkout@v4
-        with:
-          repository: PyPNMApps/PyPNM
-          path: PyPNM
 
       - name: Set Up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: ${{ matrix.python-version }}
           cache: "pip"
           cache-dependency-path: |
-            PyPNM/pyproject.toml
+            requirements-docs.txt
 
-      - name: Install PyPNM
-        working-directory: PyPNM
+      - name: Install pypnm-docsis-cmts
         run: |
           python -m pip install --upgrade pip setuptools wheel
-          python -m pip install -e .
+          python -m pip install pypnm-docsis-cmts
 
-      - name: Start PyPNM
-        working-directory: PyPNM
+      - name: Start PyPNM-CMTS
         run: |
-          python -m pypnm.cli serve --host 127.0.0.1 --port 8000 > /tmp/pypnm.log 2>&1 &
+          pypnm serve --host 127.0.0.1 --port 8000 > /tmp/pypnm.log 2>&1 &
           echo $! > /tmp/pypnm.pid
 
-      - name: Wait For PyPNM Health
+      - name: Wait For CMTS Health
         run: |
           for attempt in $(seq 1 30); do
             if curl -fsS http://127.0.0.1:8000/health; then
@@ -66,7 +61,7 @@ jobs:
             fi
             sleep 2
           done
-          echo "PyPNM failed to become healthy"
+          echo "PyPNM-CMTS failed to become healthy"
           cat /tmp/pypnm.log
           exit 1
 
@@ -75,14 +70,12 @@ jobs:
         with:
           node-version: "22"
           cache: "npm"
-          cache-dependency-path: PyPNM-WebUI/package-lock.json
+          cache-dependency-path: package-lock.json
 
       - name: Install WebUI Dependencies
-        working-directory: PyPNM-WebUI
         run: npm ci
 
       - name: Create CI Env
-        working-directory: PyPNM-WebUI
         run: |
           cat > .env <<'EOF'
           VITE_PYPNM_API_BASE_URL=http://127.0.0.1:8000
@@ -90,15 +83,12 @@ jobs:
           EOF
 
       - name: Run WebUI Lint
-        working-directory: PyPNM-WebUI
         run: npm run lint
 
       - name: Run WebUI Unit Tests
-        working-directory: PyPNM-WebUI
         run: npm run test
 
       - name: Run Live PyPNM Health Integration Test
-        working-directory: PyPNM-WebUI
         env:
           RUN_LIVE_PYPNM_HEALTH: "1"
           PYPNM_LIVE_BASE_URL: "http://127.0.0.1:8000"
@@ -106,15 +96,14 @@ jobs:
         run: npm run test:integration
 
       - name: Run WebUI Build
-        working-directory: PyPNM-WebUI
         run: npm run build
 
-      - name: Dump PyPNM Logs On Failure
+      - name: Dump Backend Logs On Failure
         if: failure()
         run: |
           cat /tmp/pypnm.log || true
 
-      - name: Stop PyPNM
+      - name: Stop PyPNM-CMTS
         if: always()
         run: |
           if [ -f /tmp/pypnm.pid ]; then
