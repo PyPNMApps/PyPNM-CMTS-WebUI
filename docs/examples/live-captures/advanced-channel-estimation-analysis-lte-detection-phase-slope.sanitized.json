@@ -1,0 +1,40 @@
+{
+  "status": 0,
+  "message": "Analysis LTE_DETECTION_PHASE_SLOPE completed for group 53eefec79db14108",
+  "device": {
+    "mac_address": "00:00:00:3e:85:4c",
+    "system_description": {
+      "HW_REV": "1.0",
+      "VENDOR": "LANCity",
+      "BOOTR": "NONE",
+      "SW_REV": "1.0.0",
+      "MODEL": "LCPET-3",
+      "is_empty": false
+    }
+  },
+  "data": {
+    "analysis_type": "LTE_DETECTION_PHASE_SLOPE",
+    "results": [
+      {
+        "channel_id": 160,
+        "anomalies": [],
+        "threshold": 1e-9,
+        "bin_widths": [
+          1000000,
+          500000,
+          100000
+        ]
+      },
+      {
+        "channel_id": 159,
+        "anomalies": [],
+        "threshold": 1e-9,
+        "bin_widths": [
+          1000000,
+          500000,
+          100000
+        ]
+      }
+    ]
+  }
+}

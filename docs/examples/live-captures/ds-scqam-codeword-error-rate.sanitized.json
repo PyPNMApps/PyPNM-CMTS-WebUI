@@ -1,0 +1,401 @@
+{
+  "status": 0,
+  "message": "Successfully retrieved codeword error rate",
+  "device": {
+    "mac_address": "00:00:00:3e:85:4c",
+    "system_description": {
+      "HW_REV": "1.0",
+      "VENDOR": "LANCity",
+      "BOOTR": "NONE",
+      "SW_REV": "1.0.0",
+      "MODEL": "LCPET-3",
+      "is_empty": false
+    }
+  },
+  "results": [
+    {
+      "index": 3,
+      "channel_id": 1,
+      "codeword_totals": {
+        "total_codewords": 1461786,
+        "total_errors": 0,
+        "time_elapsed": 5,
+        "error_rate": 0,
+        "codewords_per_second": 292357.2,
+        "errors_per_second": 0
+      }
+    },
+    {
+      "index": 50,
+      "channel_id": 32,
+      "codeword_totals": {
+        "total_codewords": 1461802,
+        "total_errors": 0,
+        "time_elapsed": 5,
+        "error_rate": 0,
+        "codewords_per_second": 292360.4,
+        "errors_per_second": 0
+      }
+    },
+    {
+      "index": 51,
+      "channel_id": 31,
+      "codeword_totals": {
+        "total_codewords": 517394,
+        "total_errors": 0,
+        "time_elapsed": 5,
+        "error_rate": 0,
+        "codewords_per_second": 103478.8,
+        "errors_per_second": 0
+      }
+    },
+    {
+      "index": 52,
+      "channel_id": 30,
+      "codeword_totals": {
+        "total_codewords": 281292,
+        "total_errors": 0,
+        "time_elapsed": 5,
+        "error_rate": 0,
+        "codewords_per_second": 56258.4,
+        "errors_per_second": 0
+      }
+    },
+    {
+      "index": 53,
+      "channel_id": 29,
+      "codeword_totals": {
+        "total_codewords": 165968,
+        "total_errors": 0,
+        "time_elapsed": 5,
+        "error_rate": 0,
+        "codewords_per_second": 33193.6,
+        "errors_per_second": 0
+      }
+    },
+    {
+      "index": 54,
+      "channel_id": 28,
+      "codeword_totals": {
+        "total_codewords": 165965,
+        "total_errors": 0,
+        "time_elapsed": 5,
+        "error_rate": 0,
+        "codewords_per_second": 33193,
+        "errors_per_second": 0
+      }
+    },
+    {
+      "index": 55,
+      "channel_id": 27,
+      "codeword_totals": {
+        "total_codewords": 165965,
+        "total_errors": 0,
+        "time_elapsed": 5,
+        "error_rate": 0,
+        "codewords_per_second": 33193,
+        "errors_per_second": 0
+      }
+    },
+    {
+      "index": 56,
+      "channel_id": 26,
+      "codeword_totals": {
+        "total_codewords": 165965,
+        "total_errors": 0,
+        "time_elapsed": 5,
+        "error_rate": 0,
+        "codewords_per_second": 33193,
+        "errors_per_second": 0
+      }
+    },
+    {
+      "index": 57,
+      "channel_id": 25,
+      "codeword_totals": {
+        "total_codewords": 301767,
+        "total_errors": 0,
+        "time_elapsed": 5,
+        "error_rate": 0,
+        "codewords_per_second": 60353.4,
+        "errors_per_second": 0
+      }
+    },
+    {
+      "index": 58,
+      "channel_id": 24,
+      "codeword_totals": {
+        "total_codewords": 316545,
+        "total_errors": 0,
+        "time_elapsed": 5,
+        "error_rate": 0,
+        "codewords_per_second": 63309,
+        "errors_per_second": 0
+      }
+    },
+    {
+      "index": 59,
+      "channel_id": 23,
+      "codeword_totals": {
+        "total_codewords": 316545,
+        "total_errors": 0,
+        "time_elapsed": 5,
+        "error_rate": 0,
+        "codewords_per_second": 63309,
+        "errors_per_second": 0
+      }
+    },
+    {
+      "index": 60,
+      "channel_id": 22,
+      "codeword_totals": {
+        "total_codewords": 316545,
+        "total_errors": 0,
+        "time_elapsed": 5,
+        "error_rate": 0,
+        "codewords_per_second": 63309,
+        "errors_per_second": 0
+      }
+    },
+    {
+      "index": 61,
+      "channel_id": 21,
+      "codeword_totals": {
+        "total_codewords": 316547,
+        "total_errors": 0,
+        "time_elapsed": 5,
+        "error_rate": 0,
+        "codewords_per_second": 63309.4,
+        "errors_per_second": 0
+      }
+    },
+    {
+      "index": 62,
+      "channel_id": 20,
+      "codeword_totals": {
+        "total_codewords": 315502,
+        "total_errors": 0,
+        "time_elapsed": 5,
+        "error_rate": 0,
+        "codewords_per_second": 63100.4,
+        "errors_per_second": 0
+      }
+    },
+    {
+      "index": 63,
+      "channel_id": 19,
+      "codeword_totals": {
+        "total_codewords": 320678,
+        "total_errors": 0,
+        "time_elapsed": 5,
+        "error_rate": 0,
+        "codewords_per_second": 64135.6,
+        "errors_per_second": 0
+      }
+    },
+    {
+      "index": 64,
+      "channel_id": 18,
+      "codeword_totals": {
+        "total_codewords": 320676,
+        "total_errors": 0,
+        "time_elapsed": 5,
+        "error_rate": 0,
+        "codewords_per_second": 64135.2,
+        "errors_per_second": 0
+      }
+    },
+    {
+      "index": 65,
+      "channel_id": 17,
+      "codeword_totals": {
+        "total_codewords": 320681,
+        "total_errors": 0,
+        "time_elapsed": 5,
+        "error_rate": 0,
+        "codewords_per_second": 64136.2,
+        "errors_per_second": 0
+      }
+    },
+    {
+      "index": 66,
+      "channel_id": 16,
+      "codeword_totals": {
+        "total_codewords": 320681,
+        "total_errors": 0,
+        "time_elapsed": 5,
+        "error_rate": 0,
+        "codewords_per_second": 64136.2,
+        "errors_per_second": 0
+      }
+    },
+    {
+      "index": 67,
+      "channel_id": 15,
+      "codeword_totals": {
+        "total_codewords": 341703,
+        "total_errors": 0,
+        "time_elapsed": 5,
+        "error_rate": 0,
+        "codewords_per_second": 68340.6,
+        "errors_per_second": 0
+      }
+    },
+    {
+      "index": 68,
+      "channel_id": 14,
+      "codeword_totals": {
+        "total_codewords": 332481,
+        "total_errors": 0,
+        "time_elapsed": 5,
+        "error_rate": 0,
+        "codewords_per_second": 66496.2,
+        "errors_per_second": 0
+      }
+    },
+    {
+      "index": 69,
+      "channel_id": 13,
+      "codeword_totals": {
+        "total_codewords": 332480,
+        "total_errors": 0,
+        "time_elapsed": 5,
+        "error_rate": 0,
+        "codewords_per_second": 66496,
+        "errors_per_second": 0
+      }
+    },
+    {
+      "index": 70,
+      "channel_id": 12,
+      "codeword_totals": {
+        "total_codewords": 332490,
+        "total_errors": 0,
+        "time_elapsed": 5,
+        "error_rate": 0,
+        "codewords_per_second": 66498,
+        "errors_per_second": 0
+      }
+    },
+    {
+      "index": 71,
+      "channel_id": 11,
+      "codeword_totals": {
+        "total_codewords": 332485,
+        "total_errors": 0,
+        "time_elapsed": 5,
+        "error_rate": 0,
+        "codewords_per_second": 66497,
+        "errors_per_second": 0
+      }
+    },
+    {
+      "index": 72,
+      "channel_id": 10,
+      "codeword_totals": {
+        "total_codewords": 299530,
+        "total_errors": 0,
+        "time_elapsed": 5,
+        "error_rate": 0,
+        "codewords_per_second": 59906,
+        "errors_per_second": 0
+      }
+    },
+    {
+      "index": 73,
+      "channel_id": 9,
+      "codeword_totals": {
+        "total_codewords": 304405,
+        "total_errors": 0,
+        "time_elapsed": 5,
+        "error_rate": 0,
+        "codewords_per_second": 60881,
+        "errors_per_second": 0
+      }
+    },
+    {
+      "index": 74,
+      "channel_id": 8,
+      "codeword_totals": {
+        "total_codewords": 304405,
+        "total_errors": 0,
+        "time_elapsed": 5,
+        "error_rate": 0,
+        "codewords_per_second": 60881,
+        "errors_per_second": 0
+      }
+    },
+    {
+      "index": 75,
+      "channel_id": 7,
+      "codeword_totals": {
+        "total_codewords": 304405,
+        "total_errors": 0,
+        "time_elapsed": 5,
+        "error_rate": 0,
+        "codewords_per_second": 60881,
+        "errors_per_second": 0
+      }
+    },
+    {
+      "index": 76,
+      "channel_id": 6,
+      "codeword_totals": {
+        "total_codewords": 304407,
+        "total_errors": 0,
+        "time_elapsed": 5,
+        "error_rate": 0,
+        "codewords_per_second": 60881.4,
+        "errors_per_second": 0
+      }
+    },
+    {
+      "index": 77,
+      "channel_id": 5,
+      "codeword_totals": {
+        "total_codewords": 316605,
+        "total_errors": 0,
+        "time_elapsed": 5,
+        "error_rate": 0,
+        "codewords_per_second": 63321,
+        "errors_per_second": 0
+      }
+    },
+    {
+      "index": 78,
+      "channel_id": 4,
+      "codeword_totals": {
+        "total_codewords": 317983,
+        "total_errors": 0,
+        "time_elapsed": 5,
+        "error_rate": 0,
+        "codewords_per_second": 63596.6,
+        "errors_per_second": 0
+      }
+    },
+    {
+      "index": 79,
+      "channel_id": 3,
+      "codeword_totals": {
+        "total_codewords": 317978,
+        "total_errors": 0,
+        "time_elapsed": 5,
+        "error_rate": 0,
+        "codewords_per_second": 63595.6,
+        "errors_per_second": 0
+      }
+    },
+    {
+      "index": 112,
+      "channel_id": 2,
+      "codeword_totals": {
+        "total_codewords": 317978,
+        "total_errors": 0,
+        "time_elapsed": 5,
+        "error_rate": 0,
+        "codewords_per_second": 63595.6,
+        "errors_per_second": 0
+      }
+    }
+  ]
+}

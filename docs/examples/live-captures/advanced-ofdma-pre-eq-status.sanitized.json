@@ -1,0 +1,34 @@
+{
+  "status": "success",
+  "message": null,
+  "device": {
+    "mac_address": "00:00:00:3e:85:4c",
+    "system_description": {
+      "HW_REV": "1.0",
+      "VENDOR": "LANCity",
+      "BOOTR": "NONE",
+      "SW_REV": "1.0.0",
+      "MODEL": "LCPET-3",
+      "is_empty": false
+    }
+  },
+  "operation": {
+    "status": "success",
+    "message": null,
+    "device": {
+      "mac_address": "00:00:00:dd:ee:ff",
+      "system_description": {
+        "HW_REV": "1.0",
+        "VENDOR": "LANCity",
+        "BOOTR": "NONE",
+        "SW_REV": "1.0.0",
+        "MODEL": "LCPET-3",
+        "is_empty": false
+      }
+    },
+    "operation_id": "7ce6f8033d3b4338",
+    "state": "completed",
+    "collected": 24,
+    "time_remaining": 0
+  }
+}

@@ -1,0 +1,177 @@
+{
+  "status": 0,
+  "message": null,
+  "device": {
+    "mac_address": "00:00:00:3e:85:4c",
+    "system_description": {
+      "HW_REV": "1.0",
+      "VENDOR": "LANCity",
+      "BOOTR": "NONE",
+      "SW_REV": "1.0.0",
+      "MODEL": "LCPET-3",
+      "is_empty": false
+    }
+  },
+  "logs": [
+    {
+      "docsDevEvFirstTime": "2026-03-27T10:19:42",
+      "docsDevEvLastTime": "2026-03-27T10:19:42",
+      "docsDevEvCounts": 1,
+      "docsDevEvLevel": 5,
+      "docsDevEvId": 90000000,
+      "docsDevEvText": "MIMO Event MIMO: Stored MIMO=-1 post cfg file MIMO=-1;CM-MAC=38:ad:2b:3e:85:4c;CMTS-MAC=00:a2:89:d0:a4:e9;CM-QOS=1.1;CM-VER=4.0;"
+    },
+    {
+      "docsDevEvFirstTime": "2026-03-27T10:19:42",
+      "docsDevEvLastTime": "2026-03-27T10:19:42",
+      "docsDevEvCounts": 1,
+      "docsDevEvLevel": 4,
+      "docsDevEvId": 69020700,
+      "docsDevEvText": "Configuration File CVC Validation Failure"
+    },
+    {
+      "docsDevEvFirstTime": "2026-03-27T10:19:43",
+      "docsDevEvLastTime": "2026-03-27T10:19:43",
+      "docsDevEvCounts": 1,
+      "docsDevEvLevel": 5,
+      "docsDevEvId": 73050400,
+      "docsDevEvText": "REG-RSP-MP Mismatch Between Calculated Value for P1.6hi Compared to CCAP Provided Value;CM-MAC=38:ad:2b:3e:85:4c;CMTS-MAC=00:a2:89:d0:a4:e9;CM-QOS=1.1;CM-VER=4.0;"
+    },
+    {
+      "docsDevEvFirstTime": "2026-03-27T10:19:43",
+      "docsDevEvLastTime": "2026-03-27T10:19:43",
+      "docsDevEvCounts": 1,
+      "docsDevEvLevel": 5,
+      "docsDevEvId": 82001100,
+      "docsDevEvText": "RNG-RSP CCAP Commanded Power Exceeds Value Corresponding to the Top of the DRW;CM-MAC=38:ad:2b:3e:85:4c;CMTS-MAC=00:a2:89:d0:a4:e9;CM-QOS=1.1;CM-VER=4.0;"
+    },
+    {
+      "docsDevEvFirstTime": "2026-03-27T10:19:43",
+      "docsDevEvLastTime": "2026-03-27T10:19:43",
+      "docsDevEvCounts": 4,
+      "docsDevEvLevel": 5,
+      "docsDevEvId": 82001200,
+      "docsDevEvText": "RNG-RSP CCAP Commanded Power in Excess of 6 dB Below the Value Corresponding to the Top of the DRW;CM-MAC=38:ad:2b:3e:85:4c;CMTS-MAC=00:a2:89:d0:a4:e9;CM-QOS=1.1;CM-VER=4.0;"
+    },
+    {
+      "docsDevEvFirstTime": "2026-03-27T10:19:43",
+      "docsDevEvLastTime": "2026-03-27T10:19:43",
+      "docsDevEvCounts": 1,
+      "docsDevEvLevel": 5,
+      "docsDevEvId": 82001100,
+      "docsDevEvText": "RNG-RSP CCAP Commanded Power Exceeds Value Corresponding to the Top of the DRW;CM-MAC=38:ad:2b:3e:85:4c;CMTS-MAC=00:a2:89:d0:a4:e9;CM-QOS=1.1;CM-VER=4.0;"
+    },
+    {
+      "docsDevEvFirstTime": "2026-03-27T10:20:55",
+      "docsDevEvLastTime": "2026-03-27T10:20:55",
+      "docsDevEvCounts": 1,
+      "docsDevEvLevel": 6,
+      "docsDevEvId": 74010100,
+      "docsDevEvText": "CM-STATUS message sent.  Event Type Code: 5; Chan ID: 7; DSID: N/A; MAC Addr: N/A; OFDM/OFDMA Profile ID: N/A.;CM-MAC=38:ad:2b:3e:85:4c;CMTS-MAC=00:a2:89:d0:a4:e9;CM-QOS=1.1;CM-VER=4.0;"
+    },
+    {
+      "docsDevEvFirstTime": "2026-03-27T10:21:50",
+      "docsDevEvLastTime": "2026-03-27T10:21:50",
+      "docsDevEvCounts": 1,
+      "docsDevEvLevel": 6,
+      "docsDevEvId": 67061601,
+      "docsDevEvText": "US profile assignment change.  US Chan ID: 7; Previous Profile: ; New Profile: 6.;CM-MAC=38:ad:2b:3e:85:4c;CMTS-MAC=00:a2:89:d0:a4:e9;CM-QOS=1.1;CM-VER=4.0;"
+    },
+    {
+      "docsDevEvFirstTime": "2026-03-27T10:23:10",
+      "docsDevEvLastTime": "2026-03-27T10:26:07",
+      "docsDevEvCounts": 5,
+      "docsDevEvLevel": 6,
+      "docsDevEvId": 74010100,
+      "docsDevEvText": "CM-STATUS message sent.  Event Type Code: 5; Chan ID: 7; DSID: N/A; MAC Addr: N/A; OFDM/OFDMA Profile ID: N/A.;CM-MAC=38:ad:2b:3e:85:4c;CMTS-MAC=00:a2:89:d0:a4:e9;CM-QOS=1.1;CM-VER=4.0;"
+    },
+    {
+      "docsDevEvFirstTime": "2026-03-27T10:26:55",
+      "docsDevEvLastTime": "2026-03-27T10:32:08",
+      "docsDevEvCounts": 2,
+      "docsDevEvLevel": 6,
+      "docsDevEvId": 67061601,
+      "docsDevEvText": "US profile assignment change.  US Chan ID: 7; Previous Profile: 5; New Profile: 6.;CM-MAC=38:ad:2b:3e:85:4c;CMTS-MAC=00:a2:89:d0:a4:e9;CM-QOS=1.1;CM-VER=4.0;"
+    },
+    {
+      "docsDevEvFirstTime": "2026-03-27T10:34:17",
+      "docsDevEvLastTime": "2026-03-27T10:34:17",
+      "docsDevEvCounts": 1,
+      "docsDevEvLevel": 5,
+      "docsDevEvId": 90000000,
+      "docsDevEvText": "MIMO Event MIMO: Stored MIMO=-1 post cfg file MIMO=-1;CM-MAC=38:ad:2b:3e:85:4c;CMTS-MAC=00:a2:89:d0:a4:e9;CM-QOS=1.1;CM-VER=4.0;"
+    },
+    {
+      "docsDevEvFirstTime": "2026-03-27T10:34:17",
+      "docsDevEvLastTime": "2026-03-27T10:34:17",
+      "docsDevEvCounts": 1,
+      "docsDevEvLevel": 4,
+      "docsDevEvId": 69020700,
+      "docsDevEvText": "Configuration File CVC Validation Failure"
+    },
+    {
+      "docsDevEvFirstTime": "2026-03-27T10:34:18",
+      "docsDevEvLastTime": "2026-03-27T10:34:18",
+      "docsDevEvCounts": 1,
+      "docsDevEvLevel": 5,
+      "docsDevEvId": 73050400,
+      "docsDevEvText": "REG-RSP-MP Mismatch Between Calculated Value for P1.6hi Compared to CCAP Provided Value;CM-MAC=38:ad:2b:3e:85:4c;CMTS-MAC=00:a2:89:d0:a4:e9;CM-QOS=1.1;CM-VER=4.0;"
+    },
+    {
+      "docsDevEvFirstTime": "2026-03-27T10:34:18",
+      "docsDevEvLastTime": "2026-03-27T10:34:18",
+      "docsDevEvCounts": 1,
+      "docsDevEvLevel": 5,
+      "docsDevEvId": 82001100,
+      "docsDevEvText": "RNG-RSP CCAP Commanded Power Exceeds Value Corresponding to the Top of the DRW;CM-MAC=38:ad:2b:3e:85:4c;CMTS-MAC=00:a2:89:d0:a4:e9;CM-QOS=1.1;CM-VER=4.0;"
+    },
+    {
+      "docsDevEvFirstTime": "2026-03-27T10:34:18",
+      "docsDevEvLastTime": "2026-03-27T10:34:18",
+      "docsDevEvCounts": 4,
+      "docsDevEvLevel": 5,
+      "docsDevEvId": 82001200,
+      "docsDevEvText": "RNG-RSP CCAP Commanded Power in Excess of 6 dB Below the Value Corresponding to the Top of the DRW;CM-MAC=38:ad:2b:3e:85:4c;CMTS-MAC=00:a2:89:d0:a4:e9;CM-QOS=1.1;CM-VER=4.0;"
+    },
+    {
+      "docsDevEvFirstTime": "2026-03-27T10:35:49",
+      "docsDevEvLastTime": "2026-03-27T10:35:49",
+      "docsDevEvCounts": 1,
+      "docsDevEvLevel": 6,
+      "docsDevEvId": 67061601,
+      "docsDevEvText": "US profile assignment change.  US Chan ID: 7; Previous Profile: ; New Profile: 5.;CM-MAC=38:ad:2b:3e:85:4c;CMTS-MAC=00:a2:89:d0:a4:e9;CM-QOS=1.1;CM-VER=4.0;"
+    },
+    {
+      "docsDevEvFirstTime": "2026-03-27T10:35:54",
+      "docsDevEvLastTime": "2026-03-27T22:07:48",
+      "docsDevEvCounts": 231,
+      "docsDevEvLevel": 6,
+      "docsDevEvId": 74010100,
+      "docsDevEvText": "CM-STATUS message sent.  Event Type Code: 5; Chan ID: 7; DSID: N/A; MAC Addr: N/A; OFDM/OFDMA Profile ID: N/A.;CM-MAC=38:ad:2b:3e:85:4c;CMTS-MAC=00:a2:89:d0:a4:e9;CM-QOS=1.1;CM-VER=4.0;"
+    },
+    {
+      "docsDevEvFirstTime": "2026-03-27T22:10:37",
+      "docsDevEvLastTime": "2026-03-27T22:15:50",
+      "docsDevEvCounts": 2,
+      "docsDevEvLevel": 6,
+      "docsDevEvId": 67061601,
+      "docsDevEvText": "US profile assignment change.  US Chan ID: 7; Previous Profile: 6; New Profile: 5.;CM-MAC=38:ad:2b:3e:85:4c;CMTS-MAC=00:a2:89:d0:a4:e9;CM-QOS=1.1;CM-VER=4.0;"
+    },
+    {
+      "docsDevEvFirstTime": "2026-03-27T22:18:08",
+      "docsDevEvLastTime": "2026-03-27T23:18:21",
+      "docsDevEvCounts": 21,
+      "docsDevEvLevel": 6,
+      "docsDevEvId": 74010100,
+      "docsDevEvText": "CM-STATUS message sent.  Event Type Code: 5; Chan ID: 7; DSID: N/A; MAC Addr: N/A; OFDM/OFDMA Profile ID: N/A.;CM-MAC=38:ad:2b:3e:85:4c;CMTS-MAC=00:a2:89:d0:a4:e9;CM-QOS=1.1;CM-VER=4.0;"
+    },
+    {
+      "docsDevEvFirstTime": "2026-03-27T23:23:48",
+      "docsDevEvLastTime": "2026-03-27T23:28:57",
+      "docsDevEvCounts": 2,
+      "docsDevEvLevel": 6,
+      "docsDevEvId": 67061601,
+      "docsDevEvText": "US profile assignment change.  US Chan ID: 7; Previous Profile: 6; New Profile: 5.;CM-MAC=38:ad:2b:3e:85:4c;CMTS-MAC=00:a2:89:d0:a4:e9;CM-QOS=1.1;CM-VER=4.0;"
+    }
+  ]
+}

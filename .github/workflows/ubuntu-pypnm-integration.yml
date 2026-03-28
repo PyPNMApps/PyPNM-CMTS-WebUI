@@ -1,0 +1,122 @@
+name: Ubuntu PyPNM Integration
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - "main"
+      - "develop"
+  pull_request:
+    branches:
+      - "main"
+      - "develop"
+
+permissions:
+  contents: read
+
+jobs:
+  integration:
+    name: Ubuntu ${{ matrix.os }} · Live PyPNM Health
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-22.04
+          - ubuntu-24.04
+
+    steps:
+      - name: Checkout PyPNM-WebUI
+        uses: actions/checkout@v4
+        with:
+          path: PyPNM-WebUI
+
+      - name: Checkout PyPNM
+        uses: actions/checkout@v4
+        with:
+          repository: PyPNMApps/PyPNM
+          path: PyPNM
+
+      - name: Set Up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: |
+            PyPNM/pyproject.toml
+
+      - name: Install PyPNM
+        working-directory: PyPNM
+        run: |
+          python -m pip install --upgrade pip setuptools wheel
+          python -m pip install -e .
+
+      - name: Start PyPNM
+        working-directory: PyPNM
+        run: |
+          python -m pypnm.cli serve --host 127.0.0.1 --port 8000 > /tmp/pypnm.log 2>&1 &
+          echo $! > /tmp/pypnm.pid
+
+      - name: Wait For PyPNM Health
+        run: |
+          for attempt in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:8000/health; then
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "PyPNM failed to become healthy"
+          cat /tmp/pypnm.log
+          exit 1
+
+      - name: Set Up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: PyPNM-WebUI/package-lock.json
+
+      - name: Install WebUI Dependencies
+        working-directory: PyPNM-WebUI
+        run: npm ci
+
+      - name: Create CI Env
+        working-directory: PyPNM-WebUI
+        run: |
+          cat > .env <<'EOF'
+          VITE_PYPNM_API_BASE_URL=http://127.0.0.1:8000
+          VITE_REQUEST_TIMEOUT_MS=30000
+          EOF
+
+      - name: Run WebUI Lint
+        working-directory: PyPNM-WebUI
+        run: npm run lint
+
+      - name: Run WebUI Unit Tests
+        working-directory: PyPNM-WebUI
+        run: npm run test
+
+      - name: Run Live PyPNM Health Integration Test
+        working-directory: PyPNM-WebUI
+        env:
+          RUN_LIVE_PYPNM_HEALTH: "1"
+          PYPNM_LIVE_BASE_URL: "http://127.0.0.1:8000"
+          PYPNM_LIVE_HEALTH_PATH: "/health"
+        run: npm run test:integration
+
+      - name: Run WebUI Build
+        working-directory: PyPNM-WebUI
+        run: npm run build
+
+      - name: Dump PyPNM Logs On Failure
+        if: failure()
+        run: |
+          cat /tmp/pypnm.log || true
+
+      - name: Stop PyPNM
+        if: always()
+        run: |
+          if [ -f /tmp/pypnm.pid ]; then
+            kill "$(cat /tmp/pypnm.pid)" || true
+          fi

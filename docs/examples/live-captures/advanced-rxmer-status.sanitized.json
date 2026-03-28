@@ -1,0 +1,22 @@
+{
+  "status": "success",
+  "message": null,
+  "device": {
+    "mac_address": "00:00:00:3e:85:4c",
+    "system_description": {
+      "HW_REV": "1.0",
+      "VENDOR": "LANCity",
+      "BOOTR": "NONE",
+      "SW_REV": "1.0.0",
+      "MODEL": "LCPET-3",
+      "is_empty": false
+    }
+  },
+  "operation": {
+    "operation_id": "f437d904664e4bbc",
+    "state": "completed",
+    "collected": 30,
+    "time_remaining": 0,
+    "message": null
+  }
+}

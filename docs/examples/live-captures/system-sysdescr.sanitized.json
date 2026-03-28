@@ -1,0 +1,25 @@
+{
+  "status": 0,
+  "message": null,
+  "device": {
+    "mac_address": "00:00:00:3e:85:4c",
+    "system_description": {
+      "HW_REV": "1.0",
+      "VENDOR": "LANCity",
+      "BOOTR": "NONE",
+      "SW_REV": "1.0.0",
+      "MODEL": "LCPET-3",
+      "is_empty": false
+    }
+  },
+  "results": {
+    "sysDescr": {
+      "hw_rev": "1.0",
+      "vendor": "LANCity",
+      "boot_rev": "NONE",
+      "sw_rev": "1.0.0",
+      "model": "LCPET-3",
+      "_is_empty": false
+    }
+  }
+}

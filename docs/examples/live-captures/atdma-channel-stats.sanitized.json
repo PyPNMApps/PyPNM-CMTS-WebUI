@@ -1,0 +1,154 @@
+{
+  "status": 0,
+  "message": "Successfully retrieved upstream ATDMA channel statistics",
+  "device": {
+    "mac_address": "00:00:00:3e:85:4c",
+    "system_description": {
+      "HW_REV": "1.0",
+      "VENDOR": "LANCity",
+      "BOOTR": "NONE",
+      "SW_REV": "1.0.0",
+      "MODEL": "LCPET-3",
+      "is_empty": false
+    }
+  },
+  "results": {
+    "entries": [
+      {
+        "index": 4,
+        "channel_id": 3,
+        "entry": {
+          "docsIfUpChannelId": 3,
+          "docsIfUpChannelFrequency": 28200000,
+          "docsIfUpChannelWidth": 6400000,
+          "docsIfUpChannelModulationProfile": 0,
+          "docsIfUpChannelSlotSize": 4,
+          "docsIfUpChannelTxTimingOffset": 9101,
+          "docsIfUpChannelRangingBackoffStart": 3,
+          "docsIfUpChannelRangingBackoffEnd": 6,
+          "docsIfUpChannelTxBackoffStart": 3,
+          "docsIfUpChannelTxBackoffEnd": 5,
+          "docsIfUpChannelType": 2,
+          "docsIfUpChannelCloneFrom": 0,
+          "docsIfUpChannelUpdate": false,
+          "docsIfUpChannelStatus": 1,
+          "docsIfUpChannelPreEqEnable": true,
+          "docsIf3CmStatusUsTxPower": 34.5,
+          "docsIf3CmStatusUsT3Timeouts": 0,
+          "docsIf3CmStatusUsT4Timeouts": 0,
+          "docsIf3CmStatusUsRangingAborteds": 0,
+          "docsIf3CmStatusUsModulationType": 2,
+          "docsIf3CmStatusUsEqData": "0x080118000000020005000300f9fffcff08000500f8fffcff0e000600d8ffeefffc07fdff0e006200f1ffebff04000800fafffcff02000200000001000000010008000100010000000200fffffeff00000000fdff040000000200feff0100feff01000100",
+          "docsIf3CmStatusUsT3Exceededs": 0,
+          "docsIf3CmStatusUsIsMuted": false,
+          "docsIf3CmStatusUsRangingStatus": "success"
+        }
+      },
+      {
+        "index": 80,
+        "channel_id": 6,
+        "entry": {
+          "docsIfUpChannelId": 6,
+          "docsIfUpChannelFrequency": 47400000,
+          "docsIfUpChannelWidth": 6400000,
+          "docsIfUpChannelModulationProfile": 0,
+          "docsIfUpChannelSlotSize": 4,
+          "docsIfUpChannelTxTimingOffset": 9101,
+          "docsIfUpChannelRangingBackoffStart": 3,
+          "docsIfUpChannelRangingBackoffEnd": 6,
+          "docsIfUpChannelTxBackoffStart": 3,
+          "docsIfUpChannelTxBackoffEnd": 5,
+          "docsIfUpChannelType": 2,
+          "docsIfUpChannelCloneFrom": 0,
+          "docsIfUpChannelUpdate": false,
+          "docsIfUpChannelStatus": 1,
+          "docsIfUpChannelPreEqEnable": true,
+          "docsIf3CmStatusUsTxPower": 36,
+          "docsIf3CmStatusUsT3Timeouts": 0,
+          "docsIf3CmStatusUsT4Timeouts": 0,
+          "docsIf3CmStatusUsRangingAborteds": 0,
+          "docsIf3CmStatusUsModulationType": 2,
+          "docsIf3CmStatusUsEqData": "0x08011800ffffffff0300000000000200fdff030005000300f6ff02001100fefffe0700001200e6ff22000900f6fffeff06000200fcff00000700fffffffffdff0d0003000100fdff0300fffffdff010000000100fdfffffffcfffcff0100faff0400faff",
+          "docsIf3CmStatusUsT3Exceededs": 0,
+          "docsIf3CmStatusUsIsMuted": false,
+          "docsIf3CmStatusUsRangingStatus": "success"
+        }
+      },
+      {
+        "index": 81,
+        "channel_id": 5,
+        "entry": {
+          "docsIfUpChannelId": 5,
+          "docsIfUpChannelFrequency": 41000000,
+          "docsIfUpChannelWidth": 6400000,
+          "docsIfUpChannelModulationProfile": 0,
+          "docsIfUpChannelSlotSize": 4,
+          "docsIfUpChannelTxTimingOffset": 9102,
+          "docsIfUpChannelRangingBackoffStart": 3,
+          "docsIfUpChannelRangingBackoffEnd": 6,
+          "docsIfUpChannelTxBackoffStart": 3,
+          "docsIfUpChannelTxBackoffEnd": 5,
+          "docsIfUpChannelType": 2,
+          "docsIfUpChannelCloneFrom": 0,
+          "docsIfUpChannelUpdate": false,
+          "docsIfUpChannelStatus": 1,
+          "docsIfUpChannelPreEqEnable": true,
+          "docsIf3CmStatusUsTxPower": 36,
+          "docsIf3CmStatusUsT3Timeouts": 0,
+          "docsIf3CmStatusUsT4Timeouts": 0,
+          "docsIf3CmStatusUsRangingAborteds": 0,
+          "docsIf3CmStatusUsModulationType": 2,
+          "docsIf3CmStatusUsEqData": "0x08011800feff03000100020001000100faff000007000000f1ff03001b00f4fffe0700000400d2ff03000a00fefffffffffffffffbff000002000200fdff030006000200feff0100fdff03000100feffffff0600ffff03000a0007000800000001000100",
+          "docsIf3CmStatusUsT3Exceededs": 0,
+          "docsIf3CmStatusUsIsMuted": false,
+          "docsIf3CmStatusUsRangingStatus": "success"
+        }
+      },
+      {
+        "index": 82,
+        "channel_id": 4,
+        "entry": {
+          "docsIfUpChannelId": 4,
+          "docsIfUpChannelFrequency": 34600000,
+          "docsIfUpChannelWidth": 6400000,
+          "docsIfUpChannelModulationProfile": 0,
+          "docsIfUpChannelSlotSize": 4,
+          "docsIfUpChannelTxTimingOffset": 9101,
+          "docsIfUpChannelRangingBackoffStart": 3,
+          "docsIfUpChannelRangingBackoffEnd": 6,
+          "docsIfUpChannelTxBackoffStart": 3,
+          "docsIfUpChannelTxBackoffEnd": 5,
+          "docsIfUpChannelType": 2,
+          "docsIfUpChannelCloneFrom": 0,
+          "docsIfUpChannelUpdate": false,
+          "docsIfUpChannelStatus": 1,
+          "docsIfUpChannelPreEqEnable": true,
+          "docsIf3CmStatusUsTxPower": 35,
+          "docsIf3CmStatusUsT3Timeouts": 0,
+          "docsIf3CmStatusUsT4Timeouts": 0,
+          "docsIf3CmStatusUsRangingAborteds": 0,
+          "docsIf3CmStatusUsModulationType": 2,
+          "docsIf3CmStatusUsEqData": "0x08011800fefffaff05000000000001000200fffffffffcff01000300f9fff4ffff070000fcfff8fff3ff02000700fffffeff05000100010002000500feffffff03000200fffffcff0000feff00000500fdfff7ff0100fafffeff01000900fffffdff0000",
+          "docsIf3CmStatusUsT3Exceededs": 0,
+          "docsIf3CmStatusUsIsMuted": false,
+          "docsIf3CmStatusUsRangingStatus": "success"
+        }
+      }
+    ],
+    "dwr_window_check": {
+      "dwr_warning_db": 6,
+      "dwr_violation_db": 12,
+      "channel_count": 4,
+      "min_power_dbmv": 34.5,
+      "max_power_dbmv": 36,
+      "spread_db": 1.5,
+      "is_warning": false,
+      "is_violation": false,
+      "extreme_channel_ids": [
+        3,
+        6,
+        5
+      ]
+    }
+  }
+}

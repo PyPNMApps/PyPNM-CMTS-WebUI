@@ -1,0 +1,41 @@
+{
+  "status": 0,
+  "message": "Pre-check successful",
+  "device": {
+    "mac_address": "00:00:00:3e:85:4c",
+    "system_description": {
+      "HW_REV": "1.0",
+      "VENDOR": "LANCity",
+      "BOOTR": "NONE",
+      "SW_REV": "1.0.0",
+      "MODEL": "LCPET-3",
+      "is_empty": false
+    }
+  },
+  "results": [
+    {
+      "index": 83,
+      "channel_id": 7,
+      "entry": {
+        "docsIf31CmUsOfdmaChanChannelId": 7,
+        "docsIf31CmUsOfdmaChanConfigChangeCt": 4,
+        "docsIf31CmUsOfdmaChanSubcarrierZeroFreq": 51800000,
+        "docsIf31CmUsOfdmaChanFirstActiveSubcarrierNum": 148,
+        "docsIf31CmUsOfdmaChanLastActiveSubcarrierNum": 1307,
+        "docsIf31CmUsOfdmaChanNumActiveSubcarriers": 1160,
+        "docsIf31CmUsOfdmaChanSubcarrierSpacing": 25,
+        "docsIf31CmUsOfdmaChanCyclicPrefix": 96,
+        "docsIf31CmUsOfdmaChanRollOffPeriod": 0,
+        "docsIf31CmUsOfdmaChanNumSymbolsPerFrame": 9,
+        "docsIf31CmUsOfdmaChanTxPower": 12.3,
+        "docsIf31CmUsOfdmaChanPreEqEnabled": true,
+        "docsIf31CmStatusOfdmaUsT3Timeouts": 0,
+        "docsIf31CmStatusOfdmaUsT4Timeouts": 0,
+        "docsIf31CmStatusOfdmaUsRangingAborteds": 0,
+        "docsIf31CmStatusOfdmaUsT3Exceededs": 0,
+        "docsIf31CmStatusOfdmaUsIsMuted": false,
+        "docsIf31CmStatusOfdmaUsRangingStatus": "success"
+      }
+    }
+  ]
+}

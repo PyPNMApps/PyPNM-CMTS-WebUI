@@ -1,0 +1,265 @@
+{
+  "generated_at": "2026-03-28T05:28:12.534Z",
+  "base_url": "http://172.19.8.28:8000",
+  "instance_id": "pypnm-agent-1",
+  "outputs": [
+    {
+      "id": "if31-docsis-base-capability",
+      "endpoint": "/docs/if31/docsis/baseCapability",
+      "status": "ok",
+      "output_path": "/home/dev02/Projects/PyPNM-WebUI/docs/examples/live-captures/if31-docsis-base-capability.sanitized.json"
+    },
+    {
+      "id": "if31-ds-ofdm-channel-stats",
+      "endpoint": "/docs/if31/ds/ofdm/chan/stats",
+      "status": "ok",
+      "output_path": "/home/dev02/Projects/PyPNM-WebUI/docs/examples/live-captures/if31-ds-ofdm-channel-stats.sanitized.json"
+    },
+    {
+      "id": "if31-ds-ofdm-profile-stats",
+      "endpoint": "/docs/if31/ds/ofdm/profile/stats",
+      "status": "ok",
+      "output_path": "/home/dev02/Projects/PyPNM-WebUI/docs/examples/live-captures/if31-ds-ofdm-profile-stats.sanitized.json"
+    },
+    {
+      "id": "if31-system-diplexer",
+      "endpoint": "/docs/if31/system/diplexer",
+      "status": "ok",
+      "output_path": "/home/dev02/Projects/PyPNM-WebUI/docs/examples/live-captures/if31-system-diplexer.sanitized.json"
+    },
+    {
+      "id": "if31-us-ofdma-channel-stats",
+      "endpoint": "/docs/if31/us/ofdma/channel/stats",
+      "status": "ok",
+      "output_path": "/home/dev02/Projects/PyPNM-WebUI/docs/examples/live-captures/if31-us-ofdma-channel-stats.sanitized.json"
+    },
+    {
+      "id": "fdd-diplexer-band-edge-capability",
+      "endpoint": "/docs/fdd/diplexer/bandEdgeCapability",
+      "status": "ok",
+      "output_path": "/home/dev02/Projects/PyPNM-WebUI/docs/examples/live-captures/fdd-diplexer-band-edge-capability.sanitized.json"
+    },
+    {
+      "id": "fdd-system-diplexer-configuration",
+      "endpoint": "/docs/fdd/system/diplexer/configuration",
+      "status": "ok",
+      "output_path": "/home/dev02/Projects/PyPNM-WebUI/docs/examples/live-captures/fdd-system-diplexer-configuration.sanitized.json"
+    },
+    {
+      "id": "ds-scqam-codeword-error-rate",
+      "endpoint": "/docs/if30/ds/scqam/chan/codewordErrorRate",
+      "status": "ok",
+      "output_path": "/home/dev02/Projects/PyPNM-WebUI/docs/examples/live-captures/ds-scqam-codeword-error-rate.sanitized.json"
+    },
+    {
+      "id": "ds-scqam-channel-stats",
+      "endpoint": "/docs/if30/ds/scqam/chan/stats",
+      "status": "ok",
+      "output_path": "/home/dev02/Projects/PyPNM-WebUI/docs/examples/live-captures/ds-scqam-channel-stats.sanitized.json"
+    },
+    {
+      "id": "atdma-pre-equalization",
+      "endpoint": "/docs/if30/us/atdma/chan/preEqualization",
+      "status": "ok",
+      "output_path": "/home/dev02/Projects/PyPNM-WebUI/docs/examples/live-captures/atdma-pre-equalization.sanitized.json"
+    },
+    {
+      "id": "atdma-channel-stats",
+      "endpoint": "/docs/if30/us/atdma/chan/stats",
+      "status": "ok",
+      "output_path": "/home/dev02/Projects/PyPNM-WebUI/docs/examples/live-captures/atdma-channel-stats.sanitized.json"
+    },
+    {
+      "id": "event-log",
+      "endpoint": "/docs/dev/eventLog",
+      "status": "ok",
+      "output_path": "/home/dev02/Projects/PyPNM-WebUI/docs/examples/live-captures/event-log.sanitized.json"
+    },
+    {
+      "id": "interface-stats",
+      "endpoint": "/docs/pnm/interface/stats",
+      "status": "ok",
+      "output_path": "/home/dev02/Projects/PyPNM-WebUI/docs/examples/live-captures/interface-stats.sanitized.json"
+    },
+    {
+      "id": "up-time",
+      "endpoint": "/system/upTime",
+      "status": "ok",
+      "output_path": "/home/dev02/Projects/PyPNM-WebUI/docs/examples/live-captures/up-time.sanitized.json"
+    },
+    {
+      "id": "single-rxmer",
+      "endpoint": "/docs/pnm/ds/ofdm/rxMer/getCapture",
+      "status": "ok",
+      "output_path": "/home/dev02/Projects/PyPNM-WebUI/docs/examples/live-captures/single-rxmer.sanitized.json"
+    },
+    {
+      "id": "single-channel-estimation",
+      "endpoint": "/docs/pnm/ds/ofdm/channelEstCoeff/getCapture",
+      "status": "ok",
+      "output_path": "/home/dev02/Projects/PyPNM-WebUI/docs/examples/live-captures/single-channel-estimation.sanitized.json"
+    },
+    {
+      "id": "single-histogram",
+      "endpoint": "/docs/pnm/ds/histogram/getCapture",
+      "status": "ok",
+      "output_path": "/home/dev02/Projects/PyPNM-WebUI/docs/examples/live-captures/single-histogram.sanitized.json"
+    },
+    {
+      "id": "spectrum-friendly",
+      "endpoint": "/docs/pnm/ds/spectrumAnalyzer/getCapture/friendly",
+      "status": "ok",
+      "output_path": "/home/dev02/Projects/PyPNM-WebUI/docs/examples/live-captures/spectrum-friendly.sanitized.json"
+    },
+    {
+      "id": "spectrum-full-band",
+      "endpoint": "/docs/pnm/ds/spectrumAnalyzer/getCapture/fullBandCapture",
+      "status": "ok",
+      "output_path": "/home/dev02/Projects/PyPNM-WebUI/docs/examples/live-captures/spectrum-full-band.sanitized.json"
+    },
+    {
+      "id": "spectrum-ofdm",
+      "endpoint": "/docs/pnm/ds/spectrumAnalyzer/getCapture/ofdm",
+      "status": "ok",
+      "output_path": "/home/dev02/Projects/PyPNM-WebUI/docs/examples/live-captures/spectrum-ofdm.sanitized.json"
+    },
+    {
+      "id": "spectrum-scqam",
+      "endpoint": "/docs/pnm/ds/spectrumAnalyzer/getCapture/scqam",
+      "status": "ok",
+      "output_path": "/home/dev02/Projects/PyPNM-WebUI/docs/examples/live-captures/spectrum-scqam.sanitized.json"
+    },
+    {
+      "id": "single-fec-summary",
+      "endpoint": "/docs/pnm/ds/ofdm/fecSummary/getCapture",
+      "status": "ok",
+      "output_path": "/home/dev02/Projects/PyPNM-WebUI/docs/examples/live-captures/single-fec-summary.sanitized.json"
+    },
+    {
+      "id": "single-constellation-display",
+      "endpoint": "/docs/pnm/ds/ofdm/constellationDisplay/getCapture",
+      "status": "ok",
+      "output_path": "/home/dev02/Projects/PyPNM-WebUI/docs/examples/live-captures/single-constellation-display.sanitized.json"
+    },
+    {
+      "id": "single-modulation-profile",
+      "endpoint": "/docs/pnm/ds/ofdm/modulationProfile/getCapture",
+      "status": "ok",
+      "output_path": "/home/dev02/Projects/PyPNM-WebUI/docs/examples/live-captures/single-modulation-profile.sanitized.json"
+    },
+    {
+      "id": "single-us-ofdma-pre-equalization",
+      "endpoint": "/docs/pnm/us/ofdma/preEqualization/getCapture",
+      "status": "ok",
+      "output_path": "/home/dev02/Projects/PyPNM-WebUI/docs/examples/live-captures/single-us-ofdma-pre-equalization.sanitized.json"
+    },
+    {
+      "id": "system-sysdescr",
+      "endpoint": "/system/sysDescr",
+      "status": "ok",
+      "output_path": "/home/dev02/Projects/PyPNM-WebUI/docs/examples/live-captures/system-sysdescr.sanitized.json"
+    },
+    {
+      "id": "advanced-rxmer-start",
+      "endpoint": "/advance/multi/ds/rxMer/start",
+      "status": "ok",
+      "output_path": "/home/dev02/Projects/PyPNM-WebUI/docs/examples/live-captures/advanced-rxmer-start.sanitized.json"
+    },
+    {
+      "id": "advanced-rxmer-status",
+      "endpoint": "/advance/multi/ds/rxMer/status/f437d904664e4bbc",
+      "status": "ok",
+      "output_path": "/home/dev02/Projects/PyPNM-WebUI/docs/examples/live-captures/advanced-rxmer-status.sanitized.json"
+    },
+    {
+      "id": "advanced-rxmer-analysis-min-avg-max",
+      "endpoint": "/advance/multi/ds/rxMer/analysis",
+      "status": "ok",
+      "output_path": "/home/dev02/Projects/PyPNM-WebUI/docs/examples/live-captures/advanced-rxmer-analysis-min-avg-max.sanitized.json"
+    },
+    {
+      "id": "advanced-rxmer-analysis-rxmer-heat-map",
+      "endpoint": "/advance/multi/ds/rxMer/analysis",
+      "status": "ok",
+      "output_path": "/home/dev02/Projects/PyPNM-WebUI/docs/examples/live-captures/advanced-rxmer-analysis-rxmer-heat-map.sanitized.json"
+    },
+    {
+      "id": "advanced-rxmer-analysis-echo-reflection-1",
+      "endpoint": "/advance/multi/ds/rxMer/analysis",
+      "status": "ok",
+      "output_path": "/home/dev02/Projects/PyPNM-WebUI/docs/examples/live-captures/advanced-rxmer-analysis-echo-reflection-1.sanitized.json"
+    },
+    {
+      "id": "advanced-rxmer-analysis-ofdm-profile-performance-1",
+      "endpoint": "/advance/multi/ds/rxMer/analysis",
+      "status": "ok",
+      "output_path": "/home/dev02/Projects/PyPNM-WebUI/docs/examples/live-captures/advanced-rxmer-analysis-ofdm-profile-performance-1.sanitized.json"
+    },
+    {
+      "id": "advanced-channel-estimation-start",
+      "endpoint": "/advance/multi/ds/channelEstimation/start",
+      "status": "ok",
+      "output_path": "/home/dev02/Projects/PyPNM-WebUI/docs/examples/live-captures/advanced-channel-estimation-start.sanitized.json"
+    },
+    {
+      "id": "advanced-channel-estimation-status",
+      "endpoint": "/advance/multi/ds/channelEstimation/status/372bd35203c54758",
+      "status": "ok",
+      "output_path": "/home/dev02/Projects/PyPNM-WebUI/docs/examples/live-captures/advanced-channel-estimation-status.sanitized.json"
+    },
+    {
+      "id": "advanced-channel-estimation-analysis-min-avg-max",
+      "endpoint": "/advance/multi/ds/channelEstimation/analysis",
+      "status": "ok",
+      "output_path": "/home/dev02/Projects/PyPNM-WebUI/docs/examples/live-captures/advanced-channel-estimation-analysis-min-avg-max.sanitized.json"
+    },
+    {
+      "id": "advanced-channel-estimation-analysis-group-delay",
+      "endpoint": "/advance/multi/ds/channelEstimation/analysis",
+      "status": "ok",
+      "output_path": "/home/dev02/Projects/PyPNM-WebUI/docs/examples/live-captures/advanced-channel-estimation-analysis-group-delay.sanitized.json"
+    },
+    {
+      "id": "advanced-channel-estimation-analysis-lte-detection-phase-slope",
+      "endpoint": "/advance/multi/ds/channelEstimation/analysis",
+      "status": "ok",
+      "output_path": "/home/dev02/Projects/PyPNM-WebUI/docs/examples/live-captures/advanced-channel-estimation-analysis-lte-detection-phase-slope.sanitized.json"
+    },
+    {
+      "id": "advanced-channel-estimation-analysis-echo-detection-ifft",
+      "endpoint": "/advance/multi/ds/channelEstimation/analysis",
+      "status": "ok",
+      "output_path": "/home/dev02/Projects/PyPNM-WebUI/docs/examples/live-captures/advanced-channel-estimation-analysis-echo-detection-ifft.sanitized.json"
+    },
+    {
+      "id": "advanced-ofdma-pre-eq-start",
+      "endpoint": "/advance/multi/us/ofdmaPreEqualization/start",
+      "status": "ok",
+      "output_path": "/home/dev02/Projects/PyPNM-WebUI/docs/examples/live-captures/advanced-ofdma-pre-eq-start.sanitized.json"
+    },
+    {
+      "id": "advanced-ofdma-pre-eq-status",
+      "endpoint": "/advance/multi/us/ofdmaPreEqualization/status/7ce6f8033d3b4338",
+      "status": "ok",
+      "output_path": "/home/dev02/Projects/PyPNM-WebUI/docs/examples/live-captures/advanced-ofdma-pre-eq-status.sanitized.json"
+    },
+    {
+      "id": "advanced-ofdma-pre-eq-analysis-min-avg-max",
+      "endpoint": "/advance/multi/us/ofdmaPreEqualization/analysis",
+      "status": "ok",
+      "output_path": "/home/dev02/Projects/PyPNM-WebUI/docs/examples/live-captures/advanced-ofdma-pre-eq-analysis-min-avg-max.sanitized.json"
+    },
+    {
+      "id": "advanced-ofdma-pre-eq-analysis-group-delay",
+      "endpoint": "/advance/multi/us/ofdmaPreEqualization/analysis",
+      "status": "ok",
+      "output_path": "/home/dev02/Projects/PyPNM-WebUI/docs/examples/live-captures/advanced-ofdma-pre-eq-analysis-group-delay.sanitized.json"
+    },
+    {
+      "id": "advanced-ofdma-pre-eq-analysis-echo-detection-ifft",
+      "endpoint": "/advance/multi/us/ofdmaPreEqualization/analysis",
+      "status": "ok",
+      "output_path": "/home/dev02/Projects/PyPNM-WebUI/docs/examples/live-captures/advanced-ofdma-pre-eq-analysis-echo-detection-ifft.sanitized.json"
+    }
+  ]
+}

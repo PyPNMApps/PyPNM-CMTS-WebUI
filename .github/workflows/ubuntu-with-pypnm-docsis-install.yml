@@ -1,0 +1,66 @@
+name: Ubuntu With PyPNM-DOCSIS Install
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - "main"
+      - "develop"
+  pull_request:
+    branches:
+      - "main"
+      - "develop"
+
+permissions:
+  contents: read
+
+jobs:
+  combined-install:
+    name: Ubuntu ${{ matrix.os }} · Python ${{ matrix.python-version }} · Combined Install
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-22.04
+          - ubuntu-24.04
+        python-version:
+          - "3.10"
+          - "3.11"
+          - "3.12"
+          - "3.13"
+
+    steps:
+      - name: Checkout PyPNM-WebUI
+        uses: actions/checkout@v4
+        with:
+          path: PyPNM-WebUI
+
+      - name: Checkout PyPNM
+        uses: actions/checkout@v4
+        with:
+          repository: PyPNMApps/PyPNM
+          path: PyPNM
+
+      - name: Set Up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Make CI Helper Executable
+        working-directory: PyPNM-WebUI
+        run: |
+          chmod +x tools/install/ci-verify-with-pypnm-docsis.sh
+          chmod +x tools/install/with-pypnm-docsis.sh
+          chmod +x tools/install/start-local-stack.sh
+
+      - name: Verify Combined Install
+        working-directory: PyPNM-WebUI
+        run: |
+          ./tools/install/ci-verify-with-pypnm-docsis.sh --pypnm-path ../PyPNM
+
+      - name: Dump Combined Stack Logs On Failure
+        if: failure()
+        run: |
+          cat /tmp/pypnm-webui-stack.log || true
