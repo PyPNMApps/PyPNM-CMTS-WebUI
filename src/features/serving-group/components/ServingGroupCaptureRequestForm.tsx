@@ -37,6 +37,7 @@ export interface ServingGroupCaptureRequestPayload {
 interface ServingGroupCaptureRequestFormProps {
   baseUrl?: string;
   idPrefix?: string;
+  initialSnmpCommunity?: string;
   onPayloadChange?: (payload: ServingGroupCaptureRequestPayload) => void;
 }
 
@@ -158,6 +159,7 @@ function toRegistrationStatusTone(statusText: string, statusCode: number | null)
 export function ServingGroupCaptureRequestForm({
   baseUrl,
   idPrefix = "serving-group-capture-request",
+  initialSnmpCommunity = "",
   onPayloadChange,
 }: ServingGroupCaptureRequestFormProps) {
   const [availableServingGroupIds, setAvailableServingGroupIds] = useState<number[]>([]);
@@ -181,6 +183,10 @@ export function ServingGroupCaptureRequestForm({
   const [sortKey, setSortKey] = useState<CableModemSortKey>("registrationStatus");
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
   const [filterMode, setFilterMode] = useState<CableModemFilter>("all");
+
+  useEffect(() => {
+    setCommunity(initialSnmpCommunity.trim());
+  }, [initialSnmpCommunity]);
 
   useEffect(() => {
     let cancelled = false;
@@ -407,157 +413,168 @@ export function ServingGroupCaptureRequestForm({
     <div className="capture-request-groups">
       <div className="capture-request-top-grid">
         <section className="chart-frame capture-request-group">
-          <div className="capture-request-group-heading"><h3>Serving Group Scope</h3></div>
-          <div className="field">
-            <label>Serving Group IDs</label>
-            <div className="status-chip-row">
-              <button
-                type="button"
-                className="analysis-chip-button"
-                disabled={availableServingGroupIds.length === 0}
-                onClick={() => setSelectedServingGroupIds([...availableServingGroupIds])}
-              >
-                Select All
-              </button>
-              <button
-                type="button"
-                className="analysis-chip-button"
-                disabled={selectedServingGroupIds.length === 0}
-                onClick={() => setSelectedServingGroupIds([])}
-              >
-                Unselect All
-              </button>
+          <details className="capture-request-dropdown">
+            <summary className="capture-request-dropdown-summary">
+              <span>Serving Group Scope</span>
+            </summary>
+            <div className="field">
+              <label>Serving Group IDs</label>
+              <div className="status-chip-row">
+                <button
+                  type="button"
+                  className="analysis-chip-button"
+                  disabled={availableServingGroupIds.length === 0}
+                  onClick={() => setSelectedServingGroupIds([...availableServingGroupIds])}
+                >
+                  Select All
+                </button>
+                <button
+                  type="button"
+                  className="analysis-chip-button"
+                  disabled={selectedServingGroupIds.length === 0}
+                  onClick={() => setSelectedServingGroupIds([])}
+                >
+                  Unselect All
+                </button>
+              </div>
+              <div className="status-chip-row">
+                {availableServingGroupIds.map((servingGroupId) => {
+                  const isSelected = selectedServingGroupIds.includes(servingGroupId);
+                  return (
+                    <button
+                      key={servingGroupId}
+                      type="button"
+                      className={isSelected ? "analysis-chip-button active" : "analysis-chip-button"}
+                      onClick={() => toggleServingGroupId(servingGroupId)}
+                    >
+                      SG {servingGroupId}
+                    </button>
+                  );
+                })}
+              </div>
+              <p className="panel-copy">
+                {loadingServingGroups ? "Loading SG IDs..." : null}
+                {!loadingServingGroups && availableServingGroupIds.length === 0 && !servingGroupLoadError
+                  ? "No active SG IDs found. Leaving this empty means all serving groups."
+                  : null}
+                {servingGroupLoadError ? `Failed to load SG IDs: ${servingGroupLoadError}` : null}
+              </p>
             </div>
-            <div className="status-chip-row">
-              {availableServingGroupIds.map((servingGroupId) => {
-                const isSelected = selectedServingGroupIds.includes(servingGroupId);
-                return (
-                  <button
-                    key={servingGroupId}
-                    type="button"
-                    className={isSelected ? "analysis-chip-button active" : "analysis-chip-button"}
-                    onClick={() => toggleServingGroupId(servingGroupId)}
-                  >
-                    SG {servingGroupId}
-                  </button>
-                );
-              })}
-            </div>
-            <p className="panel-copy">
-              {loadingServingGroups ? "Loading SG IDs..." : null}
-              {!loadingServingGroups && availableServingGroupIds.length === 0 && !servingGroupLoadError
-                ? "No active SG IDs found. Leaving this empty means all serving groups."
-                : null}
-              {servingGroupLoadError ? `Failed to load SG IDs: ${servingGroupLoadError}` : null}
-            </p>
-          </div>
+          </details>
         </section>
 
         <section className="chart-frame capture-request-group">
-          <div className="capture-request-group-heading"><h3>Capture Parameters</h3></div>
-          <div className="field capture-request-compact-input">
-            <label htmlFor={`${idPrefix}-community`}>SNMP v2c Community</label>
-            <SecretTextInput
-              id={`${idPrefix}-community`}
-              value={community}
-              onChange={(event) => setCommunity(event.target.value)}
-              placeholder="private"
-              autoComplete="off"
-            />
-          </div>
-          <div className="field">
-            <label htmlFor={`${idPrefix}-channel-ids`}>Capture Channel IDs</label>
-            <input
-              id={`${idPrefix}-channel-ids`}
-              value={channelIdsRaw}
-              onChange={(event) => setChannelIdsRaw(event.target.value)}
-              placeholder="0 = all channels"
-            />
-          </div>
-          <div className="grid two">
-            <div className="field capture-request-compact-input">
-              <label htmlFor={`${idPrefix}-tftp-ipv4`}>TFTP IPv4</label>
-              <input
-                id={`${idPrefix}-tftp-ipv4`}
-                value={tftpIpv4}
-                onChange={(event) => setTftpIpv4(event.target.value)}
-                placeholder="172.19.8.28"
-              />
-            </div>
-            <div className="field capture-request-compact-input">
-              <label htmlFor={`${idPrefix}-tftp-ipv6`}>TFTP IPv6</label>
-              <input
-                id={`${idPrefix}-tftp-ipv6`}
-                value={tftpIpv6}
-                onChange={(event) => setTftpIpv6(event.target.value)}
-                placeholder="::"
-              />
-            </div>
-          </div>
           <details className="capture-request-dropdown">
             <summary className="capture-request-dropdown-summary">
-              <span>Execution</span>
-              <span className="capture-request-group-meta">Defaults from PW baseline</span>
+              <span>Capture Parameters</span>
             </summary>
+            <div className="field capture-request-compact-input">
+              <label htmlFor={`${idPrefix}-community`}>SNMP v2c Community</label>
+              <SecretTextInput
+                id={`${idPrefix}-community`}
+                value={community}
+                onChange={(event) => setCommunity(event.target.value)}
+                placeholder="private"
+                autoComplete="off"
+              />
+            </div>
+            <div className="field">
+              <label htmlFor={`${idPrefix}-channel-ids`}>Capture Channel IDs</label>
+              <input
+                id={`${idPrefix}-channel-ids`}
+                value={channelIdsRaw}
+                onChange={(event) => setChannelIdsRaw(event.target.value)}
+                placeholder="0 = all channels"
+              />
+            </div>
             <div className="grid two">
-              <div className="field">
-                <label htmlFor={`${idPrefix}-execution-max-workers`}>Max Workers</label>
+              <div className="field capture-request-compact-input">
+                <label htmlFor={`${idPrefix}-tftp-ipv4`}>TFTP IPv4</label>
                 <input
-                  id={`${idPrefix}-execution-max-workers`}
-                  type="number"
-                  min={1}
-                  value={executionMaxWorkers}
-                  onChange={(event) => setExecutionMaxWorkers(event.target.value)}
+                  id={`${idPrefix}-tftp-ipv4`}
+                  value={tftpIpv4}
+                  onChange={(event) => setTftpIpv4(event.target.value)}
+                  placeholder="172.19.8.28"
                 />
               </div>
-              <div className="field">
-                <label htmlFor={`${idPrefix}-execution-retry-count`}>Retry Count</label>
+              <div className="field capture-request-compact-input">
+                <label htmlFor={`${idPrefix}-tftp-ipv6`}>TFTP IPv6</label>
                 <input
-                  id={`${idPrefix}-execution-retry-count`}
-                  type="number"
-                  min={0}
-                  value={executionRetryCount}
-                  onChange={(event) => setExecutionRetryCount(event.target.value)}
-                />
-              </div>
-              <div className="field">
-                <label htmlFor={`${idPrefix}-execution-retry-delay`}>Retry Delay Seconds</label>
-                <input
-                  id={`${idPrefix}-execution-retry-delay`}
-                  type="number"
-                  min={0}
-                  value={executionRetryDelaySeconds}
-                  onChange={(event) => setExecutionRetryDelaySeconds(event.target.value)}
-                />
-              </div>
-              <div className="field">
-                <label htmlFor={`${idPrefix}-execution-per-modem-timeout`}>Per-Modem Timeout Seconds</label>
-                <input
-                  id={`${idPrefix}-execution-per-modem-timeout`}
-                  type="number"
-                  min={1}
-                  value={executionPerModemTimeoutSeconds}
-                  onChange={(event) => setExecutionPerModemTimeoutSeconds(event.target.value)}
-                />
-              </div>
-              <div className="field">
-                <label htmlFor={`${idPrefix}-execution-overall-timeout`}>Overall Timeout Seconds</label>
-                <input
-                  id={`${idPrefix}-execution-overall-timeout`}
-                  type="number"
-                  min={1}
-                  value={executionOverallTimeoutSeconds}
-                  onChange={(event) => setExecutionOverallTimeoutSeconds(event.target.value)}
+                  id={`${idPrefix}-tftp-ipv6`}
+                  value={tftpIpv6}
+                  onChange={(event) => setTftpIpv6(event.target.value)}
+                  placeholder="::"
                 />
               </div>
             </div>
+            <details className="capture-request-dropdown">
+              <summary className="capture-request-dropdown-summary">
+                <span>Execution</span>
+                <span className="capture-request-group-meta">Defaults from PW baseline</span>
+              </summary>
+              <div className="grid two">
+                <div className="field">
+                  <label htmlFor={`${idPrefix}-execution-max-workers`}>Max Workers</label>
+                  <input
+                    id={`${idPrefix}-execution-max-workers`}
+                    type="number"
+                    min={1}
+                    value={executionMaxWorkers}
+                    onChange={(event) => setExecutionMaxWorkers(event.target.value)}
+                  />
+                </div>
+                <div className="field">
+                  <label htmlFor={`${idPrefix}-execution-retry-count`}>Retry Count</label>
+                  <input
+                    id={`${idPrefix}-execution-retry-count`}
+                    type="number"
+                    min={0}
+                    value={executionRetryCount}
+                    onChange={(event) => setExecutionRetryCount(event.target.value)}
+                  />
+                </div>
+                <div className="field">
+                  <label htmlFor={`${idPrefix}-execution-retry-delay`}>Retry Delay Seconds</label>
+                  <input
+                    id={`${idPrefix}-execution-retry-delay`}
+                    type="number"
+                    min={0}
+                    value={executionRetryDelaySeconds}
+                    onChange={(event) => setExecutionRetryDelaySeconds(event.target.value)}
+                  />
+                </div>
+                <div className="field">
+                  <label htmlFor={`${idPrefix}-execution-per-modem-timeout`}>Per-Modem Timeout Seconds</label>
+                  <input
+                    id={`${idPrefix}-execution-per-modem-timeout`}
+                    type="number"
+                    min={1}
+                    value={executionPerModemTimeoutSeconds}
+                    onChange={(event) => setExecutionPerModemTimeoutSeconds(event.target.value)}
+                  />
+                </div>
+                <div className="field">
+                  <label htmlFor={`${idPrefix}-execution-overall-timeout`}>Overall Timeout Seconds</label>
+                  <input
+                    id={`${idPrefix}-execution-overall-timeout`}
+                    type="number"
+                    min={1}
+                    value={executionOverallTimeoutSeconds}
+                    onChange={(event) => setExecutionOverallTimeoutSeconds(event.target.value)}
+                  />
+                </div>
+              </div>
+            </details>
           </details>
         </section>
       </div>
 
       <section className="chart-frame capture-request-group">
-        <div className="capture-request-group-heading"><h3>Cable Modems</h3></div>
-        <div className="field">
+        <details className="capture-request-dropdown">
+          <summary className="capture-request-dropdown-summary">
+            <span>Cable Modems</span>
+          </summary>
+          <div className="field">
           <div className="capture-request-modem-toolbar">
             <div className="capture-request-modem-toolbar-main">
               <span className="capture-request-modem-toolbar-label">Cable Modem Selection</span>
@@ -610,8 +627,8 @@ export function ServingGroupCaptureRequestForm({
           {!loadingCableModems && !cableModemLoadError && cableModemRows.length === 0
             ? <p className="panel-copy">No cable modems returned for selected serving groups.</p>
             : null}
-          {cableModemRows.length > 0 ? (
-            <div className="table-wrap capture-request-table-wrap">
+            {cableModemRows.length > 0 ? (
+              <div className="table-wrap capture-request-table-wrap">
               <table>
                 <thead>
                   <tr>
@@ -657,9 +674,10 @@ export function ServingGroupCaptureRequestForm({
                   ))}
                 </tbody>
               </table>
-            </div>
-          ) : null}
-        </div>
+              </div>
+            ) : null}
+          </div>
+        </details>
       </section>
     </div>
   );

@@ -16,6 +16,7 @@ export function CmtsSgRxMerWorkflowPage() {
   const { selectedInstance } = useInstanceConfig();
   const [requestPayload, setRequestPayload] = useState<ServingGroupCaptureRequestPayload | null>(null);
   const [isJsonModalOpen, setIsJsonModalOpen] = useState(false);
+  const [isCaptureRequestCollapsed, setIsCaptureRequestCollapsed] = useState(true);
 
   return (
     <>
@@ -47,6 +48,15 @@ export function CmtsSgRxMerWorkflowPage() {
               <button
                 type="button"
                 className="operations-json-download"
+                onClick={() => setIsCaptureRequestCollapsed((current) => !current)}
+                aria-expanded={!isCaptureRequestCollapsed}
+                aria-controls="cmts-sg-rxmer-capture-request-body"
+              >
+                {isCaptureRequestCollapsed ? "Expand" : "Fold"}
+              </button>
+              <button
+                type="button"
+                className="operations-json-download"
                 disabled={!requestPayload}
                 onClick={() => setIsJsonModalOpen(true)}
               >
@@ -56,11 +66,14 @@ export function CmtsSgRxMerWorkflowPage() {
           </div>
         )}
       >
-        <ServingGroupCaptureRequestForm
-          baseUrl={selectedInstance?.baseUrl}
-          idPrefix="cmts-sg-rxmer"
-          onPayloadChange={setRequestPayload}
-        />
+        <div id="cmts-sg-rxmer-capture-request-body" hidden={isCaptureRequestCollapsed}>
+          <ServingGroupCaptureRequestForm
+            baseUrl={selectedInstance?.baseUrl}
+            idPrefix="cmts-sg-rxmer"
+            initialSnmpCommunity={selectedInstance?.requestDefaults?.snmpRwCommunity ?? ""}
+            onPayloadChange={setRequestPayload}
+          />
+        </div>
       </Panel>
       {isJsonModalOpen ? (
         <div

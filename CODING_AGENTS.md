@@ -70,6 +70,8 @@
 - When presenting dense grouped result sets, prefer collapsible cards or
   sections per group and default them to collapsed unless the workflow has a
   clear reason to expand them on first render.
+- In request forms, treat sub-cards as foldable sections by default so users
+  can progressively disclose inputs instead of scanning one expanded block.
 - Multi-series line graphs must provide shared mute/show controls for
   individual series instead of forcing all lines to remain visible.
 - Generic raw-response JSON download actions belong in the `Capture Inputs`
