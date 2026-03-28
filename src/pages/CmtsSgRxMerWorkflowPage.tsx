@@ -1,12 +1,16 @@
 import { useInstanceConfig } from "@/app/useInstanceConfig";
 import { Panel } from "@/components/common/Panel";
 import { ThinkingIndicator } from "@/components/common/ThinkingIndicator";
-import type { AdvancedOperationStatusSummary } from "@/features/advanced/useAdvancedOperationMachine";
 import { useAdvancedOperationMachine } from "@/features/advanced/useAdvancedOperationMachine";
 import {
   ServingGroupCaptureRequestForm,
   type ServingGroupCaptureRequestPayload,
 } from "@/features/serving-group/components/ServingGroupCaptureRequestForm";
+import {
+  formatOperationEpoch,
+  parseServingGroupOperationStartResponse,
+  parseServingGroupOperationStatusResponse,
+} from "@/features/serving-group/lib/operationStatus";
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
 import { getServingGroupRxMerCaptureStatus, startServingGroupRxMerCapture } from "@/services/servingGroupRxMerService";
@@ -15,120 +19,14 @@ const servingGroupRoutes = [
   { to: "/serving-group/rxmer", label: "RxMER" },
 ] as const;
 
-function readPath(input: unknown, path: string[]): unknown {
-  let current: unknown = input;
-  for (const key of path) {
-    if (!current || typeof current !== "object") {
-      return undefined;
-    }
-    current = (current as Record<string, unknown>)[key];
-  }
-  return current;
-}
-
-function readString(input: unknown, ...paths: string[][]): string {
-  for (const path of paths) {
-    const value = readPath(input, path);
-    if (typeof value === "string" && value.trim() !== "") {
-      return value.trim();
-    }
-  }
-  return "";
-}
-
-function readNumber(input: unknown, fallback = 0, ...paths: string[][]): number {
-  for (const path of paths) {
-    const value = readPath(input, path);
-    if (typeof value === "number" && Number.isFinite(value)) {
-      return value;
-    }
-    if (typeof value === "string" && value.trim() !== "") {
-      const parsed = Number.parseFloat(value);
-      if (Number.isFinite(parsed)) {
-        return parsed;
-      }
-    }
-  }
-  return fallback;
-}
-
-function inferState(response: unknown): string {
-  const explicitState = readString(response, ["operation", "state"], ["state"]);
-  if (explicitState) {
-    return explicitState;
-  }
-
-  const statusText = readString(response, ["status"]);
-  if (statusText.toLowerCase() === "completed") {
-    return "completed";
-  }
-
-  const completedFlag = readPath(response, ["operation", "completed"]);
-  if (completedFlag === true) {
-    return "completed";
-  }
-
-  const message = readString(response, ["operation", "message"], ["message"]).toLowerCase();
-  if (message.includes("complete") || message.includes("completed") || message.includes("success")) {
-    return "completed";
-  }
-
-  return "running";
-}
-
-function parseStartResponse(response: unknown): { groupId: string; operationId: string; message?: string | null } {
-  const operationId = readString(
-    response,
-    ["pnm_capture_operation_id"],
-    ["operation_id"],
-    ["operation", "operation_id"],
-    ["operation", "pnm_capture_operation_id"],
-  );
-  if (!operationId) {
-    throw new Error("Start capture response did not include operation_id.");
-  }
-  const groupId = readString(response, ["group_id"], ["cmts", "serving_group", "id"]) || "serving-group";
-  const message = readString(response, ["message"], ["operation", "message"]) || null;
-  return { groupId, operationId, message };
-}
-
-function parseStatusResponse(response: unknown): AdvancedOperationStatusSummary {
-  const operationId = readString(
-    response,
-    ["pnm_capture_operation_id"],
-    ["operation", "operation_id"],
-    ["operation_id"],
-    ["operation", "pnm_capture_operation_id"],
-    ["operation", "id"],
-  ) || "unknown-operation";
-  const state = inferState(response);
-  const collected = readNumber(response, 0, ["operation", "collected"], ["collected"]);
-  const timeRemaining = readNumber(
-    response,
-    0,
-    ["operation", "time_remaining"],
-    ["time_remaining"],
-    ["operation", "remaining_seconds"],
-  );
-  const message = readString(response, ["operation", "message"], ["message"]) || null;
-
-  return {
-    operationId,
-    state,
-    collected,
-    timeRemaining,
-    message,
-  };
-}
-
 export function CmtsSgRxMerWorkflowPage() {
   const { selectedInstance } = useInstanceConfig();
   const [requestPayload, setRequestPayload] = useState<ServingGroupCaptureRequestPayload | null>(null);
   const [isJsonModalOpen, setIsJsonModalOpen] = useState(false);
   const [isCaptureRequestCollapsed, setIsCaptureRequestCollapsed] = useState(true);
   const machine = useAdvancedOperationMachine<unknown, unknown>({
-    parseStart: parseStartResponse,
-    parseStatus: parseStatusResponse,
+    parseStart: (response) => parseServingGroupOperationStartResponse(response, "serving-group"),
+    parseStatus: parseServingGroupOperationStatusResponse,
     startOperation: async () => {
       if (!selectedInstance?.baseUrl || !requestPayload) {
         throw new Error("Capture request payload is not ready.");
@@ -148,7 +46,11 @@ export function CmtsSgRxMerWorkflowPage() {
       return getServingGroupRxMerCaptureStatus(selectedInstance.baseUrl, operationId);
     },
   });
-  const canStartCapture = Boolean(requestPayload && selectedInstance?.baseUrl && machine.canStart);
+  const canStartCapture = Boolean(
+    requestPayload
+    && selectedInstance?.baseUrl
+    && machine.canStart
+  );
 
   return (
     <>
@@ -214,6 +116,26 @@ export function CmtsSgRxMerWorkflowPage() {
               <span className="analysis-chip"><b>Time Remaining</b> {machine.statusSummary?.timeRemaining ?? 0}s</span>
               <span className="analysis-chip"><b>Operation ID</b> {machine.operationId ?? "n/a"}</span>
             </div>
+            <details className="capture-request-dropdown operation-status-details">
+              <summary className="capture-request-dropdown-summary">
+                <span>Operation Details</span>
+              </summary>
+              <div className="status-chip-row operation-status-chip-row">
+                <span className="analysis-chip"><b>Total Modems</b> {machine.statusSummary?.totalModems ?? 0}</span>
+                <span className="analysis-chip"><b>Eligible</b> {machine.statusSummary?.eligibleModems ?? 0}</span>
+                <span className="analysis-chip"><b>Precheck Passed</b> {machine.statusSummary?.precheckPassed ?? 0}</span>
+                <span className="analysis-chip"><b>Capture Started</b> {machine.statusSummary?.captureStarted ?? 0}</span>
+                <span className="analysis-chip"><b>Success</b> {machine.statusSummary?.successCount ?? 0}</span>
+                <span className="analysis-chip"><b>Failed</b> {machine.statusSummary?.failedCount ?? 0}</span>
+                <span className="analysis-chip"><b>Skipped</b> {machine.statusSummary?.skippedCount ?? 0}</span>
+              </div>
+              <div className="status-chip-row operation-status-chip-row">
+                <span className="analysis-chip"><b>Created</b> {formatOperationEpoch(machine.statusSummary?.createdEpoch)}</span>
+                <span className="analysis-chip"><b>Started</b> {formatOperationEpoch(machine.statusSummary?.startedEpoch)}</span>
+                <span className="analysis-chip"><b>Updated</b> {formatOperationEpoch(machine.statusSummary?.updatedEpoch)}</span>
+                <span className="analysis-chip"><b>Finished</b> {formatOperationEpoch(machine.statusSummary?.finishedEpoch)}</span>
+              </div>
+            </details>
             {machine.lifecycleState === "starting" || machine.lifecycleState === "running" ? (
               <ThinkingIndicator label="Running SG RxMER capture and polling status..." />
             ) : null}

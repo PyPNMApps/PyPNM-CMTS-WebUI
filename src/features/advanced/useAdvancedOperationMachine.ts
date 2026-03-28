@@ -12,6 +12,17 @@ export interface AdvancedOperationStatusSummary {
   macAddress?: string | null;
   model?: string | null;
   vendor?: string | null;
+  totalModems?: number;
+  eligibleModems?: number;
+  precheckPassed?: number;
+  captureStarted?: number;
+  successCount?: number;
+  failedCount?: number;
+  skippedCount?: number;
+  createdEpoch?: number;
+  startedEpoch?: number;
+  updatedEpoch?: number;
+  finishedEpoch?: number;
 }
 
 interface UseAdvancedOperationMachineOptions<TStartResponse, TStatusResponse> {
@@ -25,7 +36,10 @@ interface UseAdvancedOperationMachineOptions<TStartResponse, TStatusResponse> {
 
 function mapBackendState(state: string): AdvancedOperationLifecycleState {
   const normalized = state.toLowerCase();
+  if (normalized === "queued") return "starting";
   if (normalized === "running") return "running";
+  if (normalized === "cancelling") return "stopping";
+  if (normalized === "cancelled") return "stopped";
   if (normalized === "stopped") return "stopped";
   if (normalized === "completed" || normalized === "success") return "completed";
   if (normalized === "failed" || normalized === "error" || normalized === "unknown") return "failed";

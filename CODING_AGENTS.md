@@ -72,6 +72,12 @@
   clear reason to expand them on first render.
 - In request forms, treat sub-cards as foldable sections by default so users
   can progressively disclose inputs instead of scanning one expanded block.
+- Keep pages and forms lean by default: avoid stacking too many expanded
+  cards, chips, or helper elements at once when the same outcome can be shown
+  with fewer visible controls.
+- Prefer progressive disclosure over always-visible detail: advanced metadata,
+  secondary counters, and raw diagnostics should live in foldable sections or
+  on-demand views.
 - Multi-series line graphs must provide shared mute/show controls for
   individual series instead of forcing all lines to remain visible.
 - Generic raw-response JSON download actions belong in the `Capture Inputs`
@@ -203,3 +209,5 @@
 - Do not make changes in other repositories unless the user explicitly asks.
 - If a task appears to require touching another repository, ask for approval
   first before making any cross-repo changes.
+- Before implementing any non-trivial UI or form change, re-read this CA file
+  and explicitly align the change to its lean-layout and reuse-first rules.

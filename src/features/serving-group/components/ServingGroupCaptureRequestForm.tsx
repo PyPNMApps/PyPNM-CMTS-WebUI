@@ -1,4 +1,5 @@
 import { SecretTextInput } from "@/components/common/SecretTextInput";
+import { validateAndNormalizeChannelIds } from "@/lib/channelIds";
 import { requestWithBaseUrl } from "@/services/http";
 import { useEffect, useMemo, useState } from "react";
 
@@ -40,7 +41,7 @@ interface ServingGroupCaptureRequestFormProps {
   initialSnmpCommunity?: string;
   initialTftpIpv4?: string;
   initialTftpIpv6?: string;
-  onPayloadChange?: (payload: ServingGroupCaptureRequestPayload) => void;
+  onPayloadChange?: (payload: ServingGroupCaptureRequestPayload | null) => void;
 }
 
 interface CableModemListItem {
@@ -108,13 +109,6 @@ function collectServingGroupIds(source: unknown, output: Set<number>) {
   for (const value of Object.values(record)) {
     collectServingGroupIds(value, output);
   }
-}
-
-function parseChannelIds(value: string): number[] {
-  return value
-    .split(",")
-    .map((entry) => Number.parseInt(entry.trim(), 10))
-    .filter((entry) => Number.isInteger(entry));
 }
 
 function parsePositiveInteger(value: string, fallback: number): number {
@@ -187,6 +181,7 @@ export function ServingGroupCaptureRequestForm({
   const [sortKey, setSortKey] = useState<CableModemSortKey>("registrationStatus");
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
   const [filterMode, setFilterMode] = useState<CableModemFilter>("all");
+  const channelIdValidation = useMemo(() => validateAndNormalizeChannelIds(channelIdsRaw), [channelIdsRaw]);
 
   useEffect(() => {
     setCommunity(initialSnmpCommunity.trim());
@@ -308,22 +303,30 @@ export function ServingGroupCaptureRequestForm({
   }, [baseUrl, selectedServingGroupIds]);
 
   const requestPayload = useMemo<ServingGroupCaptureRequestPayload>(() => {
-    const parsedChannelIds = parseChannelIds(channelIdsRaw);
+    const parsedChannelIds = channelIdValidation.channelIds;
+    const allServingGroupsSelected = availableServingGroupIds.length > 0
+      && selectedServingGroupIds.length === availableServingGroupIds.length
+      && availableServingGroupIds.every((servingGroupId) => selectedServingGroupIds.includes(servingGroupId));
+    const allCableModemsSelected = cableModemRows.length > 0
+      && selectedCableModems.length === cableModemRows.length
+      && cableModemRows.every((row) => selectedCableModems.includes(row.macAddress));
+    const servingGroupIdsForRequest = allServingGroupsSelected ? [] : selectedServingGroupIds;
+    const cableModemsForRequest = allCableModemsSelected ? [] : selectedCableModems;
 
     return {
       cmts: {
         serving_group: {
-          id: selectedServingGroupIds,
+          id: servingGroupIdsForRequest,
         },
         cable_modem: {
-          mac_address: selectedCableModems,
+          mac_address: cableModemsForRequest,
           pnm_parameters: {
             tftp: {
               ipv4: tftpIpv4.trim(),
               ipv6: tftpIpv6.trim(),
             },
             capture: {
-              channel_ids: parsedChannelIds.length > 0 ? parsedChannelIds : [0],
+              channel_ids: parsedChannelIds,
             },
           },
           snmp: {
@@ -342,9 +345,11 @@ export function ServingGroupCaptureRequestForm({
       },
     };
   }, [
+    availableServingGroupIds,
+    cableModemRows,
+    channelIdValidation.channelIds,
     selectedServingGroupIds,
     selectedCableModems,
-    channelIdsRaw,
     tftpIpv4,
     tftpIpv6,
     community,
@@ -383,8 +388,12 @@ export function ServingGroupCaptureRequestForm({
   }, [sortedCableModemRows, filterMode]);
 
   useEffect(() => {
+    if (channelIdValidation.error) {
+      onPayloadChange?.(null);
+      return;
+    }
     onPayloadChange?.(requestPayload);
-  }, [requestPayload, onPayloadChange]);
+  }, [channelIdValidation.error, onPayloadChange, requestPayload]);
 
   function toggleServingGroupId(servingGroupId: number) {
     setSelectedServingGroupIds((current) => {
@@ -496,8 +505,11 @@ export function ServingGroupCaptureRequestForm({
                 id={`${idPrefix}-channel-ids`}
                 value={channelIdsRaw}
                 onChange={(event) => setChannelIdsRaw(event.target.value)}
-                placeholder="0 = all channels"
+                placeholder="Enter channel IDs; 0 alone means all channels"
               />
+              {channelIdValidation.error ? (
+                <p className="advanced-error-text">{channelIdValidation.error}</p>
+              ) : null}
             </div>
             <div className="grid two">
               <div className="field capture-request-compact-input">
