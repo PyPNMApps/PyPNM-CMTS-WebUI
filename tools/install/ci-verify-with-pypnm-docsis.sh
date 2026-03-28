@@ -78,11 +78,11 @@ if (selected !== "local-pypnm-agent") {
 }
 
 if (!instance) {
-  throw new Error("Expected Local PyPNM Agent instance to exist.");
+  throw new Error("Expected Local PyPNM-CMTS Agent instance to exist.");
 }
 
 if (instance.base_url !== "http://127.0.0.1:8000") {
-  throw new Error(`Expected Local PyPNM Agent base_url to be http://127.0.0.1:8000, received ${instance.base_url ?? "undefined"}`);
+  throw new Error(`Expected Local PyPNM-CMTS Agent base_url to be http://127.0.0.1:8000, received ${instance.base_url ?? "undefined"}`);
 }
 EOF
 }

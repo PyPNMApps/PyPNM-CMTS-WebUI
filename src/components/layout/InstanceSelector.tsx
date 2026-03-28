@@ -10,7 +10,7 @@ export function InstanceSelector() {
   return (
     <div className="instance-selector">
       <label className="instance-selector-label" htmlFor="instance-selector">
-        PyPNM Agent
+        PyPNM-CMTS Agent
       </label>
       <select
         id="instance-selector"

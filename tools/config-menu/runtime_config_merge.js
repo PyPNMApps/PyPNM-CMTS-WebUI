@@ -35,7 +35,7 @@ function dedupeInstances(instances, sourceLabel) {
 
   if (duplicateIds.size > 0) {
     console.warn(
-      `Duplicate PyPNM agent ids found in ${sourceLabel}: ${Array.from(duplicateIds).join(", ")}. Keeping first occurrence only.`,
+      `Duplicate PyPNM-CMTS agent ids found in ${sourceLabel}: ${Array.from(duplicateIds).join(", ")}. Keeping first occurrence only.`,
     );
   }
 

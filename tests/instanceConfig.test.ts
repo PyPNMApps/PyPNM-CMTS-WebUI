@@ -40,7 +40,7 @@ describe("sanitizeRawConfig", () => {
       label: "Rack 2",
     });
     expect(warnSpy).toHaveBeenCalledWith(
-      "Duplicate PyPNM agent ids found in /config/pypnm-instances.local.yaml: lab-local. Keeping first occurrence only.",
+      "Duplicate PyPNM-CMTS agent ids found in /config/pypnm-instances.local.yaml: lab-local. Keeping first occurrence only.",
     );
 
     warnSpy.mockRestore();

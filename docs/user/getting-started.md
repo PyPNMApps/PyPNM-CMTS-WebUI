@@ -42,6 +42,10 @@ This writes machine-local runtime overrides to:
 
 - `public/config/pypnm-instances.local.yaml`
 
+Useful menu shortcut:
+
+- choose `s` to show the minimal runtime YAML schema example
+
 ## 4. First operator check
 
 1. open `Health` and confirm the selected CMTS API is reachable

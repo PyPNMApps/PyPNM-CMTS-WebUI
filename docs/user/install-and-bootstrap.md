@@ -87,7 +87,7 @@ When `--with-pypnm-docsis` is used, it also:
 - installs `~/.local/bin/pypnm-docsis` as a shim to that backend CLI
 - chooses a local API host automatically or with one prompt
 - prompts for local API port in interactive installs unless overridden
-- configures `Local PyPNM Agent` in `public/config/pypnm-instances.local.yaml`
+- configures `Local PyPNM-CMTS Agent` in `public/config/pypnm-instances.local.yaml`
 - sets `local-pypnm-agent` as the selected runtime instance
 - installs local-stack helper commands
 

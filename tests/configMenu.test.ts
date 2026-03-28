@@ -281,6 +281,23 @@ describe("config_menu normalization", () => {
     expect(config.defaults.selected_instance).toBe("pypnm-agent-1");
   });
 
+  it("keeps selected_instance mapped to first instance when minimal template gains one agent", () => {
+    const config = normalizeConfig({
+      version: 1,
+      defaults: {
+        selected_instance: "pypnm-agent-1",
+        poll_interval_ms: 5000,
+        request_timeout_ms: 30000,
+        health_path: "/health",
+        logging: { level: "INFO" },
+      },
+      instances: [{ id: "cmts-lab", label: "CMTS Lab", base_url: "http://127.0.0.1:8080" }],
+    });
+
+    expect(config.instances).toHaveLength(1);
+    expect(config.defaults.selected_instance).toBe("cmts-lab");
+  });
+
   it("detects reserved local-pypnm-agent entries only when combined-install tagged", () => {
     expect(
       isReservedLocalAgentInstance({

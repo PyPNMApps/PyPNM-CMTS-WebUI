@@ -57,14 +57,14 @@ prompt_existing_state_choice() {
   fi
   if [ "${has_existing_local_config}" = "1" ]; then
     if [ -n "${existing_host}" ]; then
-      printf '  - existing Local PyPNM Agent endpoint: %s:%s\n' "${existing_host}" "${existing_port}" >&2
+      printf '  - existing Local PyPNM-CMTS Agent endpoint: %s:%s\n' "${existing_host}" "${existing_port}" >&2
     else
       printf '  - existing local runtime config file: %s\n' "${RUNTIME_LOCAL_PATH}" >&2
     fi
   fi
   printf '\n' >&2
   printf '  1) Continue with existing install/configuration\n' >&2
-  printf '  2) Continue and reconfigure Local PyPNM Agent host\n' >&2
+  printf '  2) Continue and reconfigure Local PyPNM-CMTS Agent host\n' >&2
   printf '  3) Cancel install\n' >&2
   printf '\n' >&2
 
@@ -433,7 +433,7 @@ write_local_runtime_config() {
   local selected_host="$1"
   local selected_port="$2"
 
-  log "Updating local runtime config for Local PyPNM Agent (${selected_host}:${selected_port})"
+  log "Updating local runtime config for Local PyPNM-CMTS Agent (${selected_host}:${selected_port})"
   SELECTED_HOST="${selected_host}" SELECTED_PORT="${selected_port}" node --input-type=module <<EOF
 import fs from "node:fs";
 import path from "node:path";

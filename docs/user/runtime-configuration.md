@@ -19,6 +19,33 @@ The UI merges these by instance `id`.
 pypnm-cmts-webui config-menu
 ```
 
+## Config menu schema view
+
+`config-menu` now includes a built-in schema preview:
+
+- `s) Show local runtime YAML schema`
+
+Use this to view the minimal runtime shape used by
+`public/config/pypnm-instances.local.yaml`:
+
+```yaml
+version: 1
+defaults:
+  selected_instance: pypnm-agent-1
+  poll_interval_ms: 5000
+  request_timeout_ms: 30000
+  health_path: /health
+  logging:
+    level: INFO
+instances: []
+```
+
+Notes:
+
+- `instances: []` is valid for a minimal local file.
+- when no instances are configured, `config-menu` preserves
+  `defaults.selected_instance` and does not force-create an agent.
+
 ## Required instance fields
 
 Each instance should include:

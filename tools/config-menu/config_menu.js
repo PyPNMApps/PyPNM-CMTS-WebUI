@@ -19,6 +19,9 @@ const DEFAULT_CONFIG = {
   },
   instances: [],
 };
+const AGENT_BRAND = "PyPNM-CMTS";
+const AGENT_LABEL_SINGULAR = `${AGENT_BRAND} Agent`;
+const AGENT_LABEL_PLURAL = `${AGENT_BRAND} Agents`;
 const RESERVED_LOCAL_AGENT_ID = "local-pypnm-agent";
 const RESERVED_LOCAL_AGENT_TAG = "combined-install";
 
@@ -109,7 +112,7 @@ function dedupeInstances(instances, sourceLabel) {
 
   if (duplicateIds.size > 0) {
     console.warn(
-      `Duplicate PyPNM agent ids found in ${sourceLabel}: ${Array.from(duplicateIds).join(", ")}. Keeping first occurrence only.`,
+      `Duplicate ${AGENT_BRAND} agent ids found in ${sourceLabel}: ${Array.from(duplicateIds).join(", ")}. Keeping first occurrence only.`,
     );
   }
 
@@ -557,7 +560,8 @@ async function editRuntimeDefaults(rl, config) {
 }
 
 async function addAgent(rl, config) {
-  process.stdout.write("\nAdd PyPNM Agent\n===============\n");
+  process.stdout.write(`\nAdd ${AGENT_LABEL_SINGULAR}\n===============\n`);
+  const hadNoInstances = config.instances.length === 0;
   const label = await promptLine(rl, "Agent label", "");
   const id = await promptLine(rl, "Agent id", slugifyId(label));
   const baseUrl = await promptBaseUrl(rl, "http://127.0.0.1:8080");
@@ -566,7 +570,6 @@ async function addAgent(rl, config) {
   const capabilities = await promptCsv(rl, "Capabilities (comma-separated)", ["health", "analysis"]);
   const pollingEnabled = await promptBoolean(rl, "Polling enabled", true);
   const pollingInterval = await promptNumber(rl, "Polling interval ms", config.defaults.poll_interval_ms);
-  const cableModemMac = await promptLine(rl, "Default cable modem MAC", "");
   const cableModemIp = await promptLine(rl, "Default cable modem IP", "");
   const tftpIpv4 = await promptLine(rl, "Default TFTP IPv4", "");
   const tftpIpv6 = await promptLine(rl, "Default TFTP IPv6", "");
@@ -593,7 +596,7 @@ async function addAgent(rl, config) {
     },
     request_defaults: {
       cable_modem: {
-        mac_address: cableModemMac,
+        mac_address: "",
         ip_address: cableModemIp,
       },
       tftp: {
@@ -615,7 +618,7 @@ async function addAgent(rl, config) {
     config.instances.push(agent);
   }
 
-  if (!config.defaults.selected_instance) {
+  if (hadNoInstances || !config.defaults.selected_instance) {
     config.defaults.selected_instance = agent.id;
   }
 }
@@ -667,11 +670,7 @@ async function editAgent(rl, config) {
   instance.capabilities = await promptCsv(rl, "Capabilities (comma-separated)", instance.capabilities);
   instance.polling.enabled = await promptBoolean(rl, "Polling enabled", instance.polling.enabled);
   instance.polling.interval_ms = await promptNumber(rl, "Polling interval ms", instance.polling.interval_ms);
-  instance.request_defaults.cable_modem.mac_address = await promptLine(
-    rl,
-    "Default cable modem MAC",
-    instance.request_defaults.cable_modem.mac_address,
-  );
+  instance.request_defaults.cable_modem.mac_address = "";
   instance.request_defaults.cable_modem.ip_address = await promptLine(
     rl,
     "Default cable modem IP",
@@ -738,7 +737,7 @@ async function manageAgents(rl, config, configPath) {
   while (true) {
     process.stdout.write(
       [
-        "\nPyPNM Agents",
+        `\n${AGENT_LABEL_PLURAL}`,
         "============",
         "1) Add agent",
         "2) Edit agent",
@@ -814,10 +813,10 @@ export async function runConfigMenu(metaUrl) {
     while (true) {
       process.stdout.write(
         [
-          "\nPyPNM-WebUI Config Menu",
-          "=======================",
+          "\nPyPNM-CMTS-WebUI Config Menu",
+          "============================",
           "1) Edit runtime defaults",
-          "2) Manage PyPNM agents",
+          "2) Manage PyPNM-CMTS agents",
           "s) Show local runtime YAML schema",
           "p) Print current pypnm-instances.local.yaml",
           "q) Quit",

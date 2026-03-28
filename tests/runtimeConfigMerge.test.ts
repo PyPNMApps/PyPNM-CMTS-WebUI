@@ -151,10 +151,10 @@ describe("mergeRuntimeConfig", () => {
       label: "Rack 2 A",
     });
     expect(warnSpy).toHaveBeenCalledWith(
-      "Duplicate PyPNM agent ids found in template runtime config: lab-local. Keeping first occurrence only.",
+      "Duplicate PyPNM-CMTS agent ids found in template runtime config: lab-local. Keeping first occurrence only.",
     );
     expect(warnSpy).toHaveBeenCalledWith(
-      "Duplicate PyPNM agent ids found in local runtime config: rack-2. Keeping first occurrence only.",
+      "Duplicate PyPNM-CMTS agent ids found in local runtime config: rack-2. Keeping first occurrence only.",
     );
 
     warnSpy.mockRestore();

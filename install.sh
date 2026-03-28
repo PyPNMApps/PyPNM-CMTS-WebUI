@@ -152,7 +152,7 @@ Options:
   --local-api-host      Preselect the local API host without prompting.
   --local-api-port      Set the local API port for generated runtime config.
   --reconfigure-local-agent
-                        Ignore any previously configured Local PyPNM Agent host.
+                        Ignore any previously configured Local PyPNM-CMTS Agent host.
   -h, --help            Show this help.
 EOF
 }

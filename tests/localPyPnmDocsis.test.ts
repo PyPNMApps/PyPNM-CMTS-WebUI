@@ -11,10 +11,10 @@ import {
 } from "../tools/install/local_pypnm_docsis.js";
 
 describe("local_pypnm_docsis", () => {
-  it("builds a default local PyPNM agent entry", () => {
+  it("builds a default local PyPNM-CMTS agent entry", () => {
     expect(buildLocalPyPnmInstance("172.19.8.28")).toMatchObject({
       id: LOCAL_PYPNM_INSTANCE_ID,
-      label: "Local PyPNM Agent",
+      label: "Local PyPNM-CMTS Agent",
       base_url: "http://172.19.8.28:8000",
       enabled: true,
       capabilities: ["health", "analysis", "files"],
@@ -27,7 +27,7 @@ describe("local_pypnm_docsis", () => {
     });
   });
 
-  it("builds a local PyPNM agent entry with an explicit API port", () => {
+  it("builds a local PyPNM-CMTS agent entry with an explicit API port", () => {
     expect(buildLocalPyPnmInstance("172.19.8.28", 8081)).toMatchObject({
       base_url: "http://172.19.8.28:8081",
       request_defaults: {
@@ -209,7 +209,7 @@ describe("local_pypnm_docsis", () => {
     ]);
   });
 
-  it("dedupes preserved local instances that point to the same base_url as Local PyPNM Agent", () => {
+  it("dedupes preserved local instances that point to the same base_url as Local PyPNM-CMTS Agent", () => {
     const merged = applyLocalPyPnmAgentConfig(
       {
         version: 1,

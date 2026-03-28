@@ -23,21 +23,21 @@
 version: 1
 
 defaults:
-  selected_instance: lab-local
+  selected_instance: pypnm-agent-1
   poll_interval_ms: 5000
   request_timeout_ms: 30000
   health_path: /health
+  logging:
+    level: INFO
 
-instances:
-  - id: lab-local
-    label: Lab Local
-    base_url: http://127.0.0.1:8080
-    enabled: true
-    tags: [lab, local]
-    capabilities: [health, analysis]
-    polling:
-      enabled: true
-      interval_ms: 5000
+instances: []
+```
+
+`config-menu` can print this schema directly with:
+
+```bash
+pypnm-cmts-webui config-menu
+# then press: s
 ```
 
 ## Example

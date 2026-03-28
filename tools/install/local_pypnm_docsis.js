@@ -1,7 +1,7 @@
 import { mergeRuntimeConfig } from "../config-menu/runtime_config_merge.js";
 
 export const LOCAL_PYPNM_INSTANCE_ID = "local-pypnm-agent";
-export const LOCAL_PYPNM_INSTANCE_LABEL = "Local PyPNM Agent";
+export const LOCAL_PYPNM_INSTANCE_LABEL = "Local PyPNM-CMTS Agent";
 export const PYPNM_DEFAULT_PORT = 8000;
 export const WEBUI_DEFAULT_PORT = 4175;
 
