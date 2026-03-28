@@ -95,6 +95,8 @@
   cursor non-pointer for disabled states.
 - For cable-modem registration status displays, use a shared chip mapping:
   green only for `operational`, and red for every other status.
+- Selected-state summary chips must remain visually pronounced in both themes;
+  use stronger theme-aware background and border contrast than neutral chips.
 - Capture-input fields should preserve stable browser autocomplete behavior on
   the same machine when that improves operator workflows.
 - Sensitive editable request inputs such as `SNMP RW Community` should be

@@ -114,6 +114,16 @@ function parseChannelIds(value: string): number[] {
     .filter((entry) => Number.isInteger(entry));
 }
 
+function parsePositiveInteger(value: string, fallback: number): number {
+  const parsed = Number.parseInt(value.trim(), 10);
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : fallback;
+}
+
+function parseNonNegativeInteger(value: string, fallback: number): number {
+  const parsed = Number.parseInt(value.trim(), 10);
+  return Number.isInteger(parsed) && parsed >= 0 ? parsed : fallback;
+}
+
 function normalizeCableModemRows(response: CableModemListResponse): CableModemRow[] {
   const rows: CableModemRow[] = [];
   const seenMacs = new Set<string>();
@@ -159,6 +169,11 @@ export function ServingGroupCaptureRequestForm({
   const [tftpIpv4, setTftpIpv4] = useState("");
   const [tftpIpv6, setTftpIpv6] = useState("");
   const [community, setCommunity] = useState("");
+  const [executionMaxWorkers, setExecutionMaxWorkers] = useState("16");
+  const [executionRetryCount, setExecutionRetryCount] = useState("3");
+  const [executionRetryDelaySeconds, setExecutionRetryDelaySeconds] = useState("5");
+  const [executionPerModemTimeoutSeconds, setExecutionPerModemTimeoutSeconds] = useState("30");
+  const [executionOverallTimeoutSeconds, setExecutionOverallTimeoutSeconds] = useState("120");
   const [cableModemRows, setCableModemRows] = useState<CableModemRow[]>([]);
   const [selectedCableModems, setSelectedCableModems] = useState<string[]>([]);
   const [loadingCableModems, setLoadingCableModems] = useState(false);
@@ -301,14 +316,26 @@ export function ServingGroupCaptureRequestForm({
         },
       },
       execution: {
-        max_workers: 16,
-        retry_count: 3,
-        retry_delay_seconds: 5,
-        per_modem_timeout_seconds: 30,
-        overall_timeout_seconds: 120,
+        max_workers: parsePositiveInteger(executionMaxWorkers, 16),
+        retry_count: parseNonNegativeInteger(executionRetryCount, 3),
+        retry_delay_seconds: parseNonNegativeInteger(executionRetryDelaySeconds, 5),
+        per_modem_timeout_seconds: parsePositiveInteger(executionPerModemTimeoutSeconds, 30),
+        overall_timeout_seconds: parsePositiveInteger(executionOverallTimeoutSeconds, 120),
       },
     };
-  }, [selectedServingGroupIds, selectedCableModems, channelIdsRaw, tftpIpv4, tftpIpv6, community]);
+  }, [
+    selectedServingGroupIds,
+    selectedCableModems,
+    channelIdsRaw,
+    tftpIpv4,
+    tftpIpv6,
+    community,
+    executionMaxWorkers,
+    executionRetryCount,
+    executionRetryDelaySeconds,
+    executionPerModemTimeoutSeconds,
+    executionOverallTimeoutSeconds,
+  ]);
 
   const sortedCableModemRows = useMemo(() => {
     const next = [...cableModemRows];
@@ -472,12 +499,57 @@ export function ServingGroupCaptureRequestForm({
               <span>Execution</span>
               <span className="capture-request-group-meta">Defaults from PW baseline</span>
             </summary>
-            <div className="status-chip-row">
-              <span className="analysis-chip"><b>max_workers</b> 16</span>
-              <span className="analysis-chip"><b>retry_count</b> 3</span>
-              <span className="analysis-chip"><b>retry_delay_seconds</b> 5</span>
-              <span className="analysis-chip"><b>per_modem_timeout_seconds</b> 30</span>
-              <span className="analysis-chip"><b>overall_timeout_seconds</b> 120</span>
+            <div className="grid two">
+              <div className="field">
+                <label htmlFor={`${idPrefix}-execution-max-workers`}>Max Workers</label>
+                <input
+                  id={`${idPrefix}-execution-max-workers`}
+                  type="number"
+                  min={1}
+                  value={executionMaxWorkers}
+                  onChange={(event) => setExecutionMaxWorkers(event.target.value)}
+                />
+              </div>
+              <div className="field">
+                <label htmlFor={`${idPrefix}-execution-retry-count`}>Retry Count</label>
+                <input
+                  id={`${idPrefix}-execution-retry-count`}
+                  type="number"
+                  min={0}
+                  value={executionRetryCount}
+                  onChange={(event) => setExecutionRetryCount(event.target.value)}
+                />
+              </div>
+              <div className="field">
+                <label htmlFor={`${idPrefix}-execution-retry-delay`}>Retry Delay Seconds</label>
+                <input
+                  id={`${idPrefix}-execution-retry-delay`}
+                  type="number"
+                  min={0}
+                  value={executionRetryDelaySeconds}
+                  onChange={(event) => setExecutionRetryDelaySeconds(event.target.value)}
+                />
+              </div>
+              <div className="field">
+                <label htmlFor={`${idPrefix}-execution-per-modem-timeout`}>Per-Modem Timeout Seconds</label>
+                <input
+                  id={`${idPrefix}-execution-per-modem-timeout`}
+                  type="number"
+                  min={1}
+                  value={executionPerModemTimeoutSeconds}
+                  onChange={(event) => setExecutionPerModemTimeoutSeconds(event.target.value)}
+                />
+              </div>
+              <div className="field">
+                <label htmlFor={`${idPrefix}-execution-overall-timeout`}>Overall Timeout Seconds</label>
+                <input
+                  id={`${idPrefix}-execution-overall-timeout`}
+                  type="number"
+                  min={1}
+                  value={executionOverallTimeoutSeconds}
+                  onChange={(event) => setExecutionOverallTimeoutSeconds(event.target.value)}
+                />
+              </div>
             </div>
           </details>
         </section>
@@ -486,49 +558,52 @@ export function ServingGroupCaptureRequestForm({
       <section className="chart-frame capture-request-group">
         <div className="capture-request-group-heading"><h3>Cable Modems</h3></div>
         <div className="field">
-          <label>Cable Modem Selection</label>
-          <div className="status-chip-row">
-            <span className="analysis-chip"><b>Selected</b> {selectedCableModems.length}</span>
-            <span className="analysis-chip"><b>Total</b> {cableModemRows.length}</span>
-          </div>
-          <div className="status-chip-row">
-            <button
-              type="button"
-              className={filterMode === "all" ? "analysis-chip-button active" : "analysis-chip-button"}
-              onClick={() => setFilterMode("all")}
-            >
-              All
-            </button>
-            <button
-              type="button"
-              className={filterMode === "operational" ? "analysis-chip-button active" : "analysis-chip-button"}
-              onClick={() => setFilterMode("operational")}
-            >
-              Operational Only
-            </button>
-          </div>
-          <div className="status-chip-row">
-            <button
-              type="button"
-              className="analysis-chip-button"
-              disabled={visibleCableModemRows.length === 0}
-              onClick={() => {
-                const visible = visibleCableModemRows.map((entry) => entry.macAddress);
-                setSelectedCableModems(visible);
-              }}
-            >
-              Select All
-            </button>
-            <button
-              type="button"
-              className="analysis-chip-button"
-              disabled={selectedCableModems.length === 0}
-              onClick={() => {
-                setSelectedCableModems([]);
-              }}
-            >
-              Unselect All
-            </button>
+          <div className="capture-request-modem-toolbar">
+            <div className="capture-request-modem-toolbar-main">
+              <span className="capture-request-modem-toolbar-label">Cable Modem Selection</span>
+              <div className="capture-request-selection-summary">
+                Selected {selectedCableModems.length} of {cableModemRows.length}
+              </div>
+            </div>
+            <div className="capture-request-filter-tabs">
+              <button
+                type="button"
+                className={filterMode === "all" ? "analysis-chip-button active" : "analysis-chip-button"}
+                onClick={() => setFilterMode("all")}
+              >
+                All
+              </button>
+              <button
+                type="button"
+                className={filterMode === "operational" ? "analysis-chip-button active" : "analysis-chip-button"}
+                onClick={() => setFilterMode("operational")}
+              >
+                Operational Only
+              </button>
+            </div>
+            <div className="capture-request-table-actions">
+              <button
+                type="button"
+                className="analysis-chip-button"
+                disabled={visibleCableModemRows.length === 0}
+                onClick={() => {
+                  const visible = visibleCableModemRows.map((entry) => entry.macAddress);
+                  setSelectedCableModems(visible);
+                }}
+              >
+                Select All
+              </button>
+              <button
+                type="button"
+                className="analysis-chip-button"
+                disabled={selectedCableModems.length === 0}
+                onClick={() => {
+                  setSelectedCableModems([]);
+                }}
+              >
+                Unselect All
+              </button>
+            </div>
           </div>
           {loadingCableModems ? <p className="panel-copy">Loading cable modems (light poll)...</p> : null}
           {cableModemLoadError ? <p className="panel-copy">Failed to load cable modems: {cableModemLoadError}</p> : null}
