@@ -80,6 +80,16 @@ function runtimeVersionPlugin() {
 
 export default defineConfig({
   plugins: [react(), clientLogPlugin(), runtimeVersionPlugin()],
+  server: {
+    watch: {
+      ignored: [
+        "**/.venv/**",
+        "**/.pypnm-venv/**",
+        "**/site/**",
+        "**/.git/**",
+      ],
+    },
+  },
   resolve: {
     alias: {
       "@": srcPath,
