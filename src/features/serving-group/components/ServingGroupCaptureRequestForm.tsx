@@ -38,6 +38,8 @@ interface ServingGroupCaptureRequestFormProps {
   baseUrl?: string;
   idPrefix?: string;
   initialSnmpCommunity?: string;
+  initialTftpIpv4?: string;
+  initialTftpIpv6?: string;
   onPayloadChange?: (payload: ServingGroupCaptureRequestPayload) => void;
 }
 
@@ -160,6 +162,8 @@ export function ServingGroupCaptureRequestForm({
   baseUrl,
   idPrefix = "serving-group-capture-request",
   initialSnmpCommunity = "",
+  initialTftpIpv4 = "",
+  initialTftpIpv6 = "",
   onPayloadChange,
 }: ServingGroupCaptureRequestFormProps) {
   const [availableServingGroupIds, setAvailableServingGroupIds] = useState<number[]>([]);
@@ -187,6 +191,14 @@ export function ServingGroupCaptureRequestForm({
   useEffect(() => {
     setCommunity(initialSnmpCommunity.trim());
   }, [initialSnmpCommunity]);
+
+  useEffect(() => {
+    setTftpIpv4(initialTftpIpv4.trim());
+  }, [initialTftpIpv4]);
+
+  useEffect(() => {
+    setTftpIpv6(initialTftpIpv6.trim());
+  }, [initialTftpIpv6]);
 
   useEffect(() => {
     let cancelled = false;
@@ -316,7 +328,7 @@ export function ServingGroupCaptureRequestForm({
           },
           snmp: {
             snmpV2C: {
-              community: community.trim(),
+              community: community.trim() || "private",
             },
           },
         },

@@ -22,8 +22,19 @@ http.interceptors.response.use(
     const url = String(error?.config?.url ?? "unknown-url");
     const status = error?.response?.status;
     const backendMessage = error?.response?.data?.message;
+    const validationDetail = error?.response?.data?.detail;
+    const validationHint = Array.isArray(validationDetail)
+      ? validationDetail
+        .map((entry) => {
+          const location = Array.isArray(entry?.loc) ? entry.loc.join(".") : "unknown";
+          const message = typeof entry?.msg === "string" ? entry.msg : "";
+          return message ? `${location}: ${message}` : location;
+        })
+        .filter((entry) => entry !== "")
+        .join("; ")
+      : "";
     const code = error?.code;
-    const message = backendMessage ?? error?.message ?? "Request failed";
+    const message = backendMessage ?? (validationHint ? `Validation failed: ${validationHint}` : undefined) ?? error?.message ?? "Request failed";
     logError("HTTP request failed", {
       method,
       url,

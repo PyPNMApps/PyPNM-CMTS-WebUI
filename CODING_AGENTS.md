@@ -99,6 +99,12 @@
   green only for `operational`, and red for every other status.
 - Selected-state summary chips must remain visually pronounced in both themes;
   use stronger theme-aware background and border contrast than neutral chips.
+- Chip rows must include consistent vertical breathing room. Keep at least
+  10px of separation above and below status/summary chip rows so cards do not
+  appear visually crowded in either theme.
+- Status-monitoring sections should use a consistent vertical stack rhythm:
+  chip row, loading/status text, and messages/errors separated by clear gaps
+  (about 8-12px) to keep the layout symmetric and readable.
 - Capture-input fields should preserve stable browser autocomplete behavior on
   the same machine when that improves operator workflows.
 - Sensitive editable request inputs such as `SNMP RW Community` should be
