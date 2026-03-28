@@ -1,9 +1,17 @@
 version: 1
 defaults:
-  selected_instance: default
+  selected_instance: pypnm-cmts-1
   poll_interval_ms: 5000
   request_timeout_ms: 30000
   health_path: /health
   logging:
     level: INFO
-instances: []
+instances:
+  - id: pypnm-cmts-1
+    label: PyPNM CMTS Agent
+    base_url: http://172.19.8.250:8080
+    health_path: /health
+    openapi_path: /openapi.json
+    tags:
+      - cmts
+      - lab
