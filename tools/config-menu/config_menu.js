@@ -165,10 +165,6 @@ function normalizeInstance(instance, defaults) {
         : defaults.poll_interval_ms,
     },
     request_defaults: {
-      cable_modem: {
-        mac_address: instance?.request_defaults?.cable_modem?.mac_address ?? "",
-        ip_address: instance?.request_defaults?.cable_modem?.ip_address ?? "",
-      },
       tftp: {
         ipv4: instance?.request_defaults?.tftp?.ipv4 ?? "",
         ipv6: instance?.request_defaults?.tftp?.ipv6 ?? "",
@@ -423,9 +419,6 @@ function printRuntimeConfigSchema() {
       "    enabled: true",
       "    interval_ms: 5000",
       "  request_defaults:",
-      "    cable_modem:",
-      "      mac_address: \"\"",
-      "      ip_address: \"\"",
       "    tftp:",
       "      ipv4: \"\"",
       "      ipv6: \"\"",
@@ -570,7 +563,6 @@ async function addAgent(rl, config) {
   const capabilities = await promptCsv(rl, "Capabilities (comma-separated)", ["health", "analysis"]);
   const pollingEnabled = await promptBoolean(rl, "Polling enabled", true);
   const pollingInterval = await promptNumber(rl, "Polling interval ms", config.defaults.poll_interval_ms);
-  const cableModemIp = await promptLine(rl, "Default cable modem IP", "");
   const tftpIpv4 = await promptLine(rl, "Default TFTP IPv4", "");
   const tftpIpv6 = await promptLine(rl, "Default TFTP IPv6", "");
   const channelIds = await promptLine(rl, "Default channel ids (0 means all)", "0");
@@ -595,10 +587,6 @@ async function addAgent(rl, config) {
       interval_ms: pollingInterval,
     },
     request_defaults: {
-      cable_modem: {
-        mac_address: "",
-        ip_address: cableModemIp,
-      },
       tftp: {
         ipv4: tftpIpv4,
         ipv6: tftpIpv6,
@@ -670,12 +658,6 @@ async function editAgent(rl, config) {
   instance.capabilities = await promptCsv(rl, "Capabilities (comma-separated)", instance.capabilities);
   instance.polling.enabled = await promptBoolean(rl, "Polling enabled", instance.polling.enabled);
   instance.polling.interval_ms = await promptNumber(rl, "Polling interval ms", instance.polling.interval_ms);
-  instance.request_defaults.cable_modem.mac_address = "";
-  instance.request_defaults.cable_modem.ip_address = await promptLine(
-    rl,
-    "Default cable modem IP",
-    instance.request_defaults.cable_modem.ip_address,
-  );
   instance.request_defaults.tftp.ipv4 = await promptLine(
     rl,
     "Default TFTP IPv4",

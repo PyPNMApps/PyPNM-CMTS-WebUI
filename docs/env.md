@@ -40,6 +40,9 @@ pypnm-cmts-webui config-menu
 # then press: s
 ```
 
+For this repo, `request_defaults.cable_modem` is optional and not required in
+runtime config.
+
 ## Example
 ```env
 VITE_PYPNM_API_BASE_URL=http://127.0.0.1:8000

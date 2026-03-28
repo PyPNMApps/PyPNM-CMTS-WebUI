@@ -113,7 +113,7 @@ function printConfigMenuHelp() {
       "Behavior:",
       "  - edits public/config/pypnm-instances.local.yaml",
       "  - manages PyPNM-CMTS agent entries",
-      "  - edits per-agent request defaults like IP, TFTP, and SNMP RW community",
+      "  - edits per-agent request defaults like TFTP and SNMP RW community",
       "  - saves after each edit",
       "  - creates a timestamped backup before overwriting prior config content",
       "",

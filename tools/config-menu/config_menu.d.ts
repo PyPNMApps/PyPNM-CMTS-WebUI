@@ -38,10 +38,6 @@ export function buildRuntimeConfigSchemaExample(): {
       interval_ms: number;
     };
     request_defaults: {
-      cable_modem: {
-        mac_address: string;
-        ip_address: string;
-      };
       tftp: {
         ipv4: string;
         ipv6: string;
@@ -79,10 +75,6 @@ export function normalizeConfig(raw: unknown): {
       interval_ms: number;
     };
     request_defaults: {
-      cable_modem: {
-        mac_address: string;
-        ip_address: string;
-      };
       tftp: {
         ipv4: string;
         ipv6: string;
@@ -128,10 +120,6 @@ export function saveConfig(
         interval_ms: number;
       };
       request_defaults: {
-        cable_modem: {
-          mac_address: string;
-          ip_address: string;
-        };
         tftp: {
           ipv4: string;
           ipv6: string;
@@ -174,10 +162,6 @@ export function ensureLocalRuntimeConfig(
         interval_ms: number;
       };
       request_defaults: {
-        cable_modem: {
-          mac_address: string;
-          ip_address: string;
-        };
         tftp: {
           ipv4: string;
           ipv6: string;

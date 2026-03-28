@@ -47,10 +47,6 @@ export function buildLocalPyPnmInstance(apiHost, apiPort = PYPNM_DEFAULT_PORT) {
       interval_ms: 5000,
     },
     request_defaults: {
-      cable_modem: {
-        mac_address: "",
-        ip_address: "",
-      },
       tftp: {
         ipv4: normalizedHost === "127.0.0.1" ? "127.0.0.1" : normalizedHost,
         ipv6: "::1",

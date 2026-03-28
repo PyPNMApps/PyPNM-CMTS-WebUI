@@ -57,10 +57,6 @@ describe("config_menu normalization", () => {
             interval_ms: 5000,
           },
           request_defaults: {
-            cable_modem: {
-              mac_address: "aa:bb:cc:dd:ee:ff",
-              ip_address: "192.168.100.10",
-            },
             tftp: {
               ipv4: "192.168.100.2",
               ipv6: "::1",
@@ -83,10 +79,6 @@ describe("config_menu normalization", () => {
             interval_ms: 3000,
           },
           request_defaults: {
-            cable_modem: {
-              mac_address: "aa:bb:cc:dd:ee:11",
-              ip_address: "10.10.20.44",
-            },
             tftp: {
               ipv4: "10.10.20.2",
               ipv6: "",
@@ -106,10 +98,6 @@ describe("config_menu normalization", () => {
     expect(config.defaults.logging.level).toBe("WARN");
     expect(config.instances).toHaveLength(2);
     expect(config.instances[1]?.request_defaults).toEqual({
-      cable_modem: {
-        mac_address: "aa:bb:cc:dd:ee:11",
-        ip_address: "10.10.20.44",
-      },
       tftp: {
         ipv4: "10.10.20.2",
         ipv6: "",
