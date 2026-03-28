@@ -1,4 +1,5 @@
 import { useInstanceConfig } from "@/app/useInstanceConfig";
+import { FoldablePanelTitle } from "@/components/common/FoldablePanelTitle";
 import { Panel } from "@/components/common/Panel";
 import { JsonPayloadModal } from "@/components/common/JsonPayloadModal";
 import { ThinkingIndicator } from "@/components/common/ThinkingIndicator";
@@ -14,7 +15,11 @@ import {
 } from "@/features/serving-group/lib/operationStatus";
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
-import { getServingGroupRxMerCaptureStatus, startServingGroupRxMerCapture } from "@/services/servingGroupRxMerService";
+import {
+  cancelServingGroupRxMerCapture,
+  getServingGroupRxMerCaptureStatus,
+  startServingGroupRxMerCapture,
+} from "@/services/servingGroupRxMerService";
 
 const servingGroupRoutes = [
   { to: "/serving-group/rxmer", label: "RxMER" },
@@ -27,6 +32,7 @@ export function CmtsSgRxMerWorkflowPage() {
   const [isResponseJsonModalOpen, setIsResponseJsonModalOpen] = useState(false);
   const [latestStatusResponsePayload, setLatestStatusResponsePayload] = useState<unknown | null>(null);
   const [isCaptureRequestCollapsed, setIsCaptureRequestCollapsed] = useState(true);
+  const [isCaptureStatusCollapsed, setIsCaptureStatusCollapsed] = useState(false);
   const machine = useAdvancedOperationMachine<unknown, unknown>({
     parseStart: (response) => parseServingGroupOperationStartResponse(response, "serving-group"),
     parseStatus: parseServingGroupOperationStatusResponse,
@@ -40,7 +46,7 @@ export function CmtsSgRxMerWorkflowPage() {
       if (!selectedInstance?.baseUrl) {
         throw new Error("No instance selected.");
       }
-      const response = await getServingGroupRxMerCaptureStatus(selectedInstance.baseUrl, operationId);
+      const response = await cancelServingGroupRxMerCapture(selectedInstance.baseUrl, operationId);
       setLatestStatusResponsePayload(response);
       return response;
     },
@@ -71,7 +77,12 @@ export function CmtsSgRxMerWorkflowPage() {
       <Panel
         title={(
           <div className="capture-request-title-layout">
-            <h2 className="panel-title-heading">Capture Request</h2>
+            <FoldablePanelTitle
+              id="cmts-sg-rxmer-capture-request-body"
+              label="Capture Request"
+              isCollapsed={isCaptureRequestCollapsed}
+              onToggle={() => setIsCaptureRequestCollapsed((current) => !current)}
+            />
             <div className="capture-request-title-center">
               <button
                 type="button"
@@ -83,17 +94,18 @@ export function CmtsSgRxMerWorkflowPage() {
               >
                 {machine.lifecycleState === "starting" ? "Starting..." : "Start Capture"}
               </button>
-            </div>
-            <div className="capture-request-title-actions">
               <button
                 type="button"
                 className="operations-json-download"
-                onClick={() => setIsCaptureRequestCollapsed((current) => !current)}
-                aria-expanded={!isCaptureRequestCollapsed}
-                aria-controls="cmts-sg-rxmer-capture-request-body"
+                disabled={!machine.canStop}
+                onClick={() => {
+                  void machine.stop();
+                }}
               >
-                {isCaptureRequestCollapsed ? "Expand" : "Fold"}
+                {machine.lifecycleState === "stopping" ? "Cancelling..." : "Cancel Capture"}
               </button>
+            </div>
+            <div className="capture-request-title-actions">
               <button
                 type="button"
                 className="operations-json-download"
@@ -120,7 +132,12 @@ export function CmtsSgRxMerWorkflowPage() {
       <Panel
         title={(
           <div className="capture-status-title-layout">
-            <h2 className="panel-title-heading">Capture Status</h2>
+            <FoldablePanelTitle
+              id="cmts-sg-rxmer-capture-status-body"
+              label="Capture Status"
+              isCollapsed={isCaptureStatusCollapsed}
+              onToggle={() => setIsCaptureStatusCollapsed((current) => !current)}
+            />
             <button
               type="button"
               className="operations-json-download"
@@ -132,7 +149,7 @@ export function CmtsSgRxMerWorkflowPage() {
           </div>
         )}
       >
-        <div className="operation-status-stack">
+        <div id="cmts-sg-rxmer-capture-status-body" className="operation-status-stack" hidden={isCaptureStatusCollapsed}>
           <div className="status-chip-row operation-status-chip-row">
             <span className="analysis-chip"><b>State</b> {machine.lifecycleState.toUpperCase()}</span>
             <span className="analysis-chip"><b>Polling</b> {machine.isPolling ? "yes" : "no"}</span>

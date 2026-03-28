@@ -758,6 +758,24 @@ button[aria-disabled="true"]:focus-visible,
   line-height: 1;
 }
 
+.panel-title-toggle {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  color: inherit;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.panel-title-toggle:hover .panel-title-heading,
+.panel-title-toggle:focus-visible .panel-title-heading {
+  color: var(--accent);
+}
+
 .capture-request-title-actions {
   margin-left: auto;
   display: inline-flex;
@@ -775,7 +793,9 @@ button[aria-disabled="true"]:focus-visible,
 
 .capture-request-title-center {
   display: inline-flex;
+  align-items: center;
   justify-content: center;
+  gap: 8px;
 }
 
 .capture-request-title-layout .panel-title-heading {
@@ -2057,7 +2077,8 @@ pre {
 }
 
 .capture-request-dropdown {
-  padding-top: 10px;
+  margin: 0;
+  padding-top: 0;
 }
 
 .capture-request-dropdown-summary {
@@ -2065,6 +2086,8 @@ pre {
   align-items: center;
   justify-content: space-between;
   gap: 10px;
+  min-height: 24px;
+  padding: 2px 0;
   cursor: pointer;
   list-style: none;
   font-size: 13px;
