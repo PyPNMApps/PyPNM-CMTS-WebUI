@@ -28,12 +28,21 @@ export function CmtsSgRxMerWorkflowPage() {
       </nav>
       <PageHeader
         title="CMTS SG Downstream OFDM RxMER"
-        subtitle="Capture Request form. SG IDs come from the active serving-group worker process."
+        subtitle=""
       />
       <Panel
         title={(
-          <>
+          <div className="capture-request-title-layout">
             <h2 className="panel-title-heading">Capture Request</h2>
+            <div className="capture-request-title-center">
+              <button
+                type="button"
+                className="primary"
+                disabled={!requestPayload}
+              >
+                Start Capture
+              </button>
+            </div>
             <div className="capture-request-title-actions">
               <button
                 type="button"
@@ -44,7 +53,7 @@ export function CmtsSgRxMerWorkflowPage() {
                 Request JSON
               </button>
             </div>
-          </>
+          </div>
         )}
       >
         <ServingGroupCaptureRequestForm
