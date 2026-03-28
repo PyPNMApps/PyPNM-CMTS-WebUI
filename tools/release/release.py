@@ -179,9 +179,14 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--skip-test", action="store_true", help="Skip npm run test")
     parser.add_argument("--skip-build", action="store_true", help="Skip npm run build")
     parser.add_argument(
+        "--with-docs-previews",
+        action="store_true",
+        help="Include npm run docs:capture-ui-previews in release flow (default: off)",
+    )
+    parser.add_argument(
         "--skip-docs-previews",
         action="store_true",
-        help="Skip npm run docs:capture-ui-previews",
+        help="Alias for not running docs UI previews (default behavior)",
     )
     parser.add_argument(
         "--with-live-endpoint-examples",
@@ -244,7 +249,7 @@ def main() -> None:
     _run_step(
         "npm-docs-previews",
         _npm_cmd("docs:capture-ui-previews"),
-        enabled=not args.skip_docs_previews,
+        enabled=args.with_docs_previews and not args.skip_docs_previews,
     )
     _run_step(
         "sanitize-runtime-config",
