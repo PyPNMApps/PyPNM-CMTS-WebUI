@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import type { ReactNode } from "react";
 
 import { useInstanceConfig } from "@/app/useInstanceConfig";
 import { PageHeader } from "@/components/common/PageHeader";
@@ -19,6 +20,12 @@ interface OperationSeriesWorkflowPageProps {
   subtitle: string;
   workflowId: string;
   steps: WorkflowStepDefinition[];
+  renderPayloadEditor?: (args: {
+    stepKey: string;
+    payload: string;
+    onPayloadChange: (nextPayload: string) => void;
+    workflowId: string;
+  }) => ReactNode;
 }
 
 interface OperationResponseWithOperationId {
@@ -50,7 +57,7 @@ function injectOperationId(rawPayload: string, operationId: string): string {
   }
 }
 
-export function OperationSeriesWorkflowPage({ title, subtitle, workflowId, steps }: OperationSeriesWorkflowPageProps) {
+export function OperationSeriesWorkflowPage({ title, subtitle, workflowId, steps, renderPayloadEditor }: OperationSeriesWorkflowPageProps) {
   const { selectedInstance } = useInstanceConfig();
 
   const resolvedSteps = useMemo(() => {
@@ -171,6 +178,14 @@ export function OperationSeriesWorkflowPage({ title, subtitle, workflowId, steps
         const payload = payloads[step.key] ?? "";
         const response = responses[step.key] ?? "";
         const error = errors[step.key] ?? "";
+        const customPayloadEditor = renderPayloadEditor?.({
+          stepKey: step.key,
+          payload,
+          onPayloadChange: (nextPayload) => {
+            setPayloads((current) => ({ ...current, [step.key]: nextPayload }));
+          },
+          workflowId,
+        });
 
         return (
           <Panel key={step.key} title={step.title}>
@@ -178,19 +193,21 @@ export function OperationSeriesWorkflowPage({ title, subtitle, workflowId, steps
               <label htmlFor={`${workflowId}-endpoint-${step.key}`}>Endpoint</label>
               <input id={`${workflowId}-endpoint-${step.key}`} value={step.operation.endpointPath} readOnly />
             </div>
-            <div className="field">
-              <label htmlFor={`${workflowId}-payload-${step.key}`}>Request JSON</label>
-              <textarea
-                id={`${workflowId}-payload-${step.key}`}
-                className="mono"
-                value={payload}
-                onChange={(event) => {
-                  const nextPayload = event.target.value;
-                  setPayloads((current) => ({ ...current, [step.key]: nextPayload }));
-                }}
-                rows={18}
-              />
-            </div>
+            {customPayloadEditor ?? (
+              <div className="field">
+                <label htmlFor={`${workflowId}-payload-${step.key}`}>Request JSON</label>
+                <textarea
+                  id={`${workflowId}-payload-${step.key}`}
+                  className="mono"
+                  value={payload}
+                  onChange={(event) => {
+                    const nextPayload = event.target.value;
+                    setPayloads((current) => ({ ...current, [step.key]: nextPayload }));
+                  }}
+                  rows={18}
+                />
+              </div>
+            )}
             <div className="actions">
               <button
                 type="button"
