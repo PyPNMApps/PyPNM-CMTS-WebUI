@@ -26,7 +26,8 @@ cover the Ubuntu/Python matrix combinations.
 
 Combined-install coverage verifies:
 
-- `./install.sh --with-pypnm-docsis-cmts`
+- `./install.sh --with-pypnm-cmts-webui --with-pypnm-docsis-cmts`
+- profile/package guardrails (no mixed profile/backend package)
 - runtime config generation
 - local stack startup expectations
 

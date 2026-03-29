@@ -3,7 +3,7 @@
 ## Local setup
 
 ```bash
-./install.sh --development
+./install.sh --with-pypnm-cmts-webui --development
 pypnm-cmts-webui serve
 ```
 

@@ -3,9 +3,14 @@ set -euo pipefail
 
 ROOT_DIR=""
 PYTHON_BIN="python3"
+PRODUCT_PROFILE="pypnm-cmts-webui"
 PYPNM_DOCSIS_PATH=""
 PYPNM_DOCSIS_VERSION=""
 PYPNM_DOCSIS_PIP_PACKAGE="pypnm-docsis-cmts"
+BACKEND_CLI_SHIM_NAME="pypnm-docsis-cmts"
+WEBUI_CLI_NAME="pypnm-cmts-webui"
+LOCAL_STACK_SHIM_NAME="pypnm-cmts-webui-local-stack"
+LOCAL_AGENT_LABEL="Local PyPNM-CMTS Agent"
 LOCAL_API_HOST=""
 LOCAL_API_PORT=""
 RECONFIGURE_LOCAL_AGENT=0
@@ -57,14 +62,14 @@ prompt_existing_state_choice() {
   fi
   if [ "${has_existing_local_config}" = "1" ]; then
     if [ -n "${existing_host}" ]; then
-      printf '  - existing Local PyPNM-CMTS Agent endpoint: %s:%s\n' "${existing_host}" "${existing_port}" >&2
+      printf '  - existing %s endpoint: %s:%s\n' "${LOCAL_AGENT_LABEL}" "${existing_host}" "${existing_port}" >&2
     else
       printf '  - existing local runtime config file: %s\n' "${RUNTIME_LOCAL_PATH}" >&2
     fi
   fi
   printf '\n' >&2
   printf '  1) Continue with existing install/configuration\n' >&2
-  printf '  2) Continue and reconfigure Local PyPNM-CMTS Agent host\n' >&2
+  printf '  2) Continue and reconfigure %s host\n' "${LOCAL_AGENT_LABEL}" >&2
   printf '  3) Cancel install\n' >&2
   printf '\n' >&2
 
@@ -116,8 +121,14 @@ Usage:
 Options:
   --root-dir <path>              PyPNM-CMTS-WebUI repo root (required).
   --python-bin <python>          Python executable to use (default: python3).
+  --product-profile <profile>    Product profile (pypnm-webui or pypnm-cmts-webui).
+  --backend-pip-package <name>   Backend package name to install from pip.
+  --backend-cli-name <name>      Name for ~/.local/bin backend shim command.
+  --webui-cli-name <name>        Name for WebUI CLI command in output messages.
+  --local-stack-shim-name <name> Name for ~/.local/bin local-stack shim command.
+  --local-agent-label <label>    Runtime label for the generated local agent.
   --pypnm-docsis-path <path>     Install backend from a local PyPNM checkout.
-  --pypnm-docsis-version <ver>   Install a specific pypnm-docsis-cmts version from pip.
+  --pypnm-docsis-version <ver>   Install a specific backend package version from pip.
   --local-api-host <host>        Preselect the local API host without prompting.
   --local-api-port <port>        Set the local API port in runtime config.
   --reconfigure-local-agent      Ignore any previously configured local API host.
@@ -139,6 +150,30 @@ parse_args() {
       --pypnm-docsis-path)
         shift
         PYPNM_DOCSIS_PATH="${1:-}"
+        ;;
+      --product-profile)
+        shift
+        PRODUCT_PROFILE="${1:-}"
+        ;;
+      --backend-pip-package)
+        shift
+        PYPNM_DOCSIS_PIP_PACKAGE="${1:-}"
+        ;;
+      --backend-cli-name)
+        shift
+        BACKEND_CLI_SHIM_NAME="${1:-}"
+        ;;
+      --webui-cli-name)
+        shift
+        WEBUI_CLI_NAME="${1:-}"
+        ;;
+      --local-stack-shim-name)
+        shift
+        LOCAL_STACK_SHIM_NAME="${1:-}"
+        ;;
+      --local-agent-label)
+        shift
+        LOCAL_AGENT_LABEL="${1:-}"
         ;;
       --pypnm-docsis-version)
         shift
@@ -433,8 +468,8 @@ write_local_runtime_config() {
   local selected_host="$1"
   local selected_port="$2"
 
-  log "Updating local runtime config for Local PyPNM-CMTS Agent (${selected_host}:${selected_port})"
-  SELECTED_HOST="${selected_host}" SELECTED_PORT="${selected_port}" node --input-type=module <<EOF
+  log "Updating local runtime config for ${LOCAL_AGENT_LABEL} (${selected_host}:${selected_port})"
+  SELECTED_HOST="${selected_host}" SELECTED_PORT="${selected_port}" LOCAL_AGENT_LABEL="${LOCAL_AGENT_LABEL}" node --input-type=module <<EOF
 import fs from "node:fs";
 import path from "node:path";
 import { parse, stringify } from "yaml";
@@ -446,7 +481,9 @@ const localPath = fs.existsSync(outputPath) ? outputPath : "";
 const templateConfig = parse(fs.readFileSync(templatePath, "utf8")) ?? {};
 const localConfig = localPath ? (parse(fs.readFileSync(localPath, "utf8")) ?? {}) : {};
 const selectedPort = Number.parseInt(process.env.SELECTED_PORT ?? "", 10);
-const merged = applyLocalPyPnmAgentConfig(templateConfig, localConfig, process.env.SELECTED_HOST ?? "", selectedPort);
+const merged = applyLocalPyPnmAgentConfig(templateConfig, localConfig, process.env.SELECTED_HOST ?? "", selectedPort, {
+  localAgentLabel: process.env.LOCAL_AGENT_LABEL ?? "Local PyPNM Agent",
+});
 const nextContent = stringify(merged, { indent: 2 });
 
 fs.mkdirSync(path.dirname(outputPath), { recursive: true });
@@ -463,7 +500,7 @@ EOF
 
 install_local_stack_shim() {
   local user_bin_dir="${HOME}/.local/bin"
-  local shim_path="${user_bin_dir}/pypnm-cmts-webui-local-stack"
+  local shim_path="${user_bin_dir}/${LOCAL_STACK_SHIM_NAME}"
 
   mkdir -p "${user_bin_dir}"
   printf '%s\n' "#!/usr/bin/env bash" >"${shim_path}"
@@ -474,7 +511,7 @@ install_local_stack_shim() {
 
 install_backend_cli_shim() {
   local user_bin_dir="${HOME}/.local/bin"
-  local shim_path="${user_bin_dir}/pypnm-docsis-cmts"
+  local shim_path="${user_bin_dir}/${BACKEND_CLI_SHIM_NAME}"
   local backend_cli="${ROOT_DIR}/${BACKEND_VENV_PATH}/bin/pypnm"
 
   [ -x "${backend_cli}" ] || fail "Backend CLI missing after install: ${backend_cli}"
@@ -490,6 +527,11 @@ main() {
   parse_args "$@"
 
   [ -n "${ROOT_DIR}" ] || fail "--root-dir is required."
+  [ -n "${PYPNM_DOCSIS_PIP_PACKAGE}" ] || fail "--backend-pip-package is required."
+  [ -n "${BACKEND_CLI_SHIM_NAME}" ] || fail "--backend-cli-name is required."
+  [ -n "${WEBUI_CLI_NAME}" ] || fail "--webui-cli-name is required."
+  [ -n "${LOCAL_STACK_SHIM_NAME}" ] || fail "--local-stack-shim-name is required."
+  [ -n "${LOCAL_AGENT_LABEL}" ] || fail "--local-agent-label is required."
   cd "${ROOT_DIR}"
   prompt_existing_state_choice
   ensure_python_venv_prereqs
@@ -507,8 +549,8 @@ main() {
 
   log "Combined local install complete"
   log "Local PyPNM API URL: http://${selected_host}:${selected_port}"
-  log "Run backend directly with: pypnm-docsis-cmts serve --host ${selected_host} --port ${selected_port}"
-  log "Start both services with: pypnm-cmts-webui start-local-stack"
+  log "Run backend directly with: ${BACKEND_CLI_SHIM_NAME} serve --host ${selected_host} --port ${selected_port}"
+  log "Start both services with: ${WEBUI_CLI_NAME} start-local-stack"
 }
 
 main "$@"

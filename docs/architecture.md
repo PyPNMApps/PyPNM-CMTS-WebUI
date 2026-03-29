@@ -109,6 +109,44 @@ flowchart LR
   PCWAPI --> BACKEND
 ```
 
+## Unified install profile architecture (Phase 1)
+
+Installer now enforces an explicit product profile and profile-matched backend
+add-on packages.
+
+- profiles:
+  - `--with-pypnm-webui`
+  - `--with-pypnm-cmts-webui`
+- backend add-ons:
+  - `--with-pypnm-docsis` (PW profile only)
+  - `--with-pypnm-docsis-cmts` (PCW profile only)
+
+Installer guardrails reject mixed profile/package combinations.
+
+The selected profile is persisted to `.env` as `PRODUCT_PROFILE`.
+
+Runtime template selection is profile-aware:
+
+- `public/config/templates/pw/pypnm-instances.yaml`
+- `public/config/templates/pcw/pypnm-instances.yaml`
+- copied to `public/config/pypnm-instances.yaml` before runtime local merge
+
+```mermaid
+flowchart TD
+  A[install.sh flags] --> B{Select profile}
+  B -->|pypnm-webui| C[PRODUCT_PROFILE=pypnm-webui]
+  B -->|pypnm-cmts-webui| D[PRODUCT_PROFILE=pypnm-cmts-webui]
+  C --> E[Apply templates/pw/pypnm-instances.yaml]
+  D --> F[Apply templates/pcw/pypnm-instances.yaml]
+  E --> G[Merge to pypnm-instances.local.yaml]
+  F --> G
+  G --> H[Runtime config consumed by UI]
+  C --> I{Backend add-on}
+  D --> I
+  I -->|pypnm-docsis| J[Allowed only with pypnm-webui]
+  I -->|pypnm-docsis-cmts| K[Allowed only with pypnm-cmts-webui]
+```
+
 ## Constraints
 
 - no backend logic in UI

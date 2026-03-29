@@ -5,7 +5,7 @@
 If `pypnm-cmts-webui` is not found:
 
 ```bash
-./install.sh
+./install.sh --with-pypnm-cmts-webui
 source ~/.bashrc
 pypnm-cmts-webui --help
 ```
@@ -51,6 +51,6 @@ Use Node 22 and reinstall:
 
 ```bash
 node -v
-./install.sh
+./install.sh --with-pypnm-cmts-webui
 npm run build
 ```

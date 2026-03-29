@@ -9,14 +9,27 @@ UPDATE_WEBUI=0
 UPDATE_TAG=""
 UPDATE_BRANCH_PREFIX="cmts-webui-"
 WITH_PYPNM_DOCSIS=0
+PRODUCT_PROFILE=""
+PROFILE_FLAG_PW=0
+PROFILE_FLAG_PCW=0
+WITH_PYPNM_DOCSIS_PW=0
+WITH_PYPNM_DOCSIS_PCW=0
+PYPNM_DOCSIS_PIP_PACKAGE=""
+PYPNM_DOCSIS_CLI_NAME=""
+LOCAL_STACK_SHIM_NAME=""
+LOCAL_AGENT_LABEL=""
+WEBUI_CLI_NAME="pypnm-cmts-webui"
 PYPNM_DOCSIS_PATH=""
 PYPNM_DOCSIS_VERSION=""
 LOCAL_API_HOST=""
 LOCAL_API_PORT=""
 RECONFIGURE_LOCAL_AGENT=0
 DEVELOPMENT_MODE=0
+PROFILE_PW="pypnm-webui"
+PROFILE_PCW="pypnm-cmts-webui"
 RUNTIME_TEMPLATE_PATH="public/config/pypnm-instances.yaml"
 RUNTIME_LOCAL_PATH="public/config/pypnm-instances.local.yaml"
+RUNTIME_TEMPLATE_DIR="public/config/templates"
 
 log() {
   printf '[install] %s\n' "$1"
@@ -37,8 +50,8 @@ print_banner() {
   fi
   printf '\n'
   printf '[install] repo: %s\n' "${ROOT_DIR}"
-  printf '[install] options: development=%s with_pypnm_docsis=%s update_webui=%s\n' \
-    "${DEVELOPMENT_MODE}" "${WITH_PYPNM_DOCSIS}" "${UPDATE_WEBUI}"
+  printf '[install] options: profile=%s development=%s backend_addon=%s update_webui=%s\n' \
+    "${PRODUCT_PROFILE:-unset}" "${DEVELOPMENT_MODE}" "${PYPNM_DOCSIS_PIP_PACKAGE:-none}" "${UPDATE_WEBUI}"
   printf '\n'
 }
 
@@ -137,15 +150,23 @@ print_help() {
 Usage:
   ./install.sh
   ./install.sh --development
+  ./install.sh --with-pypnm-webui [options]
+  ./install.sh --with-pypnm-cmts-webui [options]
   ./install.sh --update-cmts-webui [tag]
+  ./install.sh --with-pypnm-docsis [options]
   ./install.sh --with-pypnm-docsis-cmts [options]
 
 Options:
   --development         Install Python development tooling into .venv.
+  --with-pypnm-webui, -pw
+                        Select the PyPNM-WebUI product profile.
+  --with-pypnm-cmts-webui, -pcw
+                        Select the PyPNM-CMTS-WebUI product profile.
   --update-cmts-webui [tag]
                         Update this existing checkout to the latest tag or the
                         provided tag, then reinstall dependencies and refresh
                         the local runtime config override.
+  --with-pypnm-docsis   Install a local pypnm-docsis backend add-on.
   --with-pypnm-docsis-cmts
                         Install a local pypnm-docsis-cmts backend alongside WebUI.
   --pypnm-docsis-path   Install pypnm-docsis-cmts from a local PyPNM checkout.
@@ -174,9 +195,17 @@ parse_args() {
         ;;
       --with-pypnm-docsis-cmts|--with-pypnm-docsis)
         if [ "$1" = "--with-pypnm-docsis" ]; then
-          log "WARN: --with-pypnm-docsis is deprecated. Use --with-pypnm-docsis-cmts."
+          WITH_PYPNM_DOCSIS_PW=1
+        else
+          WITH_PYPNM_DOCSIS_PCW=1
         fi
         WITH_PYPNM_DOCSIS=1
+        ;;
+      --with-pypnm-webui|-pw)
+        PROFILE_FLAG_PW=1
+        ;;
+      --with-pypnm-cmts-webui|-pcw)
+        PROFILE_FLAG_PCW=1
         ;;
       --development)
         DEVELOPMENT_MODE=1
@@ -210,6 +239,105 @@ parse_args() {
     esac
     shift
   done
+}
+
+read_env_value() {
+  local key="$1"
+  local env_path="${ROOT_DIR}/.env"
+  if [ ! -f "${env_path}" ]; then
+    return
+  fi
+  sed -n "s/^${key}=//p" "${env_path}" | tail -n1
+}
+
+upsert_env_value() {
+  local key="$1"
+  local value="$2"
+  local env_path="${ROOT_DIR}/.env"
+  if [ ! -f "${env_path}" ]; then
+    return
+  fi
+  if grep -q "^${key}=" "${env_path}"; then
+    sed -i "s|^${key}=.*$|${key}=${value}|" "${env_path}"
+  else
+    printf '\n%s=%s\n' "${key}" "${value}" >>"${env_path}"
+  fi
+}
+
+fail_profile_usage() {
+  cat >&2 <<'EOF'
+[install][error] Invalid product/backend option combination.
+[install][error] Valid examples:
+[install][error]   ./install.sh --with-pypnm-webui
+[install][error]   ./install.sh --with-pypnm-webui --with-pypnm-docsis
+[install][error]   ./install.sh --with-pypnm-cmts-webui
+[install][error]   ./install.sh --with-pypnm-cmts-webui --with-pypnm-docsis-cmts
+EOF
+  exit 1
+}
+
+resolve_install_profile() {
+  if [ "${PROFILE_FLAG_PW}" -eq 1 ] && [ "${PROFILE_FLAG_PCW}" -eq 1 ]; then
+    fail_profile_usage
+  fi
+  if [ "${WITH_PYPNM_DOCSIS_PW}" -eq 1 ] && [ "${WITH_PYPNM_DOCSIS_PCW}" -eq 1 ]; then
+    fail_profile_usage
+  fi
+
+  if [ "${PROFILE_FLAG_PW}" -eq 1 ]; then
+    PRODUCT_PROFILE="${PROFILE_PW}"
+  elif [ "${PROFILE_FLAG_PCW}" -eq 1 ]; then
+    PRODUCT_PROFILE="${PROFILE_PCW}"
+  fi
+
+  if [ -z "${PRODUCT_PROFILE}" ]; then
+    PRODUCT_PROFILE="$(read_env_value "PRODUCT_PROFILE" || true)"
+  fi
+
+  if [ -z "${PRODUCT_PROFILE}" ]; then
+    if [ "${WITH_PYPNM_DOCSIS_PW}" -eq 1 ]; then
+      PRODUCT_PROFILE="${PROFILE_PW}"
+    elif [ "${WITH_PYPNM_DOCSIS_PCW}" -eq 1 ]; then
+      PRODUCT_PROFILE="${PROFILE_PCW}"
+    fi
+  fi
+
+  if [ -z "${PRODUCT_PROFILE}" ]; then
+    fail_profile_usage
+  fi
+
+  case "${PRODUCT_PROFILE}" in
+    "${PROFILE_PW}")
+      UPDATE_BRANCH_PREFIX="webui-"
+      WEBUI_CLI_NAME="pypnm-webui"
+      LOCAL_STACK_SHIM_NAME="pypnm-webui-local-stack"
+      LOCAL_AGENT_LABEL="Local PyPNM Agent"
+      ;;
+    "${PROFILE_PCW}")
+      UPDATE_BRANCH_PREFIX="cmts-webui-"
+      WEBUI_CLI_NAME="pypnm-cmts-webui"
+      LOCAL_STACK_SHIM_NAME="pypnm-cmts-webui-local-stack"
+      LOCAL_AGENT_LABEL="Local PyPNM-CMTS Agent"
+      ;;
+    *)
+      fail "Unsupported PRODUCT_PROFILE value: ${PRODUCT_PROFILE}"
+      ;;
+  esac
+
+  if [ "${WITH_PYPNM_DOCSIS_PW}" -eq 1 ] && [ "${PRODUCT_PROFILE}" != "${PROFILE_PW}" ]; then
+    fail_profile_usage
+  fi
+  if [ "${WITH_PYPNM_DOCSIS_PCW}" -eq 1 ] && [ "${PRODUCT_PROFILE}" != "${PROFILE_PCW}" ]; then
+    fail_profile_usage
+  fi
+
+  if [ "${WITH_PYPNM_DOCSIS_PW}" -eq 1 ]; then
+    PYPNM_DOCSIS_PIP_PACKAGE="pypnm-docsis"
+    PYPNM_DOCSIS_CLI_NAME="pypnm-docsis"
+  elif [ "${WITH_PYPNM_DOCSIS_PCW}" -eq 1 ]; then
+    PYPNM_DOCSIS_PIP_PACKAGE="pypnm-docsis-cmts"
+    PYPNM_DOCSIS_CLI_NAME="pypnm-docsis-cmts"
+  fi
 }
 
 ensure_command() {
@@ -280,6 +408,23 @@ ensure_env_file() {
   fi
 }
 
+sync_runtime_template_for_profile() {
+  local profile_dir=""
+  if [ "${PRODUCT_PROFILE}" = "${PROFILE_PW}" ]; then
+    profile_dir="pw"
+  else
+    profile_dir="pcw"
+  fi
+
+  local source_template="${RUNTIME_TEMPLATE_DIR}/${profile_dir}/pypnm-instances.yaml"
+  [ -f "${source_template}" ] || fail "Missing runtime template for profile '${PRODUCT_PROFILE}': ${source_template}"
+
+  if [ ! -f "${RUNTIME_TEMPLATE_PATH}" ] || ! cmp -s "${source_template}" "${RUNTIME_TEMPLATE_PATH}"; then
+    cp "${source_template}" "${RUNTIME_TEMPLATE_PATH}"
+    log "Applied runtime template for ${PRODUCT_PROFILE}: ${source_template}"
+  fi
+}
+
 run_isolated_venv_python() {
   env -u PYTHONPATH -u PYTHONHOME .venv/bin/python -I "$@"
 }
@@ -306,21 +451,31 @@ ensure_docs_preview_browser() {
 
 ensure_cli_shim() {
   local user_bin_dir="$HOME/.local/bin"
-  local shim_path="${user_bin_dir}/pypnm-cmts-webui"
-  local legacy_shim_path="${user_bin_dir}/pypnm-webui"
+  local primary_shim_path="${user_bin_dir}/${WEBUI_CLI_NAME}"
+  local compat_shim_path="${user_bin_dir}/pypnm-cmts-webui"
+  if [ "${WEBUI_CLI_NAME}" = "pypnm-cmts-webui" ]; then
+    compat_shim_path="${user_bin_dir}/pypnm-webui"
+  fi
   local path_export='export PATH="$HOME/.local/bin:$PATH"'
   local shell_profiles=("$HOME/.bashrc" "$HOME/.profile")
 
   mkdir -p "$user_bin_dir"
-  cat >"$shim_path" <<EOF
+  cat >"${primary_shim_path}" <<EOF
 #!/usr/bin/env bash
 exec "${ROOT_DIR}/tools/cli/pypnm-cmts-webui.js" "\$@"
 EOF
-  chmod +x "$shim_path"
-  log "Installed CLI shim at ${shim_path}"
-  if [ -f "${legacy_shim_path}" ]; then
-    rm -f "${legacy_shim_path}"
-    log "Removed legacy compatibility shim at ${legacy_shim_path}"
+  chmod +x "${primary_shim_path}"
+  log "Installed CLI shim at ${primary_shim_path}"
+
+  cat >"${compat_shim_path}" <<EOF
+#!/usr/bin/env bash
+exec "${ROOT_DIR}/tools/cli/pypnm-cmts-webui.js" "\$@"
+EOF
+  chmod +x "${compat_shim_path}"
+  log "Installed compatibility CLI shim at ${compat_shim_path}"
+
+  if [ "${primary_shim_path}" = "${compat_shim_path}" ]; then
+    rm -f "${compat_shim_path}"
   fi
 
   case ":$PATH:" in
@@ -408,6 +563,12 @@ run_with_pypnm_docsis_helper() {
   local helper_args=(
     --root-dir "${ROOT_DIR}"
     --python-bin "${PYTHON_BIN}"
+    --product-profile "${PRODUCT_PROFILE}"
+    --backend-pip-package "${PYPNM_DOCSIS_PIP_PACKAGE}"
+    --backend-cli-name "${PYPNM_DOCSIS_CLI_NAME}"
+    --webui-cli-name "${WEBUI_CLI_NAME}"
+    --local-stack-shim-name "${LOCAL_STACK_SHIM_NAME}"
+    --local-agent-label "${LOCAL_AGENT_LABEL}"
   )
 
   if [ -n "${PYPNM_DOCSIS_PATH}" ]; then
@@ -431,6 +592,7 @@ run_with_pypnm_docsis_helper() {
 
 main() {
   parse_args "$@"
+  resolve_install_profile
   print_banner
   ensure_base_prerequisites
 
@@ -442,6 +604,8 @@ main() {
 
   prepare_nvm
   ensure_env_file
+  upsert_env_value "PRODUCT_PROFILE" "${PRODUCT_PROFILE}"
+  sync_runtime_template_for_profile
 
   log "Installing npm dependencies"
   npm ci
@@ -460,7 +624,7 @@ main() {
   fi
 
   if [ "${WITH_PYPNM_DOCSIS}" -eq 1 ]; then
-    ensure_command "${PYTHON_BIN}" "${PYTHON_BIN} is required for --with-pypnm-docsis-cmts. Install Python 3 and re-run."
+    ensure_command "${PYTHON_BIN}" "${PYTHON_BIN} is required for backend add-on install. Install Python 3 and re-run."
     ensure_python_venv_support
     run_with_pypnm_docsis_helper
   fi
@@ -472,14 +636,14 @@ main() {
     log "Restart any running WebUI server to load the updated version"
     log "If About still shows the prior version, hard refresh the browser"
   fi
-  log "Start dev server with: pypnm-cmts-webui serve"
+  log "Start dev server with: ${WEBUI_CLI_NAME} serve"
   if [ "${WITH_PYPNM_DOCSIS}" -eq 1 ]; then
-    log "Start local backend + WebUI with: pypnm-cmts-webui start-local-stack"
+    log "Start local backend + WebUI with: ${WEBUI_CLI_NAME} start-local-stack"
   fi
   if [ "${DEVELOPMENT_MODE}" -eq 1 ]; then
     log "Run release workflow with: .venv/bin/python ./tools/release/release.py --help"
   fi
-  log "Edit runtime config with: pypnm-cmts-webui config-menu"
+  log "Edit runtime config with: ${WEBUI_CLI_NAME} config-menu"
 }
 
 main "$@"
