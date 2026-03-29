@@ -15,10 +15,8 @@ import { ScqamCodewordErrorRateRequestForm } from "@/features/operations/ScqamCo
 import { SingleCaptureRequestForm } from "@/features/operations/SingleCaptureRequestForm";
 import type { CaptureConnectivityInputs, CaptureConnectivityStatus } from "@/features/operations/captureConnectivity";
 import {
-  buildCaptureConnectivityInputsFromInstance,
   hasCompleteCaptureConnectivityInputs,
   isCaptureConnectivityOnline,
-  normalizeCaptureConnectivityInputs,
 } from "@/features/operations/captureConnectivity";
 import { SingleSpectrumOfdmCaptureView } from "@/features/operations/SingleSpectrumOfdmCaptureView";
 import { SingleSpectrumScqamCaptureView } from "@/features/operations/SingleSpectrumScqamCaptureView";
@@ -56,7 +54,7 @@ import { SingleSystemUpTimeView } from "@/features/operations/SingleSystemUpTime
 import { checkCaptureInputsOnline } from "@/services/captureConnectivityService";
 import { CONNECTIVITY_STATUS_DEBOUNCE_MS } from "@/lib/constants";
 import { runSingleCaptureEndpoint } from "@/services/singleCaptureService";
-import { readSelectedModemContext } from "@/features/single-capture/lib/selectedModemContext";
+import { useSingleCaptureRequestContext } from "@/features/single-capture/lib/requestContext";
 import type {
   AtdmaChannelStatsResponse,
   FddDiplexerBandEdgeCapabilityResponse,
@@ -148,37 +146,11 @@ export function EndpointExplorerPage() {
   const [spectrumOfdmResponse, setSpectrumOfdmResponse] = useState<SingleSpectrumOfdmCaptureResponse | null>(null);
   const [spectrumScqamResponse, setSpectrumScqamResponse] = useState<SingleSpectrumScqamCaptureResponse | null>(null);
   const selectedOperation = getOperationByRoutePath(location.pathname);
-  const selectedModemDefaults = useMemo(() => {
-    if (!isSingleCaptureRoute) {
-      return undefined;
-    }
-    const selectedModem = readSelectedModemContext();
-    if (!selectedModem) {
-      return undefined;
-    }
-    return {
-      macAddress: selectedModem.macAddress,
-      ipAddress: selectedModem.ipAddress === "n/a" ? "" : selectedModem.ipAddress,
-      community: selectedModem.snmpCommunity,
-      channelIds: "",
-    };
-  }, [isSingleCaptureRoute, location.pathname]);
-  const preferredConnectivityInputs = useMemo(() => {
-    if (
-      isSingleCaptureRoute
-      && selectedModemDefaults
-      && selectedModemDefaults.macAddress
-      && selectedModemDefaults.ipAddress
-      && selectedModemDefaults.community
-    ) {
-      return normalizeCaptureConnectivityInputs({
-        macAddress: selectedModemDefaults.macAddress,
-        ipAddress: selectedModemDefaults.ipAddress,
-        community: selectedModemDefaults.community,
-      });
-    }
-    return buildCaptureConnectivityInputsFromInstance(selectedInstance);
-  }, [isSingleCaptureRoute, selectedInstance, selectedModemDefaults]);
+  const { requestDefaultsOverride: singleCaptureRequestDefaultsOverride, preferredConnectivityInputs } = useSingleCaptureRequestContext(
+    isSingleCaptureRoute,
+    location.pathname,
+    selectedInstance,
+  );
   const canExecuteOperation = Boolean(selectedInstance) && isCaptureConnectivityOnline(captureConnectivityStatus);
   const captureInputsTitle = useMemo(() => {
     const label = captureConnectivityStatus === "online"
@@ -555,7 +527,7 @@ export function EndpointExplorerPage() {
             errorMessage={mutation.isError ? (mutation.error as Error).message : undefined}
             extraActions={requestJsonAction}
             onConnectivityInputsChange={setCaptureConnectivityInputs}
-            requestDefaultsOverride={selectedModemDefaults}
+            requestDefaultsOverride={singleCaptureRequestDefaultsOverride}
             onSubmit={(payload) => {
               mutation.mutate({ endpointPath: selectedOperation.endpointPath, payload });
             }}
@@ -604,7 +576,7 @@ export function EndpointExplorerPage() {
             errorMessage={mutation.isError ? (mutation.error as Error).message : undefined}
             extraActions={requestJsonAction}
             onConnectivityInputsChange={setCaptureConnectivityInputs}
-            requestDefaultsOverride={selectedModemDefaults}
+            requestDefaultsOverride={singleCaptureRequestDefaultsOverride}
             onSubmit={(payload) => {
               mutation.mutate({ endpointPath: selectedOperation.endpointPath, payload });
             }}
@@ -617,7 +589,7 @@ export function EndpointExplorerPage() {
             errorMessage={mutation.isError ? (mutation.error as Error).message : undefined}
             extraActions={requestJsonAction}
             onConnectivityInputsChange={setCaptureConnectivityInputs}
-            requestDefaultsOverride={selectedModemDefaults}
+            requestDefaultsOverride={singleCaptureRequestDefaultsOverride}
             onSubmit={(payload) => {
               mutation.mutate({ endpointPath: selectedOperation.endpointPath, payload });
             }}
@@ -630,7 +602,7 @@ export function EndpointExplorerPage() {
             errorMessage={mutation.isError ? (mutation.error as Error).message : undefined}
             extraActions={requestJsonAction}
             onConnectivityInputsChange={setCaptureConnectivityInputs}
-            requestDefaultsOverride={selectedModemDefaults}
+            requestDefaultsOverride={singleCaptureRequestDefaultsOverride}
             onSubmit={(payload) => {
               mutation.mutate({ endpointPath: selectedOperation.endpointPath, payload });
             }}
