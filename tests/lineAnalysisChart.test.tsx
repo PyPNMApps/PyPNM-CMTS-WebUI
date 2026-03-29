@@ -3,7 +3,7 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 
-import { LineAnalysisChart } from "@/features/analysis/components/LineAnalysisChart";
+import { LineAnalysisChart } from "@/pw/features/analysis/components/LineAnalysisChart";
 
 describe("LineAnalysisChart", () => {
   afterEach(() => {

@@ -3,8 +3,8 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import { ConstellationGridChart } from "@/features/operations/ConstellationGridChart";
-import { singleConstellationDisplayFixture } from "@/features/operations/singleConstellationDisplayFixture";
+import { ConstellationGridChart } from "@/pw/features/operations/ConstellationGridChart";
+import { singleConstellationDisplayFixture } from "@/pw/features/operations/singleConstellationDisplayFixture";
 
 describe("ConstellationGridChart", () => {
   it("renders the constellation header labels and values", () => {

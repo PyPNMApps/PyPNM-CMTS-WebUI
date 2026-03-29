@@ -1,4 +1,5 @@
 import { requestWithBaseUrl } from "@/services/http";
+import { toPwApiPath } from "@/lib/pwCompat";
 import type {
   PnmFileAnalysisResponse,
   PnmFileHexdumpResponse,
@@ -10,7 +11,7 @@ import type {
 export async function getPnmFileMacAddresses(baseUrl: string): Promise<PnmFileMacAddressResponse> {
   const response = await requestWithBaseUrl<PnmFileMacAddressResponse>(baseUrl, {
     method: "GET",
-    url: "/docs/pnm/files/getMacAddresses/",
+    url: toPwApiPath("/docs/pnm/files/getMacAddresses/"),
   });
   return response.data;
 }
@@ -18,7 +19,7 @@ export async function getPnmFileMacAddresses(baseUrl: string): Promise<PnmFileMa
 export async function searchPnmFilesByMacAddress(baseUrl: string, macAddress: string): Promise<PnmFileQueryResponse> {
   const response = await requestWithBaseUrl<PnmFileQueryResponse>(baseUrl, {
     method: "GET",
-    url: `/docs/pnm/files/searchFiles/${encodeURIComponent(macAddress)}`,
+    url: toPwApiPath(`/docs/pnm/files/searchFiles/${encodeURIComponent(macAddress)}`),
   });
   return response.data;
 }
@@ -28,19 +29,19 @@ function normalizeBaseUrl(baseUrl: string): string {
 }
 
 export function getPnmFileTransactionDownloadUrl(baseUrl: string, transactionId: string): string {
-  return `${normalizeBaseUrl(baseUrl)}/docs/pnm/files/download/transactionID/${encodeURIComponent(transactionId)}`;
+  return `${normalizeBaseUrl(baseUrl)}${toPwApiPath(`/docs/pnm/files/download/transactionID/${encodeURIComponent(transactionId)}`)}`;
 }
 
 export function getPnmFileFilenameDownloadUrl(baseUrl: string, filename: string): string {
-  return `${normalizeBaseUrl(baseUrl)}/docs/pnm/files/download/filename/${encodeURIComponent(filename)}`;
+  return `${normalizeBaseUrl(baseUrl)}${toPwApiPath(`/docs/pnm/files/download/filename/${encodeURIComponent(filename)}`)}`;
 }
 
 export function getPnmFileMacArchiveDownloadUrl(baseUrl: string, macAddress: string): string {
-  return `${normalizeBaseUrl(baseUrl)}/docs/pnm/files/download/macAddress/${encodeURIComponent(macAddress)}`;
+  return `${normalizeBaseUrl(baseUrl)}${toPwApiPath(`/docs/pnm/files/download/macAddress/${encodeURIComponent(macAddress)}`)}`;
 }
 
 export function getPnmFileOperationArchiveDownloadUrl(baseUrl: string, operationId: string): string {
-  return `${normalizeBaseUrl(baseUrl)}/docs/pnm/files/download/operationID/${encodeURIComponent(operationId)}`;
+  return `${normalizeBaseUrl(baseUrl)}${toPwApiPath(`/docs/pnm/files/download/operationID/${encodeURIComponent(operationId)}`)}`;
 }
 
 export async function uploadPnmFile(baseUrl: string, file: File): Promise<PnmFileUploadResponse> {
@@ -49,7 +50,7 @@ export async function uploadPnmFile(baseUrl: string, file: File): Promise<PnmFil
 
   const response = await requestWithBaseUrl<PnmFileUploadResponse>(baseUrl, {
     method: "POST",
-    url: "/docs/pnm/files/upload",
+    url: toPwApiPath("/docs/pnm/files/upload"),
     data: formData,
     headers: {
       "Content-Type": "multipart/form-data",
@@ -65,7 +66,7 @@ export async function getPnmFileHexdump(
 ): Promise<PnmFileHexdumpResponse> {
   const response = await requestWithBaseUrl<PnmFileHexdumpResponse>(baseUrl, {
     method: "GET",
-    url: `/docs/pnm/files/getHexdump/transactionID/${encodeURIComponent(transactionId)}`,
+    url: toPwApiPath(`/docs/pnm/files/getHexdump/transactionID/${encodeURIComponent(transactionId)}`),
     params: {
       bytes_per_line: bytesPerLine,
     },
@@ -76,7 +77,7 @@ export async function getPnmFileHexdump(
 export async function getPnmFileAnalysis(baseUrl: string, transactionId: string): Promise<PnmFileAnalysisResponse> {
   const response = await requestWithBaseUrl<PnmFileAnalysisResponse>(baseUrl, {
     method: "POST",
-    url: "/docs/pnm/files/getAnalysis",
+    url: toPwApiPath("/docs/pnm/files/getAnalysis"),
     data: {
       search: {
         transaction_id: transactionId,
@@ -99,5 +100,5 @@ export async function getPnmFileAnalysis(baseUrl: string, transactionId: string)
 
 export function getPnmFileDownloadUrl(baseUrl: string, transactionId: string): string {
   const normalizedBaseUrl = baseUrl.replace(/\/$/, "");
-  return `${normalizedBaseUrl}/docs/pnm/files/download/transactionID/${encodeURIComponent(transactionId)}`;
+  return `${normalizedBaseUrl}${toPwApiPath(`/docs/pnm/files/download/transactionID/${encodeURIComponent(transactionId)}`)}`;
 }

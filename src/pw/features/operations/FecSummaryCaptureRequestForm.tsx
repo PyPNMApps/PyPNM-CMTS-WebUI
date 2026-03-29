@@ -1,0 +1,172 @@
+import { useEffect, useMemo } from "react";
+import type { ReactNode } from "react";
+import { useForm } from "react-hook-form";
+
+import { FieldLabel } from "@/components/common/FieldLabel";
+import { SecretTextInput } from "@/components/common/SecretTextInput";
+import { captureInputAutocomplete } from "@/pw/features/operations/captureInputAutocomplete";
+import type { CaptureConnectivityInputs } from "@/pw/features/operations/captureConnectivity";
+import { useReportCaptureConnectivityInputs } from "@/pw/features/operations/captureConnectivity";
+import { requestFieldHints } from "@/pw/features/operations/requestFieldHints";
+import { useCommonRequestFormDefaults } from "@/pw/features/operations/useRequestFormDefaults";
+import { parseChannelIds } from "@/lib/channelIds";
+import type { SingleFecSummaryCaptureRequest } from "@/types/api";
+
+interface FecSummaryCaptureFormValues {
+  macAddress: string;
+  ipAddress: string;
+  tftpIpv4: string;
+  tftpIpv6: string;
+  channelIds: string;
+  community: string;
+  fecSummaryType: number;
+}
+
+export const FEC_SUMMARY_TYPE_OPTIONS = [
+  { value: 3, label: "24 Hours" },
+  { value: 2, label: "10 Min" },
+] as const;
+
+interface FecSummaryCaptureRequestFormProps {
+  isPending: boolean;
+  canRun: boolean;
+  submitLabel: string;
+  onSubmit: (payload: SingleFecSummaryCaptureRequest) => void;
+  onConnectivityInputsChange?: (inputs: CaptureConnectivityInputs) => void;
+  errorMessage?: string;
+  extraActions?: ReactNode;
+  requestDefaultsOverride?: Partial<FecSummaryCaptureFormValues>;
+}
+
+export function FecSummaryCaptureRequestForm({
+  isPending,
+  canRun,
+  submitLabel,
+  onSubmit,
+  onConnectivityInputsChange,
+  errorMessage,
+  extraActions,
+  requestDefaultsOverride,
+}: FecSummaryCaptureRequestFormProps) {
+  const baseRequestDefaults = useCommonRequestFormDefaults();
+  const requestDefaults = useMemo(
+    () => ({
+      ...baseRequestDefaults,
+      ...requestDefaultsOverride,
+    }),
+    [baseRequestDefaults, requestDefaultsOverride],
+  );
+  const { register, handleSubmit, reset, watch } = useForm<FecSummaryCaptureFormValues>({
+    defaultValues: {
+      ...requestDefaults,
+      fecSummaryType: 2,
+    },
+  });
+  const [macAddress, ipAddress, community] = watch(["macAddress", "ipAddress", "community"]);
+
+  useEffect(() => {
+    reset({
+      ...requestDefaults,
+      fecSummaryType: 2,
+    });
+  }, [requestDefaults, reset]);
+
+  useReportCaptureConnectivityInputs({ macAddress, ipAddress, community }, onConnectivityInputsChange);
+
+  return (
+    <form
+      className="grid"
+      onSubmit={handleSubmit((values) => {
+        onSubmit({
+          cable_modem: {
+            mac_address: values.macAddress,
+            ip_address: values.ipAddress,
+            pnm_parameters: {
+              tftp: {
+                ipv4: values.tftpIpv4,
+                ipv6: values.tftpIpv6,
+              },
+              capture: {
+                channel_ids: parseChannelIds(values.channelIds),
+              },
+            },
+            snmp: {
+              snmpV2C: {
+                community: values.community,
+              },
+            },
+          },
+          analysis: {
+            type: "basic",
+            output: { type: "json" },
+            plot: { ui: { theme: "dark" } },
+          },
+          capture_settings: {
+            fec_summary_type: values.fecSummaryType,
+          },
+        });
+      })}
+    >
+      <div className="grid two request-input-grid six-up">
+        <div className="field">
+          <FieldLabel htmlFor="fecMacAddress" hint={requestFieldHints.mac_address}>MAC Address</FieldLabel>
+          <input
+            id="fecMacAddress"
+            autoComplete={captureInputAutocomplete.macAddress}
+            {...register("macAddress")}
+            placeholder="aa:bb:cc:dd:ee:ff"
+          />
+        </div>
+        <div className="field">
+          <FieldLabel htmlFor="fecIpAddress" hint={requestFieldHints.ip_address}>IP Address</FieldLabel>
+          <input
+            id="fecIpAddress"
+            autoComplete={captureInputAutocomplete.ipAddress}
+            {...register("ipAddress")}
+            placeholder="192.168.100.10"
+          />
+        </div>
+        <div className="field">
+          <FieldLabel htmlFor="fecTftpIpv4" hint={requestFieldHints.tftp_ipv4}>TFTP IPv4</FieldLabel>
+          <input id="fecTftpIpv4" {...register("tftpIpv4")} placeholder="192.168.100.2" />
+        </div>
+        <div className="field">
+          <FieldLabel htmlFor="fecTftpIpv6" hint={requestFieldHints.tftp_ipv6}>TFTP IPv6</FieldLabel>
+          <input id="fecTftpIpv6" {...register("tftpIpv6")} placeholder="::1" />
+        </div>
+        <div className="field">
+          <FieldLabel htmlFor="fecChannelIds" hint={requestFieldHints.channel_ids}>
+            Channel IDs
+          </FieldLabel>
+          <input id="fecChannelIds" {...register("channelIds")} placeholder="0" />
+        </div>
+        <div className="field">
+          <FieldLabel htmlFor="fecCommunity" hint={requestFieldHints.snmp_rw_community}>SNMP RW Community</FieldLabel>
+          <SecretTextInput
+            id="fecCommunity"
+            autoComplete={captureInputAutocomplete.community}
+            {...register("community")}
+            placeholder="private"
+          />
+        </div>
+      </div>
+      <div className="grid two request-input-grid">
+        <div className="field">
+          <FieldLabel htmlFor="fecSummaryType" hint={requestFieldHints.fec_summary_type}>FEC Summary Type</FieldLabel>
+          <select id="fecSummaryType" {...register("fecSummaryType", { valueAsNumber: true })}>
+            {FEC_SUMMARY_TYPE_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>{option.label}</option>
+            ))}
+          </select>
+        </div>
+      </div>
+      <div className="actions">
+        <button type="submit" className="primary" disabled={isPending || !canRun}>
+          {isPending ? "Running..." : submitLabel}
+        </button>
+        {extraActions}
+      </div>
+      {errorMessage ? <p>{errorMessage}</p> : null}
+    </form>
+  );
+}

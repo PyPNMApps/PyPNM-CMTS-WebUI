@@ -3,7 +3,7 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import { AdvancedRxMerProfilePerformanceView } from "@/features/advanced/AdvancedRxMerProfilePerformanceView";
+import { AdvancedRxMerProfilePerformanceView } from "@/pw/features/advanced/AdvancedRxMerProfilePerformanceView";
 import type { AdvancedMultiRxMerAnalysisResponse } from "@/types/api";
 
 const responseFixture: AdvancedMultiRxMerAnalysisResponse = {

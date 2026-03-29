@@ -3,7 +3,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import { ServingGroupRxMerResultsView } from "@/features/serving-group/components/ServingGroupRxMerResultsView";
+import { ServingGroupRxMerResultsView } from "@/pcw/features/serving-group/components/ServingGroupRxMerResultsView";
 
 describe("ServingGroupRxMerResultsView", () => {
   it("uses single-column layout and 1 CM labels for single-channel single-modem results", () => {

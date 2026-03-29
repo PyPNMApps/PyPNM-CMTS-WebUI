@@ -2,8 +2,8 @@ import type { InputHTMLAttributes } from "react";
 
 import { FieldLabel } from "@/components/common/FieldLabel";
 import { SecretTextInput } from "@/components/common/SecretTextInput";
-import { captureInputAutocomplete } from "@/features/operations/captureInputAutocomplete";
-import { requestFieldHints } from "@/features/operations/requestFieldHints";
+import { captureInputAutocomplete } from "@/pw/features/operations/captureInputAutocomplete";
+import { requestFieldHints } from "@/pw/features/operations/requestFieldHints";
 
 type CaptureInputFieldProps = Omit<InputHTMLAttributes<HTMLInputElement>, "children" | "type"> & {
   id: string;

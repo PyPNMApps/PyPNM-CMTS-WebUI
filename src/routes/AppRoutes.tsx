@@ -4,55 +4,63 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { AppLayout } from "@/layouts/AppLayout";
 
 const AboutPage = lazy(() =>
-  import("@/pages/AboutPage").then((module) => ({ default: module.AboutPage })),
+  import("@/pcw/pages/AboutPage").then((module) => ({ default: module.AboutPage })),
 );
 const CmtsSgRxMerWorkflowPage = lazy(() =>
-  import("@/pages/CmtsSgRxMerWorkflowPage").then((module) => ({ default: module.CmtsSgRxMerWorkflowPage })),
+  import("@/pcw/pages/CmtsSgRxMerWorkflowPage").then((module) => ({ default: module.CmtsSgRxMerWorkflowPage })),
 );
 const CmtsSgChannelEstCoeffWorkflowPage = lazy(() =>
-  import("@/pages/CmtsSgChannelEstCoeffWorkflowPage").then((module) => ({ default: module.CmtsSgChannelEstCoeffWorkflowPage })),
+  import("@/pcw/pages/CmtsSgChannelEstCoeffWorkflowPage").then((module) => ({ default: module.CmtsSgChannelEstCoeffWorkflowPage })),
 );
 const CmtsSgFecSummaryWorkflowPage = lazy(() =>
-  import("@/pages/CmtsSgFecSummaryWorkflowPage").then((module) => ({ default: module.CmtsSgFecSummaryWorkflowPage })),
+  import("@/pcw/pages/CmtsSgFecSummaryWorkflowPage").then((module) => ({ default: module.CmtsSgFecSummaryWorkflowPage })),
 );
 const CmtsSgConstellationDisplayWorkflowPage = lazy(() =>
-  import("@/pages/CmtsSgConstellationDisplayWorkflowPage").then((module) => ({ default: module.CmtsSgConstellationDisplayWorkflowPage })),
+  import("@/pcw/pages/CmtsSgConstellationDisplayWorkflowPage").then((module) => ({ default: module.CmtsSgConstellationDisplayWorkflowPage })),
 );
 const CmtsSgModulationProfileWorkflowPage = lazy(() =>
-  import("@/pages/CmtsSgModulationProfileWorkflowPage").then((module) => ({ default: module.CmtsSgModulationProfileWorkflowPage })),
+  import("@/pcw/pages/CmtsSgModulationProfileWorkflowPage").then((module) => ({ default: module.CmtsSgModulationProfileWorkflowPage })),
 );
 const CmtsSgHistogramWorkflowPage = lazy(() =>
-  import("@/pages/CmtsSgHistogramWorkflowPage").then((module) => ({ default: module.CmtsSgHistogramWorkflowPage })),
+  import("@/pcw/pages/CmtsSgHistogramWorkflowPage").then((module) => ({ default: module.CmtsSgHistogramWorkflowPage })),
 );
 const CmtsSpectrumFriendlyWorkflowPage = lazy(() =>
-  import("@/pages/CmtsSpectrumFriendlyWorkflowPage").then((module) => ({ default: module.CmtsSpectrumFriendlyWorkflowPage })),
+  import("@/pcw/features/spectrum-analyzer/pages/CmtsSpectrumFriendlyWorkflowPage").then((module) => ({ default: module.CmtsSpectrumFriendlyWorkflowPage })),
+);
+const CmtsSingleCaptureDashboardPage = lazy(() =>
+  import("@/pcw/features/single-capture/pages/CmtsSingleCaptureDashboardPage").then((module) => ({
+    default: module.CmtsSingleCaptureDashboardPage,
+  })),
+);
+const AdvancedPage = lazy(() =>
+  import("@/pw/pages/AdvancedPage").then((module) => ({ default: module.AdvancedPage })),
 );
 const AnalysisViewerPage = lazy(() =>
-  import("@/pages/AnalysisViewerPage").then((module) => ({ default: module.AnalysisViewerPage })),
+  import("@/pw/pages/AnalysisViewerPage").then((module) => ({ default: module.AnalysisViewerPage })),
 );
 const EndpointExplorerPage = lazy(() =>
-  import("@/pages/EndpointExplorerPage").then((module) => ({ default: module.EndpointExplorerPage })),
+  import("@/pw/pages/EndpointExplorerPage").then((module) => ({ default: module.EndpointExplorerPage })),
 );
 const FileListPage = lazy(() =>
-  import("@/pages/FileListPage").then((module) => ({ default: module.FileListPage })),
+  import("@/pcw/pages/FileListPage").then((module) => ({ default: module.FileListPage })),
 );
 const FileAnalysisPage = lazy(() =>
-  import("@/pages/FileAnalysisPage").then((module) => ({ default: module.FileAnalysisPage })),
+  import("@/pcw/pages/FileAnalysisPage").then((module) => ({ default: module.FileAnalysisPage })),
 );
 const FileHexdumpPage = lazy(() =>
-  import("@/pages/FileHexdumpPage").then((module) => ({ default: module.FileHexdumpPage })),
+  import("@/pcw/pages/FileHexdumpPage").then((module) => ({ default: module.FileHexdumpPage })),
 );
 const HealthPage = lazy(() =>
-  import("@/pages/HealthPage").then((module) => ({ default: module.HealthPage })),
+  import("@/pcw/pages/HealthPage").then((module) => ({ default: module.HealthPage })),
 );
 const MeasurementRequestPage = lazy(() =>
-  import("@/pages/MeasurementRequestPage").then((module) => ({ default: module.MeasurementRequestPage })),
+  import("@/pcw/pages/MeasurementRequestPage").then((module) => ({ default: module.MeasurementRequestPage })),
 );
 const ResultsPage = lazy(() =>
-  import("@/pages/ResultsPage").then((module) => ({ default: module.ResultsPage })),
+  import("@/pcw/pages/ResultsPage").then((module) => ({ default: module.ResultsPage })),
 );
 const SettingsPage = lazy(() =>
-  import("@/pages/SettingsPage").then((module) => ({ default: module.SettingsPage })),
+  import("@/pcw/pages/SettingsPage").then((module) => ({ default: module.SettingsPage })),
 );
 
 function RouteLoadingFallback() {
@@ -74,17 +82,19 @@ export function AppRoutes() {
           <Route path="/serving-group/constellation-display" element={<CmtsSgConstellationDisplayWorkflowPage />} />
           <Route path="/serving-group/modulation-profile" element={<CmtsSgModulationProfileWorkflowPage />} />
           <Route path="/serving-group/histogram" element={<CmtsSgHistogramWorkflowPage />} />
-          <Route path="/advanced" element={<Navigate to="/serving-group/rxmer" replace />} />
-          <Route path="/advanced/rxmer" element={<Navigate to="/serving-group/rxmer" replace />} />
-          <Route path="/advanced/channel-estimation" element={<Navigate to="/serving-group/rxmer" replace />} />
-          <Route path="/advanced/ofdma-pre-eq" element={<Navigate to="/serving-group/rxmer" replace />} />
-          <Route path="/single-capture" element={<Navigate to="/single-capture/rxmer" replace />} />
+          <Route path="/advanced" element={<Navigate to="/advanced/rxmer" replace />} />
+          <Route path="/advanced/rxmer" element={<AdvancedPage />} />
+          <Route path="/advanced/channel-estimation" element={<AdvancedPage />} />
+          <Route path="/advanced/ofdma-pre-eq" element={<AdvancedPage />} />
+          <Route path="/single-capture" element={<Navigate to="/single-capture/dashboard" replace />} />
+          <Route path="/single-capture/dashboard" element={<CmtsSingleCaptureDashboardPage />} />
+          <Route path="/single-capture/spectrum-analyzer" element={<Navigate to="/single-capture/spectrum-analyzer/friendly" replace />} />
+          <Route path="/single-capture/spectrum-analyzer/:operationId" element={<EndpointExplorerPage />} />
+          <Route path="/single-capture/rxmer" element={<EndpointExplorerPage />} />
           <Route path="/single-capture/:operationId" element={<EndpointExplorerPage />} />
           <Route path="/spectrum-analyzer" element={<Navigate to="/spectrum-analyzer/friendly" replace />} />
           <Route path="/spectrum-analyzer/friendly" element={<CmtsSpectrumFriendlyWorkflowPage />} />
-          <Route path="/spectrum-analyzer/full-band" element={<Navigate to="/spectrum-analyzer/friendly" replace />} />
-          <Route path="/spectrum-analyzer/ofdm" element={<Navigate to="/spectrum-analyzer/friendly" replace />} />
-          <Route path="/spectrum-analyzer/scqam" element={<Navigate to="/spectrum-analyzer/friendly" replace />} />
+          <Route path="/spectrum-analyzer/:operationId" element={<Navigate to="/spectrum-analyzer/friendly" replace />} />
           <Route path="/endpoints" element={<Navigate to="/operations" replace />} />
           <Route path="/operations" element={<Navigate to="/operations/cmts-sg-ds-ofdm-rxmer" replace />} />
           <Route path="/operations/cmts-sg-ds-ofdm-rxmer" element={<CmtsSgRxMerWorkflowPage />} />

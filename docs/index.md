@@ -4,8 +4,9 @@ This docs set is organized for the current MVP scope of `PyPNM-CMTS-WebUI`.
 
 ## Current Product Scope
 
-- top-level pages: `Serving Group`, `Health`, `Settings`, `About`
-- first implemented workflow: `Serving Group -> RxMER`
+- top-level pages: `Serving Group`, `Single Capture`, `Spectrum Analyzer`, `Health`, `Settings`, `About`
+- primary CMTS workflow: `Serving Group -> RxMER`
+- Single Capture dashboard handoff to PW-derived operation pages
 - CMTS API-driven UI (frontend only)
 
 ## Start Here
@@ -18,5 +19,6 @@ This docs set is organized for the current MVP scope of `PyPNM-CMTS-WebUI`.
 ## Reference
 
 - [Architecture](architecture.md)
+- [Acronyms](acronyms.md)
 - [API Integration](api-integration.md)
 - [Environment](env.md)

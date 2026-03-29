@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { normalizeServingGroupConstellationDisplayResultsPayload } from "../src/features/serving-group/lib/constellationDisplayResults";
+import { normalizeServingGroupConstellationDisplayResultsPayload } from "../src/pcw/features/serving-group/lib/constellationDisplayResults";
 
 describe("normalizeServingGroupConstellationDisplayResultsPayload", () => {
   it("normalizes SG constellation display results into chart-friendly groups/channels/modems", () => {

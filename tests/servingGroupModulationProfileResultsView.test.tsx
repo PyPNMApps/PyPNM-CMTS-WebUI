@@ -2,7 +2,7 @@
 
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { ServingGroupModulationProfileResultsView } from "../src/features/serving-group/components/ServingGroupModulationProfileResultsView";
+import { ServingGroupModulationProfileResultsView } from "../src/pcw/features/serving-group/components/ServingGroupModulationProfileResultsView";
 
 describe("ServingGroupModulationProfileResultsView", () => {
   it("renders SG combined graph filter controls and expands a zoomable chart row", () => {

@@ -3,8 +3,8 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import { SingleModulationProfileCaptureView } from "@/features/operations/SingleModulationProfileCaptureView";
-import { singleModulationProfileFixture } from "@/features/operations/singleModulationProfileFixture";
+import { SingleModulationProfileCaptureView } from "@/pw/features/operations/SingleModulationProfileCaptureView";
+import { singleModulationProfileFixture } from "@/pw/features/operations/singleModulationProfileFixture";
 
 describe("SingleModulationProfileCaptureView", () => {
   it("renders per-channel mute chips and avoids repeating the channel id as chart title", () => {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { normalizeServingGroupChannelEstCoeffResultsPayload } from "../src/features/serving-group/lib/channelEstCoeffResults";
+import { normalizeServingGroupChannelEstCoeffResultsPayload } from "../src/pcw/features/serving-group/lib/channelEstCoeffResults";
 
 describe("normalizeServingGroupChannelEstCoeffResultsPayload", () => {
   it("normalizes SG ChannelEstCoeff results into chart-friendly groups/channels/modems", () => {

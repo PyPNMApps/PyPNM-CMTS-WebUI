@@ -52,6 +52,8 @@ Useful menu shortcut:
 2. open `Serving Group -> RxMER`
 3. pick serving groups and confirm cable modems populate
 4. verify request JSON using the `Request JSON` popup in the Capture Request header
+5. open `Single Capture -> Dashboard` and confirm the modem table populates
+6. use an `Action` route (for example RxMER or Spectrum Analyzer) to verify handoff into PW-derived pages
 
 See:
 

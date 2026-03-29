@@ -3,8 +3,8 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import { SingleRxMerCaptureView } from "@/features/operations/SingleRxMerCaptureView";
-import { singleRxMerFixture } from "@/features/operations/singleRxMerFixture";
+import { SingleRxMerCaptureView } from "@/pw/features/operations/SingleRxMerCaptureView";
+import { singleRxMerFixture } from "@/pw/features/operations/singleRxMerFixture";
 
 describe("SingleRxMerCaptureView", () => {
   it("renders selection zoom controls for combined and per-channel charts", () => {

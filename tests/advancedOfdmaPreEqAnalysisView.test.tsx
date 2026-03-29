@@ -3,8 +3,8 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 
-import { AdvancedOfdmaPreEqGroupDelayView } from "@/features/advanced/AdvancedOfdmaPreEqGroupDelayView";
-import { AdvancedOfdmaPreEqMinAvgMaxView } from "@/features/advanced/AdvancedOfdmaPreEqMinAvgMaxView";
+import { AdvancedOfdmaPreEqGroupDelayView } from "@/pw/features/advanced/AdvancedOfdmaPreEqGroupDelayView";
+import { AdvancedOfdmaPreEqMinAvgMaxView } from "@/pw/features/advanced/AdvancedOfdmaPreEqMinAvgMaxView";
 import type { AdvancedMultiUsOfdmaPreEqAnalysisResponse } from "@/types/api";
 
 describe("Advanced OFDMA PreEq analysis views", () => {

@@ -1,6 +1,6 @@
 import { summarize } from "@/lib/stats";
 import { normalizeSpectrumSelection, type SpectrumSelectionRange } from "@/lib/spectrumPower";
-import type { ChartSeries } from "@/features/analysis/types";
+import type { ChartSeries } from "@/pw/features/analysis/types";
 
 export interface RxMerDistributionBin {
   startMer: number;

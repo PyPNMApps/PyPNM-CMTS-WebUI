@@ -10,7 +10,7 @@ import {
   getServingGroupFecSummaryCaptureStatus,
   getServingGroupFecSummaryResults,
   startServingGroupFecSummaryCapture,
-} from "../src/services/servingGroupFecSummaryService";
+} from "../src/pcw/services/servingGroupFecSummaryService";
 
 describe("servingGroupFecSummaryService", () => {
   it("calls startCapture with POST and payload", async () => {

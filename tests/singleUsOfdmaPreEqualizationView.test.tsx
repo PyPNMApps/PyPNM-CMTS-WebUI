@@ -3,8 +3,8 @@
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import { SingleUsOfdmaPreEqualizationView } from "@/features/operations/SingleUsOfdmaPreEqualizationView";
-import { singleUsOfdmaPreEqualizationFixture } from "@/features/operations/singleUsOfdmaPreEqualizationFixture";
+import { SingleUsOfdmaPreEqualizationView } from "@/pw/features/operations/SingleUsOfdmaPreEqualizationView";
+import { singleUsOfdmaPreEqualizationFixture } from "@/pw/features/operations/singleUsOfdmaPreEqualizationFixture";
 
 describe("SingleUsOfdmaPreEqualizationView", () => {
   it("renders the series summary as a horizontal table", () => {

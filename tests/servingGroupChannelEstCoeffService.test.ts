@@ -10,7 +10,7 @@ import {
   getServingGroupChannelEstCoeffCaptureStatus,
   getServingGroupChannelEstCoeffResults,
   startServingGroupChannelEstCoeffCapture,
-} from "../src/services/servingGroupChannelEstCoeffService";
+} from "../src/pcw/services/servingGroupChannelEstCoeffService";
 
 describe("servingGroupChannelEstCoeffService", () => {
   it("calls startCapture with POST and payload", async () => {

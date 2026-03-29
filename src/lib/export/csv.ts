@@ -1,4 +1,4 @@
-import type { ChartSeries } from "@/features/analysis/types";
+import type { ChartSeries } from "@/pw/features/analysis/types";
 
 import { downloadBlob, withExtension } from "@/lib/export/download";
 

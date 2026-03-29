@@ -10,7 +10,7 @@ import {
   getServingGroupModulationProfileCaptureStatus,
   getServingGroupModulationProfileResults,
   startServingGroupModulationProfileCapture,
-} from "../src/services/servingGroupModulationProfileService";
+} from "../src/pcw/services/servingGroupModulationProfileService";
 
 describe("servingGroupModulationProfileService", () => {
   it("calls startCapture with POST and payload", async () => {

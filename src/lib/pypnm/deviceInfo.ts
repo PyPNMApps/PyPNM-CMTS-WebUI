@@ -1,4 +1,4 @@
-import type { DeviceInfo } from "@/features/analysis/types";
+import type { DeviceInfo } from "@/pw/features/analysis/types";
 import type { SingleRxMerSystemDescription } from "@/types/api";
 
 export function toDeviceInfo(system: SingleRxMerSystemDescription | undefined, macAddress: string | undefined): DeviceInfo {

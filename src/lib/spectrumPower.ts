@@ -1,4 +1,4 @@
-import type { ChartPoint, ChartSeries } from "@/features/analysis/types";
+import type { ChartPoint, ChartSeries } from "@/pw/features/analysis/types";
 
 export interface SpectrumSelectionRange {
   startX: number;

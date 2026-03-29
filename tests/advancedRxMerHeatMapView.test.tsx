@@ -3,7 +3,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import { AdvancedRxMerHeatMapView } from "@/features/advanced/AdvancedRxMerHeatMapView";
+import { AdvancedRxMerHeatMapView } from "@/pw/features/advanced/AdvancedRxMerHeatMapView";
 import type { AdvancedMultiRxMerAnalysisResponse } from "@/types/api";
 
 const frequency = Array.from({ length: 256 }, (_, index) => 615000000 + index * 50000);

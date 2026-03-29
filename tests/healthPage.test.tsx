@@ -7,7 +7,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { InstanceConfigContext } from "@/app/InstanceConfigContext";
 import type { InstanceConfigContextValue } from "@/app/InstanceConfigProvider";
-import { HealthPage } from "@/pages/HealthPage";
+import { HealthPage } from "@/pcw/pages/HealthPage";
 
 const healthServiceMocks = vi.hoisted(() => ({
   getHealth: vi.fn(),

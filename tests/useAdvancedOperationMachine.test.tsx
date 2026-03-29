@@ -3,7 +3,7 @@
 import { act, renderHook } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import { useAdvancedOperationMachine } from "@/features/advanced/useAdvancedOperationMachine";
+import { useAdvancedOperationMachine } from "@/pw/features/advanced/useAdvancedOperationMachine";
 
 describe("useAdvancedOperationMachine", () => {
   it("can track an existing operation id and load status", async () => {

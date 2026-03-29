@@ -3,7 +3,7 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 
-import { AdvancedChannelEstimationAnalysisView } from "@/pages/AdvancedPage";
+import { AdvancedChannelEstimationAnalysisView } from "@/pw/pages/AdvancedPage";
 import type { AdvancedMultiChanEstAnalysisResponse } from "@/types/api";
 
 describe("AdvancedChannelEstimationAnalysisView", () => {

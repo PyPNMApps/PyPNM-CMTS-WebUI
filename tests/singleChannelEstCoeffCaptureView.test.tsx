@@ -3,8 +3,8 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import { SingleChannelEstCoeffCaptureView } from "@/features/operations/SingleChannelEstCoeffCaptureView";
-import { singleChannelEstCoeffFixture } from "@/features/operations/singleChannelEstCoeffFixture";
+import { SingleChannelEstCoeffCaptureView } from "@/pw/features/operations/SingleChannelEstCoeffCaptureView";
+import { singleChannelEstCoeffFixture } from "@/pw/features/operations/singleChannelEstCoeffFixture";
 
 describe("SingleChannelEstCoeffCaptureView", () => {
   it("renders zoom-only selection controls on line charts", () => {

@@ -27,6 +27,11 @@ theme:
 markdown_extensions:
   - admonition
   - attr_list
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
   - tables
   - toc:
       permalink: true
@@ -43,5 +48,6 @@ nav:
       - CI Workflows: development/ci-workflows.md
   - Reference:
       - Architecture: architecture.md
+      - Acronyms: acronyms.md
       - API Integration: api-integration.md
       - Environment: env.md

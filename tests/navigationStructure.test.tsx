@@ -9,14 +9,14 @@ import { AppTopNav } from "@/components/layout/AppTopNav";
 import {
   operationsMenuNavigationItems,
   spectrumAnalyzerNavigationItems,
-} from "@/features/operations/operationsNavigation";
+} from "@/pw/features/operations/operationsNavigation";
 
 vi.mock("@/components/layout/InstanceSelector", () => ({
   InstanceSelector: () => <div>Instance Selector</div>,
 }));
 
 describe("navigation structure", () => {
-  it("renders Serving Group, Spectrum Analyzer, Health, Settings, and About as top-level nav links", () => {
+  it("renders Serving Group, SingleCapture, Spectrum Analyzer, Health, Settings, and About as top-level nav links", () => {
     render(
       <ThemeProvider>
         <MemoryRouter>
@@ -35,7 +35,7 @@ describe("navigation structure", () => {
         return interactive?.textContent?.trim() ?? element.textContent?.trim() ?? null;
       })
       .filter(Boolean);
-    expect(navLabels).toEqual(["Serving Group", "Spectrum Analyzer", "Health", "Settings", "About"]);
+    expect(navLabels).toEqual(["Serving Group", "SingleCapture", "Spectrum Analyzer", "Health", "Settings", "About"]);
   });
 
   it("removes legacy top-level sections while keeping serving-group shell", () => {
@@ -58,6 +58,7 @@ describe("navigation structure", () => {
       })
       .filter(Boolean);
     expect(navLabels).toContain("Serving Group");
+    expect(navLabels).toContain("SingleCapture");
     expect(navLabels).toContain("Health");
     expect(navLabels).not.toContain("Advanced");
     expect(navLabels).not.toContain("Operations");
@@ -69,13 +70,13 @@ describe("navigation structure", () => {
   it("keeps Spectrum Analyzer routes out of the Operations menu data set", () => {
     expect(spectrumAnalyzerNavigationItems).toHaveLength(4);
     expect(spectrumAnalyzerNavigationItems.map((item) => item.routePath)).toEqual([
-      "/spectrum-analyzer/friendly",
-      "/spectrum-analyzer/full-band",
-      "/spectrum-analyzer/ofdm",
-      "/spectrum-analyzer/scqam",
+      "/single-capture/spectrum-analyzer/friendly",
+      "/single-capture/spectrum-analyzer/full-band",
+      "/single-capture/spectrum-analyzer/ofdm",
+      "/single-capture/spectrum-analyzer/scqam",
     ]);
     expect(
-      operationsMenuNavigationItems.some((item) => item.routePath.startsWith("/spectrum-analyzer")),
+      operationsMenuNavigationItems.some((item) => item.routePath.includes("spectrum-analyzer")),
     ).toBe(false);
   });
 });

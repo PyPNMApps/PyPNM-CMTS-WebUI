@@ -6,7 +6,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { InstanceConfigContext } from "@/app/InstanceConfigContext";
 import type { InstanceConfigContextValue } from "@/app/InstanceConfigProvider";
-import { FileListPage } from "@/pages/FileListPage";
+import { FileListPage } from "@/pcw/pages/FileListPage";
 
 const pnmFilesServiceMocks = vi.hoisted(() => ({
   getPnmFileAnalysis: vi.fn(),

@@ -11,22 +11,22 @@ import {
 describe("pnmFilesService", () => {
   it("builds a stable transaction download URL", () => {
     expect(getPnmFileDownloadUrl("http://127.0.0.1:8080/", "abc123")).toBe(
-      "http://127.0.0.1:8080/docs/pnm/files/download/transactionID/abc123",
+      "http://127.0.0.1:8080/cm/docs/pnm/files/download/transactionID/abc123",
     );
   });
 
   it("builds alternate file-manager download URLs", () => {
     expect(getPnmFileTransactionDownloadUrl("http://127.0.0.1:8080/", "abc123")).toBe(
-      "http://127.0.0.1:8080/docs/pnm/files/download/transactionID/abc123",
+      "http://127.0.0.1:8080/cm/docs/pnm/files/download/transactionID/abc123",
     );
     expect(getPnmFileFilenameDownloadUrl("http://127.0.0.1:8080/", "capture.bin.zst")).toBe(
-      "http://127.0.0.1:8080/docs/pnm/files/download/filename/capture.bin.zst",
+      "http://127.0.0.1:8080/cm/docs/pnm/files/download/filename/capture.bin.zst",
     );
     expect(getPnmFileMacArchiveDownloadUrl("http://127.0.0.1:8080/", "aa:bb:cc:dd:ee:ff")).toBe(
-      "http://127.0.0.1:8080/docs/pnm/files/download/macAddress/aa%3Abb%3Acc%3Add%3Aee%3Aff",
+      "http://127.0.0.1:8080/cm/docs/pnm/files/download/macAddress/aa%3Abb%3Acc%3Add%3Aee%3Aff",
     );
     expect(getPnmFileOperationArchiveDownloadUrl("http://127.0.0.1:8080/", "op-1")).toBe(
-      "http://127.0.0.1:8080/docs/pnm/files/download/operationID/op-1",
+      "http://127.0.0.1:8080/cm/docs/pnm/files/download/operationID/op-1",
     );
   });
 });
