@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { normalizeGroupDelayUs } from "@/pw/features/advanced/AdvancedChannelEstGroupDelayView";
+import { normalizeGroupDelayUs } from "@/pw/features/advanced/groupDelayUtils";
 
 describe("normalizeGroupDelayUs", () => {
   it("converts second-scale group delay values into microseconds", () => {

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useInstanceConfig } from "@/app/useInstanceConfig";
 import { CableModemDetailsModal } from "@/components/common/CableModemDetailsModal";
@@ -82,7 +82,7 @@ export function CmtsSingleCaptureDashboardPage() {
     });
   }, []);
 
-  async function refreshCableModems(mode: "light" | "heavy") {
+  const refreshCableModems = useCallback(async (mode: "light" | "heavy") => {
     if (!selectedInstance?.baseUrl) {
       setRows([]);
       setErrorMessage("No instance selected.");
@@ -100,11 +100,11 @@ export function CmtsSingleCaptureDashboardPage() {
     } finally {
       setIsLoading(false);
     }
-  }
+  }, [selectedInstance?.baseUrl]);
 
   useEffect(() => {
     void refreshCableModems("light");
-  }, [selectedInstance?.baseUrl]);
+  }, [refreshCableModems]);
 
   useEffect(() => {
     if (!heavyPollingEnabled || !selectedInstance?.baseUrl) {
@@ -116,7 +116,7 @@ export function CmtsSingleCaptureDashboardPage() {
     return () => {
       window.clearInterval(intervalId);
     };
-  }, [heavyPollingEnabled, selectedInstance?.baseUrl]);
+  }, [heavyPollingEnabled, refreshCableModems, selectedInstance?.baseUrl]);
 
   const visibleRows = useMemo(() => {
     const normalizedSearch = searchText.trim().toLowerCase();

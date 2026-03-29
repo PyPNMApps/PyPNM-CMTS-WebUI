@@ -16,7 +16,7 @@ export interface SingleCaptureRequestContext {
 
 export function useSingleCaptureRequestContext(
   isSingleCaptureRoute: boolean,
-  routePath: string,
+  _routePath: string,
   selectedInstance: PypnmInstance | null | undefined,
 ): SingleCaptureRequestContext {
   return useMemo(() => {
@@ -58,5 +58,5 @@ export function useSingleCaptureRequestContext(
       requestDefaultsOverride,
       preferredConnectivityInputs,
     };
-  }, [isSingleCaptureRoute, routePath, selectedInstance]);
+  }, [isSingleCaptureRoute, selectedInstance]);
 }

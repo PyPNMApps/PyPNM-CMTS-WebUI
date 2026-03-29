@@ -4,26 +4,13 @@ import { DeviceInfoTable } from "@/components/common/DeviceInfoTable";
 import { Panel } from "@/components/common/Panel";
 import { SpectrumSelectionActions } from "@/components/common/SpectrumSelectionActions";
 import { LineAnalysisChart } from "@/pw/features/analysis/components/LineAnalysisChart";
+import { normalizeGroupDelayUs } from "@/pw/features/advanced/groupDelayUtils";
 import { CHART_SERIES_PALETTE, CHART_SERIES_PALETTE_SIZE } from "@/lib/constants";
 import { buildExportBaseName } from "@/lib/export/naming";
 import { toDeviceInfo } from "@/lib/pypnm/deviceInfo";
 import type { ChartSeries } from "@/pw/features/analysis/types";
 import type { SpectrumSelectionRange } from "@/lib/spectrumPower";
 import type { AdvancedMultiChanEstAnalysisResponse, AdvancedMultiChanEstGroupDelayResult } from "@/types/api";
-
-export function normalizeGroupDelayUs(values: number[]): number[] {
-  const numericValues = values
-    .map((value) => Number(value))
-    .filter((value) => Number.isFinite(value));
-
-  const maxAbs = numericValues.reduce((currentMax, value) => Math.max(currentMax, Math.abs(value)), 0);
-  const scale = maxAbs > 0 && maxAbs < 1e-3 ? 1_000_000 : 1;
-
-  return values.map((value) => {
-    const numericValue = Number(value);
-    return Number.isFinite(numericValue) ? numericValue * scale : 0;
-  });
-}
 
 function buildSeries(channel: AdvancedMultiChanEstGroupDelayResult): ChartSeries[] {
   const normalizedGroupDelay = normalizeGroupDelayUs(channel.group_delay_us ?? []);

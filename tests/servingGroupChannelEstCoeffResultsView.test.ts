@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildZoomedYDomain } from "../src/pcw/features/serving-group/components/ServingGroupChannelEstCoeffResultsView";
+import { buildZoomedYDomain } from "../src/pcw/features/serving-group/lib/channelEstCoeffZoom";
 
 describe("buildZoomedYDomain", () => {
   it("builds a y-domain from selected x-range with 15% margin", () => {
@@ -21,4 +21,3 @@ describe("buildZoomedYDomain", () => {
     expect(maxY).toBeCloseTo(32.25, 2);
   });
 });
-
