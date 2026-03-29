@@ -96,3 +96,55 @@ jobs:
         if: failure()
         run: |
           cat ${{ matrix.stack-log }} || true
+
+  uninstall-clean-state:
+    name: Uninstall Clean State · Ubuntu ${{ matrix.os }} · Python ${{ matrix.python-version }} · Profile ${{ matrix.profile }}
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-24.04
+        python-version:
+          - "3.12"
+        profile:
+          - pypnm-webui
+          - pypnm-cmts-webui
+        include:
+          - profile: pypnm-webui
+            backend-repo: PyPNMApps/PyPNM
+            backend-dir: PyPNM
+          - profile: pypnm-cmts-webui
+            backend-repo: PyPNMApps/PyPNM-CMTS
+            backend-dir: PyPNM-CMTS
+
+    steps:
+      - name: Checkout PyPNM-CMTS-WebUI
+        uses: actions/checkout@v4
+        with:
+          path: PyPNM-CMTS-WebUI
+
+      - name: Checkout backend repo
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ matrix.backend-repo }}
+          path: ${{ matrix.backend-dir }}
+
+      - name: Set Up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Make Uninstall Helper Executable
+        working-directory: PyPNM-CMTS-WebUI
+        run: |
+          chmod +x tools/install/ci-verify-uninstall.sh
+          chmod +x tools/install/uninstall.sh
+          chmod +x tools/install/with-pypnm-docsis.sh
+          chmod +x tools/install/start-local-stack.sh
+
+      - name: Verify Uninstall Clean State
+        working-directory: PyPNM-CMTS-WebUI
+        run: |
+          ./tools/install/ci-verify-uninstall.sh --profile ${{ matrix.profile }} --pypnm-path ../${{ matrix.backend-dir }}

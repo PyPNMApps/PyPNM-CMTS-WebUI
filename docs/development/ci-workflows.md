@@ -36,6 +36,13 @@ Combined-install coverage verifies:
 - local stack startup expectations
 - explicit guardrail failure checks for invalid mixed combinations
 
+Uninstall coverage verifies:
+
+- `./uninstall.sh --confirm-uninstall --remove-env` after a combined install
+- cleanup of repo-local artifacts (`node_modules`, `.venv`, runtime local YAML)
+- cleanup of user shims in `~/.local/bin`
+- cleanup of global `npm link` registration for `pypnm-cmts-webui`
+
 ## Release script behavior
 
 `tools/release/release.py` currently runs:
