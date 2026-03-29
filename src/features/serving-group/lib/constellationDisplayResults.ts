@@ -3,6 +3,9 @@ import type { SingleConstellationDisplayAnalysisEntry } from "@/types/api";
 export interface ServingGroupConstellationDisplayModemVisual {
   key: string;
   macAddress: string;
+  vendor: string;
+  model: string;
+  softwareVersion: string;
   modelLabel: string;
   analysisEntry: SingleConstellationDisplayAnalysisEntry;
 }
@@ -71,6 +74,18 @@ function formatModelLabel(systemDescription: Record<string, unknown> | null): st
   if (model) return model;
   if (sw) return sw;
   return "Unknown Model";
+}
+
+function readSystemDescriptionFields(systemDescription: Record<string, unknown> | null): {
+  vendor: string;
+  model: string;
+  softwareVersion: string;
+} {
+  return {
+    vendor: String(systemDescription?.VENDOR ?? "").trim() || "n/a",
+    model: String(systemDescription?.MODEL ?? "").trim() || "n/a",
+    softwareVersion: String(systemDescription?.SW_REV ?? "").trim() || "n/a",
+  };
 }
 
 function toAnalysisEntry(modemRecord: Record<string, unknown>): SingleConstellationDisplayAnalysisEntry | null {
@@ -158,6 +173,7 @@ export function normalizeServingGroupConstellationDisplayResultsPayload(input: u
         return {
           key: `${serviceGroupId}-${channelId}-${macAddress}`,
           macAddress,
+          ...readSystemDescriptionFields(systemDescription),
           modelLabel: formatModelLabel(systemDescription),
           analysisEntry,
         };

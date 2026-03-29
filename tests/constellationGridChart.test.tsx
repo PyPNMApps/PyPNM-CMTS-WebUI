@@ -7,11 +7,23 @@ import { ConstellationGridChart } from "@/features/operations/ConstellationGridC
 import { singleConstellationDisplayFixture } from "@/features/operations/singleConstellationDisplayFixture";
 
 describe("ConstellationGridChart", () => {
-  it("renders a dedicated modulation label hook in the tile header", () => {
+  it("renders the constellation header labels and values", () => {
     const channels = singleConstellationDisplayFixture.data?.analysis ?? [];
     render(<ConstellationGridChart channels={channels} />);
 
-    const modulationLabel = screen.getByText("QAM 4096");
-    expect(modulationLabel.className).toContain("constellation-modulation-label");
+    const qamLabels = screen.getAllByText("QAM");
+    const qamValues = screen.getAllByText("4096");
+    const channelLabels = screen.getAllByText("Channel");
+    const sampleSymbolsLabels = screen.getAllByText("Sample Symbols");
+
+    expect(qamLabels.length).toBeGreaterThan(0);
+    expect(qamValues.length).toBeGreaterThan(0);
+    expect(channelLabels.length).toBeGreaterThan(0);
+    expect(sampleSymbolsLabels.length).toBeGreaterThan(0);
+
+    expect(qamLabels[0]?.className).toContain("constellation-header-label");
+    expect(qamValues[0]?.className).toContain("constellation-header-value");
+    expect(channelLabels[0]?.className).toContain("constellation-header-label");
+    expect(sampleSymbolsLabels[0]?.className).toContain("constellation-header-label");
   });
 });

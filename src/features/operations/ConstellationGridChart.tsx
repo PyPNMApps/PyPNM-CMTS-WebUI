@@ -58,10 +58,19 @@ export function ConstellationGridChart({ channels, exportBaseName }: Constellati
     <div className="constellation-grid">
       {plots.map(({ channel, soft, hard, bounds }, index) => (
         <div key={channel.channel_id ?? index} className="constellation-tile">
-          <div className="analysis-channel-meta-line analysis-channel-meta-line-header">
-            <h3 className="analysis-channel-title">Channel {channel.channel_id ?? "n/a"}</h3>
-            <span className="constellation-modulation-label">QAM {channel.modulation_order ?? "n/a"}</span>
-            <span>Sample Symbols: {channel.num_sample_symbols ?? "n/a"}</span>
+          <div className="constellation-header-row">
+            <span className="constellation-header-item">
+              <span className="constellation-header-label">Channel</span>
+              <span className="constellation-header-value">{channel.channel_id ?? "n/a"}</span>
+            </span>
+            <span className="constellation-header-item">
+              <span className="constellation-header-label">QAM</span>
+              <span className="constellation-header-value">{channel.modulation_order ?? "n/a"}</span>
+            </span>
+            <span className="constellation-header-item">
+              <span className="constellation-header-label">Sample Symbols</span>
+              <span className="constellation-header-value">{channel.num_sample_symbols ?? "n/a"}</span>
+            </span>
           </div>
           {exportBaseName ? (
             <div className="operations-visual-actions">
