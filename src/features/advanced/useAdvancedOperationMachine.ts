@@ -27,6 +27,7 @@ export interface AdvancedOperationStatusSummary {
 
 interface UseAdvancedOperationMachineOptions<TStartResponse, TStatusResponse> {
   pollIntervalMs?: number;
+  stopEnableDelayMs?: number;
   parseStart: (response: TStartResponse) => { groupId: string; operationId: string; message?: string | null };
   parseStatus: (response: TStatusResponse) => AdvancedOperationStatusSummary;
   startOperation: () => Promise<TStartResponse>;
@@ -48,6 +49,7 @@ function mapBackendState(state: string): AdvancedOperationLifecycleState {
 
 export function useAdvancedOperationMachine<TStartResponse, TStatusResponse>({
   pollIntervalMs = ADVANCED_OPERATION_POLL_INTERVAL_MS,
+  stopEnableDelayMs = 1200,
   parseStart,
   parseStatus,
   startOperation,
@@ -61,12 +63,21 @@ export function useAdvancedOperationMachine<TStartResponse, TStatusResponse>({
   const [statusSummary, setStatusSummary] = useState<AdvancedOperationStatusSummary | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isPolling, setIsPolling] = useState(false);
+  const [stopEnabled, setStopEnabled] = useState(false);
   const pollTimerRef = useRef<number | null>(null);
+  const stopEnableTimerRef = useRef<number | null>(null);
 
   const clearPollTimer = useCallback(() => {
     if (pollTimerRef.current !== null) {
       window.clearTimeout(pollTimerRef.current);
       pollTimerRef.current = null;
+    }
+  }, []);
+
+  const clearStopEnableTimer = useCallback(() => {
+    if (stopEnableTimerRef.current !== null) {
+      window.clearTimeout(stopEnableTimerRef.current);
+      stopEnableTimerRef.current = null;
     }
   }, []);
 
@@ -93,32 +104,48 @@ export function useAdvancedOperationMachine<TStartResponse, TStatusResponse>({
     }
   }, [clearPollTimer, getStatus, parseStatus, pollIntervalMs]);
 
-  useEffect(() => clearPollTimer, [clearPollTimer]);
+  useEffect(() => {
+    return () => {
+      clearPollTimer();
+      clearStopEnableTimer();
+    };
+  }, [clearPollTimer, clearStopEnableTimer]);
 
   const start = useCallback(async () => {
     clearPollTimer();
+    clearStopEnableTimer();
     setLifecycleState("starting");
     setErrorMessage(null);
+    setGroupId(null);
+    setOperationId(null);
+    setStartMessage(null);
     setStatusSummary(null);
+    setStopEnabled(false);
     try {
       const response = await startOperation();
       const parsed = parseStart(response);
       setGroupId(parsed.groupId);
       setOperationId(parsed.operationId);
-      setStartMessage(null);
+      setStartMessage(parsed.message ?? null);
       setLifecycleState("running");
+      stopEnableTimerRef.current = window.setTimeout(() => {
+        setStopEnabled(true);
+      }, stopEnableDelayMs);
       void pollOnce(parsed.operationId);
     } catch (error) {
       setLifecycleState("failed");
       setErrorMessage(error instanceof Error ? error.message : "Failed to start operation.");
+      setStopEnabled(false);
     }
-  }, [clearPollTimer, parseStart, pollOnce, startOperation]);
+  }, [clearPollTimer, clearStopEnableTimer, parseStart, pollOnce, startOperation, stopEnableDelayMs]);
 
   const stop = useCallback(async () => {
     if (!operationId) return;
     clearPollTimer();
+    clearStopEnableTimer();
     setLifecycleState("stopping");
     setErrorMessage(null);
+    setStopEnabled(false);
     try {
       const response = await stopOperation(operationId);
       const summary = parseStatus(response);
@@ -137,7 +164,7 @@ export function useAdvancedOperationMachine<TStartResponse, TStatusResponse>({
   }, [clearPollTimer, operationId, pollOnce]);
 
   const canStart = useMemo(() => lifecycleState !== "starting" && lifecycleState !== "running" && lifecycleState !== "stopping", [lifecycleState]);
-  const canStop = lifecycleState === "running" && Boolean(operationId);
+  const canStop = lifecycleState === "running" && Boolean(operationId) && stopEnabled;
   const hasOperation = Boolean(operationId);
 
   return {

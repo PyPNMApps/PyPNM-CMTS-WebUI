@@ -1865,6 +1865,18 @@ pre {
   background: rgba(121, 169, 255, 0.08);
 }
 
+.operations-json-download.danger {
+  border-color: rgba(220, 70, 70, 0.55);
+  background: rgba(220, 70, 70, 0.16);
+  color: #ffdede;
+}
+
+.operations-json-download.danger:hover,
+.operations-json-download.danger:focus-visible {
+  border-color: rgba(220, 70, 70, 0.78);
+  background: rgba(220, 70, 70, 0.24);
+}
+
 .operations-export-actions {
   display: inline-flex;
   flex-wrap: wrap;

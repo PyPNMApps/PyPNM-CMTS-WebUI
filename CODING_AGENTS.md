@@ -104,6 +104,8 @@
   grayed out.
 - Hovering disabled action controls must not imply clickability; keep the
   cursor non-pointer for disabled states.
+- Destructive actions (for example `Cancel`) must use a danger visual style
+  with red emphasis in both dark and light themes so intent is obvious.
 - For cable-modem registration status displays, use a shared chip mapping:
   green only for `operational`, and red for every other status.
 - Selected-state summary chips must remain visually pronounced in both themes;

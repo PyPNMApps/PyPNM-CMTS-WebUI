@@ -46,7 +46,7 @@ export function CmtsSgRxMerWorkflowPage() {
       if (!selectedInstance?.baseUrl) {
         throw new Error("No instance selected.");
       }
-      const response = await cancelServingGroupRxMerCapture(selectedInstance.baseUrl, operationId);
+      const response = await getServingGroupRxMerCaptureStatus(selectedInstance.baseUrl, operationId);
       setLatestStatusResponsePayload(response);
       return response;
     },
@@ -54,7 +54,7 @@ export function CmtsSgRxMerWorkflowPage() {
       if (!selectedInstance?.baseUrl) {
         throw new Error("No instance selected.");
       }
-      const response = await getServingGroupRxMerCaptureStatus(selectedInstance.baseUrl, operationId);
+      const response = await cancelServingGroupRxMerCapture(selectedInstance.baseUrl, operationId);
       setLatestStatusResponsePayload(response);
       return response;
     },
@@ -64,6 +64,7 @@ export function CmtsSgRxMerWorkflowPage() {
     && selectedInstance?.baseUrl
     && machine.canStart
   );
+  const canCancelCapture = machine.canStop;
 
   return (
     <>
@@ -89,6 +90,8 @@ export function CmtsSgRxMerWorkflowPage() {
                 className="primary"
                 disabled={!canStartCapture}
                 onClick={() => {
+                  setIsCaptureStatusCollapsed(false);
+                  setLatestStatusResponsePayload(null);
                   void machine.start();
                 }}
               >
@@ -96,8 +99,8 @@ export function CmtsSgRxMerWorkflowPage() {
               </button>
               <button
                 type="button"
-                className="operations-json-download"
-                disabled={!machine.canStop}
+                className="operations-json-download danger"
+                disabled={!canCancelCapture}
                 onClick={() => {
                   void machine.stop();
                 }}
