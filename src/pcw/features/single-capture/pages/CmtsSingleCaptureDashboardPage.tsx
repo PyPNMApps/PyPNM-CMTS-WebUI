@@ -173,7 +173,7 @@ export function CmtsSingleCaptureDashboardPage() {
       channelIds: row.channelIds,
       selectedAtEpochMs: Date.now(),
     });
-    navigate("/spectrum-analyzer/friendly");
+    navigate("/single-capture/spectrum-analyzer/friendly");
   }
 
   function openSelectedRowAction(row: ServingGroupCableModemRow) {

@@ -70,13 +70,13 @@ describe("navigation structure", () => {
   it("keeps Spectrum Analyzer routes out of the Operations menu data set", () => {
     expect(spectrumAnalyzerNavigationItems).toHaveLength(4);
     expect(spectrumAnalyzerNavigationItems.map((item) => item.routePath)).toEqual([
-      "/spectrum-analyzer/friendly",
-      "/spectrum-analyzer/full-band",
-      "/spectrum-analyzer/ofdm",
-      "/spectrum-analyzer/scqam",
+      "/single-capture/spectrum-analyzer/friendly",
+      "/single-capture/spectrum-analyzer/full-band",
+      "/single-capture/spectrum-analyzer/ofdm",
+      "/single-capture/spectrum-analyzer/scqam",
     ]);
     expect(
-      operationsMenuNavigationItems.some((item) => item.routePath.startsWith("/spectrum-analyzer")),
+      operationsMenuNavigationItems.some((item) => item.routePath.includes("spectrum-analyzer")),
     ).toBe(false);
   });
 });

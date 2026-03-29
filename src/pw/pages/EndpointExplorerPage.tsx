@@ -114,9 +114,10 @@ export function EndpointExplorerPage() {
   const location = useLocation();
   const { operationId } = useParams<{ operationId?: string }>();
   const { selectedInstance } = useInstanceConfig();
-  const isSingleCaptureRoute = location.pathname.startsWith("/single-capture");
+  const isPwSpectrumAnalyzerRoute = location.pathname.startsWith("/single-capture/spectrum-analyzer");
+  const isSingleCaptureRoute = location.pathname.startsWith("/single-capture") && !isPwSpectrumAnalyzerRoute;
   const isOperationExplorerRoute = location.pathname.startsWith("/operations/");
-  const isSpectrumAnalyzerRoute = location.pathname.startsWith("/spectrum-analyzer");
+  const isSpectrumAnalyzerRoute = isPwSpectrumAnalyzerRoute || location.pathname.startsWith("/spectrum-analyzer");
   const [captureConnectivityInputs, setCaptureConnectivityInputs] = useState<CaptureConnectivityInputs | null>(null);
   const [captureConnectivityStatus, setCaptureConnectivityStatus] = useState<CaptureConnectivityStatus>("unknown");
   const connectivityCheckSequenceRef = useRef(0);
@@ -411,7 +412,13 @@ export function EndpointExplorerPage() {
   if (!selectedOperation) {
     return (
       <Navigate
-        to={isSingleCaptureRoute ? (singleCaptureNavigationItems[0]?.routePath ?? "/") : (operationNavigationItems[0]?.routePath ?? "/")}
+        to={
+          isSpectrumAnalyzerRoute
+            ? (spectrumAnalyzerNavigationItems[0]?.routePath ?? "/")
+            : isSingleCaptureRoute
+              ? (singleCaptureNavigationItems[0]?.routePath ?? "/")
+              : (operationNavigationItems[0]?.routePath ?? "/")
+        }
         replace
       />
     );
@@ -651,17 +658,17 @@ export function EndpointExplorerPage() {
 
   return (
     <>
-      {isSingleCaptureRoute ? (
+      {isSpectrumAnalyzerRoute ? (
         <nav className="advanced-subnav">
-          {singleCaptureNavigationItems.map((item) => (
+          {spectrumAnalyzerNavigationItems.map((item) => (
             <NavLink key={item.id} to={item.routePath} className={({ isActive }) => (isActive ? "nav-link active" : "nav-link")}>
               {item.label}
             </NavLink>
           ))}
         </nav>
-      ) : isSpectrumAnalyzerRoute ? (
+      ) : isSingleCaptureRoute ? (
         <nav className="advanced-subnav">
-          {spectrumAnalyzerNavigationItems.map((item) => (
+          {singleCaptureNavigationItems.map((item) => (
             <NavLink key={item.id} to={item.routePath} className={({ isActive }) => (isActive ? "nav-link active" : "nav-link")}>
               {item.label}
             </NavLink>

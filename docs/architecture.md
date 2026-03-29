@@ -30,13 +30,13 @@
 ```text
 src/
 ├── pcw/
-│   ├── pages/                      # CMTS-specific route pages
-│   │   ├── CmtsSingleCaptureDashboardPage.tsx
+│   ├── pages/                      # CMTS-specific route pages (non-feature grouped)
 │   │   ├── CmtsSg*WorkflowPage.tsx
-│   │   └── CmtsSpectrumFriendlyWorkflowPage.tsx
+│   │   └── Health/Settings/About/File* pages
 │   ├── features/
 │   │   ├── serving-group/          # SG request forms, status, and result models
-│   │   └── spectrum-analyzer/      # CMTS SA result components
+│   │   ├── spectrum-analyzer/      # CMTS SA result components
+│   │   └── single-capture/         # CMTS single-capture dashboard + entry workflow
 │   └── services/
 │       └── servingGroup*Service.ts # CMTS /cmts/... API clients
 ├── pw/
@@ -61,7 +61,7 @@ src/
 
 ### Responsibility breakdown
 
-- `src/pcw/pages`: own CMTS workflow routing and page-level orchestration.
+- `src/pcw/pages`: own CMTS route pages that are not feature-grouped workflows.
 - `src/pcw/features`: own CMTS operation-specific UI and result shaping.
 - `src/pcw/services`: own CMTS-specific endpoint calls under `/cmts/...`.
 - `src/pw/pages`: own shared PW-style operation browsing and rendering shells.
@@ -74,6 +74,8 @@ src/
 ## Serving Group RxMER architecture
 
 - route page: `src/pcw/pages/CmtsSgRxMerWorkflowPage.tsx`
+- single-capture dashboard route page:
+  `src/pcw/features/single-capture/pages/CmtsSingleCaptureDashboardPage.tsx`
 - reusable request form: `src/pcw/features/serving-group/components/ServingGroupCaptureRequestForm.tsx`
 - API transport: `requestWithBaseUrl` in `src/services/http.ts`
 - runtime instance selection from YAML via app provider

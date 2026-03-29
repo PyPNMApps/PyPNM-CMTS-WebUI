@@ -226,9 +226,9 @@ describe("EndpointExplorerPage", () => {
     render(
       <QueryClientProvider client={queryClient}>
         <InstanceConfigContext.Provider value={createContextValue()}>
-          <MemoryRouter initialEntries={["/spectrum-analyzer/friendly"]}>
+          <MemoryRouter initialEntries={["/single-capture/spectrum-analyzer/friendly"]}>
             <Routes>
-              <Route path="/spectrum-analyzer/:operationId" element={<EndpointExplorerPage />} />
+              <Route path="/single-capture/spectrum-analyzer/:operationId" element={<EndpointExplorerPage />} />
             </Routes>
           </MemoryRouter>
         </InstanceConfigContext.Provider>

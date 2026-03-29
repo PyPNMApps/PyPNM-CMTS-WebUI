@@ -28,7 +28,9 @@ const CmtsSpectrumFriendlyWorkflowPage = lazy(() =>
   import("@/pcw/features/spectrum-analyzer/pages/CmtsSpectrumFriendlyWorkflowPage").then((module) => ({ default: module.CmtsSpectrumFriendlyWorkflowPage })),
 );
 const CmtsSingleCaptureDashboardPage = lazy(() =>
-  import("@/pcw/pages/CmtsSingleCaptureDashboardPage").then((module) => ({ default: module.CmtsSingleCaptureDashboardPage })),
+  import("@/pcw/features/single-capture/pages/CmtsSingleCaptureDashboardPage").then((module) => ({
+    default: module.CmtsSingleCaptureDashboardPage,
+  })),
 );
 const AdvancedPage = lazy(() =>
   import("@/pw/pages/AdvancedPage").then((module) => ({ default: module.AdvancedPage })),
@@ -86,10 +88,13 @@ export function AppRoutes() {
           <Route path="/advanced/ofdma-pre-eq" element={<AdvancedPage />} />
           <Route path="/single-capture" element={<Navigate to="/single-capture/dashboard" replace />} />
           <Route path="/single-capture/dashboard" element={<CmtsSingleCaptureDashboardPage />} />
+          <Route path="/single-capture/spectrum-analyzer" element={<Navigate to="/single-capture/spectrum-analyzer/friendly" replace />} />
+          <Route path="/single-capture/spectrum-analyzer/:operationId" element={<EndpointExplorerPage />} />
           <Route path="/single-capture/rxmer" element={<EndpointExplorerPage />} />
           <Route path="/single-capture/:operationId" element={<EndpointExplorerPage />} />
           <Route path="/spectrum-analyzer" element={<Navigate to="/spectrum-analyzer/friendly" replace />} />
-          <Route path="/spectrum-analyzer/:operationId" element={<EndpointExplorerPage />} />
+          <Route path="/spectrum-analyzer/friendly" element={<CmtsSpectrumFriendlyWorkflowPage />} />
+          <Route path="/spectrum-analyzer/:operationId" element={<Navigate to="/spectrum-analyzer/friendly" replace />} />
           <Route path="/endpoints" element={<Navigate to="/operations" replace />} />
           <Route path="/operations" element={<Navigate to="/operations/cmts-sg-ds-ofdm-rxmer" replace />} />
           <Route path="/operations/cmts-sg-ds-ofdm-rxmer" element={<CmtsSgRxMerWorkflowPage />} />

@@ -168,7 +168,7 @@ const rawOperationNavigationItems: OperationNavigationItem[] = [
   {
     id: "docs-pnm-ds-spectrumanalyzer-getcapture-friendly",
     label: "Friendly",
-    routePath: "/spectrum-analyzer/friendly",
+    routePath: "/single-capture/spectrum-analyzer/friendly",
     endpointPath: "/docs/pnm/ds/spectrumAnalyzer/getCapture/friendly",
     description: "Friendly downstream spectrum analyzer capture visual.",
     menuPath: ["PNM", "Spectrum Analyzer"],
@@ -178,7 +178,7 @@ const rawOperationNavigationItems: OperationNavigationItem[] = [
   {
     id: "docs-pnm-ds-spectrumanalyzer-getcapture-fullbandcapture",
     label: "Full Band",
-    routePath: "/spectrum-analyzer/full-band",
+    routePath: "/single-capture/spectrum-analyzer/full-band",
     endpointPath: "/docs/pnm/ds/spectrumAnalyzer/getCapture/fullBandCapture",
     description: "Full-band spectrum analyzer capture visual.",
     menuPath: ["PNM", "Spectrum Analyzer"],
@@ -188,7 +188,7 @@ const rawOperationNavigationItems: OperationNavigationItem[] = [
   {
     id: "docs-pnm-ds-spectrumanalyzer-getcapture-ofdm",
     label: "OFDM",
-    routePath: "/spectrum-analyzer/ofdm",
+    routePath: "/single-capture/spectrum-analyzer/ofdm",
     endpointPath: "/docs/pnm/ds/spectrumAnalyzer/getCapture/ofdm",
     description: "OFDM downstream spectrum analyzer capture visual.",
     menuPath: ["PNM", "Spectrum Analyzer"],
@@ -198,7 +198,7 @@ const rawOperationNavigationItems: OperationNavigationItem[] = [
   {
     id: "docs-pnm-ds-spectrumanalyzer-getcapture-scqam",
     label: "SCQAM",
-    routePath: "/spectrum-analyzer/scqam",
+    routePath: "/single-capture/spectrum-analyzer/scqam",
     endpointPath: "/docs/pnm/ds/spectrumAnalyzer/getCapture/scqam",
     description: "SCQAM downstream spectrum analyzer capture visual.",
     menuPath: ["PNM", "Spectrum Analyzer"],
