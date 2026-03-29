@@ -1,5 +1,6 @@
 import { requestWithBaseUrl } from "@/services/http";
 import type { CaptureConnectivityInputs } from "@/features/operations/captureConnectivity";
+import { toPwApiPath } from "@/lib/pwCompat";
 
 interface SysDescrCheckResponse {
   status?: number | string;
@@ -12,7 +13,7 @@ interface SysDescrCheckResponse {
 export async function checkCaptureInputsOnline(baseUrl: string, inputs: CaptureConnectivityInputs): Promise<boolean> {
   const response = await requestWithBaseUrl<SysDescrCheckResponse>(baseUrl, {
     method: "POST",
-    url: "/system/sysDescr",
+    url: toPwApiPath("/system/sysDescr"),
     data: {
       cable_modem: {
         mac_address: inputs.macAddress,

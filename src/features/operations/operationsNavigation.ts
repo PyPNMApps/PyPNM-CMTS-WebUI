@@ -1,4 +1,5 @@
 import { LONG_RUNNING_OPERATION_TIMEOUT_MS } from "@/lib/constants";
+import { toPwApiPath } from "@/lib/pwCompat";
 
 export interface OperationNavigationItem {
   id: string;
@@ -12,7 +13,7 @@ export interface OperationNavigationItem {
 }
 
 // Edit this file to add top-row operation navigation entries.
-export const operationNavigationItems: OperationNavigationItem[] = [
+const rawOperationNavigationItems: OperationNavigationItem[] = [
   {
     id: "docs-if31-docsis-basecapability",
     label: "Base Capability",
@@ -241,6 +242,11 @@ export const operationNavigationItems: OperationNavigationItem[] = [
     showInOperationsMenu: false,
   },
 ];
+
+export const operationNavigationItems: OperationNavigationItem[] = rawOperationNavigationItems.map((item) => ({
+  ...item,
+  endpointPath: toPwApiPath(item.endpointPath),
+}));
 
 export function getOperationByRoutePath(routePath: string | undefined): OperationNavigationItem | undefined {
   return operationNavigationItems.find((item) => item.routePath === routePath);

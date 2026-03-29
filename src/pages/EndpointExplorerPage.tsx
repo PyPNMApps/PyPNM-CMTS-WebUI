@@ -18,6 +18,7 @@ import {
   buildCaptureConnectivityInputsFromInstance,
   hasCompleteCaptureConnectivityInputs,
   isCaptureConnectivityOnline,
+  normalizeCaptureConnectivityInputs,
 } from "@/features/operations/captureConnectivity";
 import { SingleSpectrumOfdmCaptureView } from "@/features/operations/SingleSpectrumOfdmCaptureView";
 import { SingleSpectrumScqamCaptureView } from "@/features/operations/SingleSpectrumScqamCaptureView";
@@ -159,9 +160,25 @@ export function EndpointExplorerPage() {
       macAddress: selectedModem.macAddress,
       ipAddress: selectedModem.ipAddress === "n/a" ? "" : selectedModem.ipAddress,
       community: selectedModem.snmpCommunity,
-      channelIds: selectedModem.channelIds.length > 0 ? selectedModem.channelIds.join(",") : "",
+      channelIds: "",
     };
   }, [isSingleCaptureRoute, location.pathname]);
+  const preferredConnectivityInputs = useMemo(() => {
+    if (
+      isSingleCaptureRoute
+      && selectedModemDefaults
+      && selectedModemDefaults.macAddress
+      && selectedModemDefaults.ipAddress
+      && selectedModemDefaults.community
+    ) {
+      return normalizeCaptureConnectivityInputs({
+        macAddress: selectedModemDefaults.macAddress,
+        ipAddress: selectedModemDefaults.ipAddress,
+        community: selectedModemDefaults.community,
+      });
+    }
+    return buildCaptureConnectivityInputsFromInstance(selectedInstance);
+  }, [isSingleCaptureRoute, selectedInstance, selectedModemDefaults]);
   const canExecuteOperation = Boolean(selectedInstance) && isCaptureConnectivityOnline(captureConnectivityStatus);
   const captureInputsTitle = useMemo(() => {
     const label = captureConnectivityStatus === "online"
@@ -190,9 +207,9 @@ export function EndpointExplorerPage() {
   useEffect(() => {
     connectivityHasCheckedInitialRef.current = false;
     connectivityCheckSequenceRef.current += 1;
-    setCaptureConnectivityInputs(buildCaptureConnectivityInputsFromInstance(selectedInstance));
+    setCaptureConnectivityInputs(preferredConnectivityInputs);
     setCaptureConnectivityStatus("unknown");
-  }, [selectedInstance, selectedOperation?.id]);
+  }, [preferredConnectivityInputs, selectedOperation?.id]);
 
   useEffect(() => {
     if (!selectedInstance?.baseUrl || !hasCompleteCaptureConnectivityInputs(captureConnectivityInputs)) {
@@ -538,6 +555,7 @@ export function EndpointExplorerPage() {
             errorMessage={mutation.isError ? (mutation.error as Error).message : undefined}
             extraActions={requestJsonAction}
             onConnectivityInputsChange={setCaptureConnectivityInputs}
+            requestDefaultsOverride={selectedModemDefaults}
             onSubmit={(payload) => {
               mutation.mutate({ endpointPath: selectedOperation.endpointPath, payload });
             }}
@@ -598,6 +616,7 @@ export function EndpointExplorerPage() {
             errorMessage={mutation.isError ? (mutation.error as Error).message : undefined}
             extraActions={requestJsonAction}
             onConnectivityInputsChange={setCaptureConnectivityInputs}
+            requestDefaultsOverride={selectedModemDefaults}
             onSubmit={(payload) => {
               mutation.mutate({ endpointPath: selectedOperation.endpointPath, payload });
             }}

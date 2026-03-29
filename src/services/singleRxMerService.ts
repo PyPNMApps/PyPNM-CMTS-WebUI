@@ -1,4 +1,5 @@
 import { requestWithBaseUrl } from "@/services/http";
+import { toPwApiPath } from "@/lib/pwCompat";
 import type { SingleRxMerCaptureRequest, SingleRxMerCaptureResponse } from "@/types/api";
 
 export async function runSingleRxMerCapture(
@@ -7,7 +8,7 @@ export async function runSingleRxMerCapture(
 ): Promise<SingleRxMerCaptureResponse> {
   const response = await requestWithBaseUrl<SingleRxMerCaptureResponse>(baseUrl, {
     method: "POST",
-    url: "/docs/pnm/ds/ofdm/rxMer/getCapture",
+    url: toPwApiPath("/docs/pnm/ds/ofdm/rxMer/getCapture"),
     data: payload,
   });
 

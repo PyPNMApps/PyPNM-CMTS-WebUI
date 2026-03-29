@@ -46,6 +46,7 @@ const singleCaptureRoutes = [
   { to: "/single-capture/rxmer", label: "RxMER" },
 ] as const;
 
+
 export function CmtsSingleCaptureDashboardPage() {
   const { selectedInstance } = useInstanceConfig();
   const navigate = useNavigate();
@@ -124,7 +125,7 @@ export function CmtsSingleCaptureDashboardPage() {
     return sortDirection === "asc" ? " ▲" : " ▼";
   }
 
-  function openRxMer(row: ServingGroupCableModemRow) {
+  function openSingleCaptureOperation(row: ServingGroupCableModemRow) {
     saveSelectedModemContext({
       sgId: row.sgId,
       macAddress: row.macAddress,
@@ -254,8 +255,8 @@ export function CmtsSingleCaptureDashboardPage() {
                   <td>{row.softwareVersion}</td>
                   <td>{row.channelIds.length ? row.channelIds.join(", ") : "all"}</td>
                   <td>
-                    <button type="button" className="operations-json-download" onClick={() => openRxMer(row)}>
-                      Open RxMER
+                    <button type="button" className="operations-json-download" onClick={() => openSingleCaptureOperation(row)}>
+                      SingleCapture
                     </button>
                   </td>
                 </tr>
@@ -274,4 +275,3 @@ export function CmtsSingleCaptureDashboardPage() {
     </>
   );
 }
-

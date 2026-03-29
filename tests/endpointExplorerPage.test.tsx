@@ -166,7 +166,7 @@ describe("EndpointExplorerPage", () => {
 
     expect((document.getElementById("macAddress") as HTMLInputElement | null)?.value).toBe("aa:bb:cc:dd:ee:ff");
     expect((document.getElementById("ipAddress") as HTMLInputElement | null)?.value).toBe("10.1.0.25");
-    expect((document.getElementById("channelIds") as HTMLInputElement | null)?.value).toBe("193,194");
+    expect((document.getElementById("channelIds") as HTMLInputElement | null)?.value).toBe("");
     expect((document.getElementById("community") as HTMLInputElement | null)?.value).toBe("private");
   });
 });
