@@ -8,6 +8,7 @@ export interface ServingGroupRxMerModemVisual {
   key: string;
   macAddress: string;
   modelLabel: string;
+  captureTimeEpoch?: number;
   captureTimeLabel: string;
   rxMerSeries: ChartSeries[];
   modulationCounts?: Record<string, number>;
@@ -167,6 +168,7 @@ export function normalizeServingGroupRxMerResultsPayload(input: unknown): Servin
           key: `${serviceGroupId}-${channelId}-${macAddress}`,
           macAddress,
           modelLabel: formatModelLabel(systemDescription),
+          captureTimeEpoch: captureTime,
           captureTimeLabel: captureTime ? formatEpochSecondsUtc(captureTime) : "n/a",
           rxMerSeries: series,
           modulationCounts: modulationCounts && Object.keys(modulationCounts).length > 0 ? modulationCounts : undefined,

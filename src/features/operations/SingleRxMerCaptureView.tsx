@@ -7,6 +7,7 @@ import { LineAnalysisChart } from "@/features/analysis/components/LineAnalysisCh
 import { ModulationCountsChart } from "@/features/operations/ModulationCountsChart";
 import type { ChartSeries } from "@/features/analysis/types";
 import { formatEpochSecondsUtc } from "@/lib/formatters/dateTime";
+import { buildExportBaseName } from "@/lib/export/naming";
 import { formatFrequencyRangeMhz } from "@/lib/formatters/frequency";
 import { toDeviceInfo } from "@/lib/pypnm/deviceInfo";
 import {
@@ -54,6 +55,7 @@ export function SingleRxMerCaptureView({ response }: { response: SingleRxMerCapt
 
   const primary = analysis[0];
   const fallbackCaptureTime = findFallbackCaptureTime(analysis);
+  const fallbackMacAddress = primary?.mac_address ?? response.mac_address;
   const deviceInfo = toDeviceInfo(
     primary?.device_details?.system_description ?? response.system_description,
     primary?.mac_address ?? response.mac_address,
@@ -112,7 +114,11 @@ export function SingleRxMerCaptureView({ response }: { response: SingleRxMerCapt
             onResetZoom={() => setCombinedZoomDomain(null)}
           />
         )}
-        exportBaseName="single-rxmer-all-channels"
+        exportBaseName={buildExportBaseName(
+          fallbackMacAddress,
+          fallbackCaptureTime,
+          "single-rxmer-all-channels",
+        )}
       />
 
       <div className="analysis-channels-grid">
@@ -137,6 +143,8 @@ export function SingleRxMerCaptureView({ response }: { response: SingleRxMerCapt
           const selection = channelSelection[channelKey] ?? null;
           const zoomDomain = channelZoomDomain[channelKey] ?? null;
           const normalizedSelection = normalizeSpectrumSelection(selection);
+          const channelMacAddress = channel.mac_address ?? fallbackMacAddress;
+          const channelCaptureTime = channel.pnm_header?.capture_time ?? fallbackCaptureTime;
 
           return (
             <article key={channel.channel_id ?? index} className="analysis-channel-card">
@@ -226,13 +234,21 @@ export function SingleRxMerCaptureView({ response }: { response: SingleRxMerCapt
                       }))}
                     />
                   )}
-                  exportBaseName={`single-rxmer-channel-${channel.channel_id ?? index}`}
+                  exportBaseName={buildExportBaseName(
+                    channelMacAddress,
+                    channelCaptureTime,
+                    `single-rxmer-channel-${channel.channel_id ?? index}`,
+                  )}
                 />
 
                 <ModulationCountsChart
                   title={`Supported Modulation Counts (Channel ${channel.channel_id ?? "n/a"})`}
                   counts={channel.modulation_statistics?.supported_modulation_counts}
-                  exportBaseName={`single-rxmer-modulation-counts-channel-${channel.channel_id ?? index}`}
+                  exportBaseName={buildExportBaseName(
+                    channelMacAddress,
+                    channelCaptureTime,
+                    `single-rxmer-modulation-counts-channel-${channel.channel_id ?? index}`,
+                  )}
                 />
               </div>
             </article>
@@ -242,7 +258,13 @@ export function SingleRxMerCaptureView({ response }: { response: SingleRxMerCapt
 
       <RxMerSelectionInsightsModal
         data={selectionInsightsModal}
-        exportBaseName={selectionInsightsModal ? `single-rxmer-selection-distribution-channel-${selectionInsightsModal.channelId}` : "single-rxmer-selection-distribution"}
+        exportBaseName={buildExportBaseName(
+          fallbackMacAddress,
+          fallbackCaptureTime,
+          selectionInsightsModal
+            ? `single-rxmer-selection-distribution-channel-${selectionInsightsModal.channelId}`
+            : "single-rxmer-selection-distribution",
+        )}
         onClose={() => setSelectionInsightsModal(null)}
       />
     </div>

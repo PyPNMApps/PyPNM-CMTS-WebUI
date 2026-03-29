@@ -55,10 +55,11 @@ export function ModulationCountsChart({ title, counts, exportBaseName }: Modulat
 
   const width = 1100;
   const height = 340;
-  const left = 44;
+  const left = 72;
+  const right = 20;
   const top = 16;
   const bottom = 72;
-  const usableWidth = width - 64;
+  const usableWidth = width - left - right;
   const usableHeight = height - top - bottom;
   const maxValue = Math.max(...entries.map((entry) => entry.value), 1);
   const yMax = Math.ceil(maxValue / 100) * 100 || maxValue;
@@ -101,14 +102,14 @@ export function ModulationCountsChart({ title, counts, exportBaseName }: Modulat
           const y = top + usableHeight - (value / yMax) * usableHeight;
           return (
             <g key={`y-${value}`}>
-              <line x1={left} y1={y} x2={width - 20} y2={y} stroke="rgba(255,255,255,0.10)" />
-              <text x="8" y={y + 4} fill="#9eb0c9" fontSize="11">
+              <line x1={left} y1={y} x2={width - right} y2={y} stroke="rgba(255,255,255,0.10)" />
+              <text x={left - 8} y={y + 4} fill="#9eb0c9" fontSize="11" textAnchor="end">
                 {Math.round(value)}
               </text>
             </g>
           );
         })}
-        <line x1={left} y1={height - bottom} x2={width - 20} y2={height - bottom} stroke="rgba(255,255,255,0.20)" />
+        <line x1={left} y1={height - bottom} x2={width - right} y2={height - bottom} stroke="rgba(255,255,255,0.20)" />
         <line x1={left} y1={top} x2={left} y2={height - bottom} stroke="rgba(255,255,255,0.20)" />
 
         <path d={path} fill="none" stroke="#58d0a7" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
@@ -132,7 +133,15 @@ export function ModulationCountsChart({ title, counts, exportBaseName }: Modulat
         <text x={width / 2} y={height - 8} fill="#9eb0c9" fontSize="11" textAnchor="middle">
           Modulation (QAM / bit-sym)
         </text>
-        <text x="10" y="12" fill="#9eb0c9" fontSize="11">
+        <text
+          x="18"
+          y={height / 2}
+          fill="#9eb0c9"
+          fontSize="11"
+          textAnchor="middle"
+          dominantBaseline="middle"
+          transform={`rotate(-90 18 ${height / 2})`}
+        >
           Carrier Count
         </text>
       </svg>

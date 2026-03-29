@@ -6,6 +6,7 @@ import {
   normalizeServingGroupRxMerResultsPayload,
   type ServingGroupRxMerGroupVisual,
 } from "@/features/serving-group/lib/rxmerResults";
+import { buildExportBaseName } from "@/lib/export/naming";
 import type { SpectrumSelectionRange } from "@/lib/spectrumPower";
 
 interface ServingGroupRxMerResultsViewProps {
@@ -99,12 +100,20 @@ function ChannelSection({ groupId, channel }: { groupId: string; channel: Servin
                   }))}
                 />
               )}
-              exportBaseName={`sg-rxmer-sg-${groupId}-channel-${channel.channelId}-mac-${modem.macAddress.replaceAll(":", "")}`}
+              exportBaseName={buildExportBaseName(
+                modem.macAddress,
+                modem.captureTimeEpoch,
+                `sg-rxmer-sg-${groupId}-channel-${channel.channelId}`,
+              )}
             />
             <ModulationCountsChart
               title={`Supported Modulation Counts (MAC ${modem.macAddress})`}
               counts={modem.modulationCounts}
-              exportBaseName={`sg-rxmer-modulation-sg-${groupId}-channel-${channel.channelId}-mac-${modem.macAddress.replaceAll(":", "")}`}
+              exportBaseName={buildExportBaseName(
+                modem.macAddress,
+                modem.captureTimeEpoch,
+                `sg-rxmer-modulation-sg-${groupId}-channel-${channel.channelId}`,
+              )}
             />
           </article>
         ))}
