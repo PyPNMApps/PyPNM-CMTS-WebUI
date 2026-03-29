@@ -5,51 +5,51 @@ import { useMutation } from "@tanstack/react-query";
 import { useInstanceConfig } from "@/app/useInstanceConfig";
 import { PageHeader } from "@/components/common/PageHeader";
 import { RequestJsonAction } from "@/components/common/RequestJsonAction";
+import { CaptureOperationShell } from "@/features/operations/components/CaptureOperationShell";
 import { ConstellationDisplayCaptureRequestForm } from "@/features/operations/ConstellationDisplayCaptureRequestForm";
 import { DeviceConnectRequestForm } from "@/features/operations/DeviceConnectRequestForm";
-import { HistogramCaptureRequestForm } from "@/features/operations/HistogramCaptureRequestForm";
 import { FecSummaryCaptureRequestForm } from "@/features/operations/FecSummaryCaptureRequestForm";
+import { HistogramCaptureRequestForm } from "@/features/operations/HistogramCaptureRequestForm";
 import { ScqamCodewordErrorRateRequestForm } from "@/features/operations/ScqamCodewordErrorRateRequestForm";
 import { SingleCaptureRequestForm } from "@/features/operations/SingleCaptureRequestForm";
-import { CaptureOperationShell } from "@/features/operations/components/CaptureOperationShell";
+import { SpectrumFriendlyCaptureRequestForm } from "@/features/operations/SpectrumFriendlyCaptureRequestForm";
+import { SpectrumFullBandCaptureRequestForm } from "@/features/operations/SpectrumFullBandCaptureRequestForm";
+import { SpectrumOfdmCaptureRequestForm } from "@/features/operations/SpectrumOfdmCaptureRequestForm";
+import { SingleAtdmaChannelStatsView } from "@/features/operations/SingleAtdmaChannelStatsView";
+import { SingleAtdmaPreEqualizationView } from "@/features/operations/SingleAtdmaPreEqualizationView";
+import { SingleChannelEstCoeffCaptureView } from "@/features/operations/SingleChannelEstCoeffCaptureView";
+import { SingleConstellationDisplayCaptureView } from "@/features/operations/SingleConstellationDisplayCaptureView";
+import { SingleDeviceEventLogView } from "@/features/operations/SingleDeviceEventLogView";
+import { SingleDsScqamChannelStatsView } from "@/features/operations/SingleDsScqamChannelStatsView";
+import { SingleDsScqamCodewordErrorRateView } from "@/features/operations/SingleDsScqamCodewordErrorRateView";
+import { SingleFddDiplexerBandEdgeCapabilityView } from "@/features/operations/SingleFddDiplexerBandEdgeCapabilityView";
+import { SingleFddSystemDiplexerConfigurationView } from "@/features/operations/SingleFddSystemDiplexerConfigurationView";
+import { SingleFecSummaryCaptureView } from "@/features/operations/SingleFecSummaryCaptureView";
+import { SingleHistogramCaptureView } from "@/features/operations/SingleHistogramCaptureView";
+import { SingleIf31DocsisBaseCapabilityView } from "@/features/operations/SingleIf31DocsisBaseCapabilityView";
+import { SingleIf31DsOfdmChannelStatsView } from "@/features/operations/SingleIf31DsOfdmChannelStatsView";
+import { SingleIf31DsOfdmProfileStatsView } from "@/features/operations/SingleIf31DsOfdmProfileStatsView";
+import { SingleIf31SystemDiplexerView } from "@/features/operations/SingleIf31SystemDiplexerView";
+import { SingleIf31UsOfdmaChannelStatsView } from "@/features/operations/SingleIf31UsOfdmaChannelStatsView";
+import { SingleInterfaceStatsView } from "@/features/operations/SingleInterfaceStatsView";
+import { SingleModulationProfileCaptureView } from "@/features/operations/SingleModulationProfileCaptureView";
+import { SingleRxMerCaptureView } from "@/features/operations/SingleRxMerCaptureView";
+import { SingleSpectrumFriendlyCaptureView } from "@/features/operations/SingleSpectrumFriendlyCaptureView";
+import { SingleSpectrumOfdmCaptureView } from "@/features/operations/SingleSpectrumOfdmCaptureView";
+import { SingleSpectrumScqamCaptureView } from "@/features/operations/SingleSpectrumScqamCaptureView";
+import { SingleSystemUpTimeView } from "@/features/operations/SingleSystemUpTimeView";
+import { SingleUsOfdmaPreEqualizationView } from "@/features/operations/SingleUsOfdmaPreEqualizationView";
 import type { CaptureConnectivityInputs, CaptureConnectivityStatus } from "@/features/operations/captureConnectivity";
 import {
   hasCompleteCaptureConnectivityInputs,
   isCaptureConnectivityOnline,
 } from "@/features/operations/captureConnectivity";
-import { SingleSpectrumOfdmCaptureView } from "@/features/operations/SingleSpectrumOfdmCaptureView";
-import { SingleSpectrumScqamCaptureView } from "@/features/operations/SingleSpectrumScqamCaptureView";
-import { SpectrumFullBandCaptureRequestForm } from "@/features/operations/SpectrumFullBandCaptureRequestForm";
-import { SpectrumOfdmCaptureRequestForm } from "@/features/operations/SpectrumOfdmCaptureRequestForm";
-import { SingleSpectrumFriendlyCaptureView } from "@/features/operations/SingleSpectrumFriendlyCaptureView";
-import { SpectrumFriendlyCaptureRequestForm } from "@/features/operations/SpectrumFriendlyCaptureRequestForm";
-import { SingleAtdmaChannelStatsView } from "@/features/operations/SingleAtdmaChannelStatsView";
-import { SingleFddDiplexerBandEdgeCapabilityView } from "@/features/operations/SingleFddDiplexerBandEdgeCapabilityView";
-import { SingleFddSystemDiplexerConfigurationView } from "@/features/operations/SingleFddSystemDiplexerConfigurationView";
-import { SingleIf31DocsisBaseCapabilityView } from "@/features/operations/SingleIf31DocsisBaseCapabilityView";
-import { SingleIf31DsOfdmChannelStatsView } from "@/features/operations/SingleIf31DsOfdmChannelStatsView";
-import { SingleIf31UsOfdmaChannelStatsView } from "@/features/operations/SingleIf31UsOfdmaChannelStatsView";
-import { SingleIf31DsOfdmProfileStatsView } from "@/features/operations/SingleIf31DsOfdmProfileStatsView";
-import { SingleIf31SystemDiplexerView } from "@/features/operations/SingleIf31SystemDiplexerView";
-import { SingleDsScqamCodewordErrorRateView } from "@/features/operations/SingleDsScqamCodewordErrorRateView";
-import { SingleDsScqamChannelStatsView } from "@/features/operations/SingleDsScqamChannelStatsView";
-import { SingleAtdmaPreEqualizationView } from "@/features/operations/SingleAtdmaPreEqualizationView";
-import { SingleChannelEstCoeffCaptureView } from "@/features/operations/SingleChannelEstCoeffCaptureView";
-import { SingleConstellationDisplayCaptureView } from "@/features/operations/SingleConstellationDisplayCaptureView";
-import { SingleDeviceEventLogView } from "@/features/operations/SingleDeviceEventLogView";
-import { SingleFecSummaryCaptureView } from "@/features/operations/SingleFecSummaryCaptureView";
 import {
   getOperationByRoutePath,
   operationNavigationItems,
   singleCaptureNavigationItems,
   spectrumAnalyzerNavigationItems,
 } from "@/features/operations/operationsNavigation";
-import { SingleHistogramCaptureView } from "@/features/operations/SingleHistogramCaptureView";
-import { SingleInterfaceStatsView } from "@/features/operations/SingleInterfaceStatsView";
-import { SingleModulationProfileCaptureView } from "@/features/operations/SingleModulationProfileCaptureView";
-import { SingleUsOfdmaPreEqualizationView } from "@/features/operations/SingleUsOfdmaPreEqualizationView";
-import { SingleRxMerCaptureView } from "@/features/operations/SingleRxMerCaptureView";
-import { SingleSystemUpTimeView } from "@/features/operations/SingleSystemUpTimeView";
 import { checkCaptureInputsOnline } from "@/services/captureConnectivityService";
 import { CONNECTIVITY_STATUS_DEBOUNCE_MS } from "@/lib/constants";
 import { runSingleCaptureEndpoint } from "@/services/singleCaptureService";
