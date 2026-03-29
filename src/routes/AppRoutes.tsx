@@ -4,7 +4,7 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { AppLayout } from "@/layouts/AppLayout";
 
 const AboutPage = lazy(() =>
-  import("@/pages/AboutPage").then((module) => ({ default: module.AboutPage })),
+  import("@/pcw/pages/AboutPage").then((module) => ({ default: module.AboutPage })),
 );
 const CmtsSgRxMerWorkflowPage = lazy(() =>
   import("@/pcw/pages/CmtsSgRxMerWorkflowPage").then((module) => ({ default: module.CmtsSgRxMerWorkflowPage })),
@@ -40,25 +40,25 @@ const EndpointExplorerPage = lazy(() =>
   import("@/pw/pages/EndpointExplorerPage").then((module) => ({ default: module.EndpointExplorerPage })),
 );
 const FileListPage = lazy(() =>
-  import("@/pages/FileListPage").then((module) => ({ default: module.FileListPage })),
+  import("@/pcw/pages/FileListPage").then((module) => ({ default: module.FileListPage })),
 );
 const FileAnalysisPage = lazy(() =>
-  import("@/pages/FileAnalysisPage").then((module) => ({ default: module.FileAnalysisPage })),
+  import("@/pcw/pages/FileAnalysisPage").then((module) => ({ default: module.FileAnalysisPage })),
 );
 const FileHexdumpPage = lazy(() =>
-  import("@/pages/FileHexdumpPage").then((module) => ({ default: module.FileHexdumpPage })),
+  import("@/pcw/pages/FileHexdumpPage").then((module) => ({ default: module.FileHexdumpPage })),
 );
 const HealthPage = lazy(() =>
-  import("@/pages/HealthPage").then((module) => ({ default: module.HealthPage })),
+  import("@/pcw/pages/HealthPage").then((module) => ({ default: module.HealthPage })),
 );
 const MeasurementRequestPage = lazy(() =>
-  import("@/pages/MeasurementRequestPage").then((module) => ({ default: module.MeasurementRequestPage })),
+  import("@/pcw/pages/MeasurementRequestPage").then((module) => ({ default: module.MeasurementRequestPage })),
 );
 const ResultsPage = lazy(() =>
-  import("@/pages/ResultsPage").then((module) => ({ default: module.ResultsPage })),
+  import("@/pcw/pages/ResultsPage").then((module) => ({ default: module.ResultsPage })),
 );
 const SettingsPage = lazy(() =>
-  import("@/pages/SettingsPage").then((module) => ({ default: module.SettingsPage })),
+  import("@/pcw/pages/SettingsPage").then((module) => ({ default: module.SettingsPage })),
 );
 
 function RouteLoadingFallback() {

@@ -4,7 +4,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import { AboutPage } from "@/pages/AboutPage";
+import { AboutPage } from "@/pcw/pages/AboutPage";
 
 vi.mock("@/services/repoMetadataService", () => ({
   REPO_URL: "https://github.com/PyPNMApps/PyPNM-WebUI",
