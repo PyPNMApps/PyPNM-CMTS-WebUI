@@ -5,6 +5,7 @@ import { InstanceSelector } from "@/components/layout/InstanceSelector";
 
 const links = [
   ["/serving-group/rxmer", "Serving Group"],
+  ["/single-capture/dashboard", "SingleCapture"],
   ["/spectrum-analyzer/friendly", "Spectrum Analyzer"],
   ["/health", "Health"],
   ["/settings", "Settings"],

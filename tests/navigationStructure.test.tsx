@@ -16,7 +16,7 @@ vi.mock("@/components/layout/InstanceSelector", () => ({
 }));
 
 describe("navigation structure", () => {
-  it("renders Serving Group, Spectrum Analyzer, Health, Settings, and About as top-level nav links", () => {
+  it("renders Serving Group, SingleCapture, Spectrum Analyzer, Health, Settings, and About as top-level nav links", () => {
     render(
       <ThemeProvider>
         <MemoryRouter>
@@ -35,7 +35,7 @@ describe("navigation structure", () => {
         return interactive?.textContent?.trim() ?? element.textContent?.trim() ?? null;
       })
       .filter(Boolean);
-    expect(navLabels).toEqual(["Serving Group", "Spectrum Analyzer", "Health", "Settings", "About"]);
+    expect(navLabels).toEqual(["Serving Group", "SingleCapture", "Spectrum Analyzer", "Health", "Settings", "About"]);
   });
 
   it("removes legacy top-level sections while keeping serving-group shell", () => {
@@ -58,6 +58,7 @@ describe("navigation structure", () => {
       })
       .filter(Boolean);
     expect(navLabels).toContain("Serving Group");
+    expect(navLabels).toContain("SingleCapture");
     expect(navLabels).toContain("Health");
     expect(navLabels).not.toContain("Advanced");
     expect(navLabels).not.toContain("Operations");

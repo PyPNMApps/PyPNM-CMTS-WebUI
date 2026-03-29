@@ -27,6 +27,9 @@ const CmtsSgHistogramWorkflowPage = lazy(() =>
 const CmtsSpectrumFriendlyWorkflowPage = lazy(() =>
   import("@/pages/CmtsSpectrumFriendlyWorkflowPage").then((module) => ({ default: module.CmtsSpectrumFriendlyWorkflowPage })),
 );
+const CmtsSingleCaptureDashboardPage = lazy(() =>
+  import("@/pages/CmtsSingleCaptureDashboardPage").then((module) => ({ default: module.CmtsSingleCaptureDashboardPage })),
+);
 const AnalysisViewerPage = lazy(() =>
   import("@/pages/AnalysisViewerPage").then((module) => ({ default: module.AnalysisViewerPage })),
 );
@@ -78,7 +81,9 @@ export function AppRoutes() {
           <Route path="/advanced/rxmer" element={<Navigate to="/serving-group/rxmer" replace />} />
           <Route path="/advanced/channel-estimation" element={<Navigate to="/serving-group/rxmer" replace />} />
           <Route path="/advanced/ofdma-pre-eq" element={<Navigate to="/serving-group/rxmer" replace />} />
-          <Route path="/single-capture" element={<Navigate to="/single-capture/rxmer" replace />} />
+          <Route path="/single-capture" element={<Navigate to="/single-capture/dashboard" replace />} />
+          <Route path="/single-capture/dashboard" element={<CmtsSingleCaptureDashboardPage />} />
+          <Route path="/single-capture/rxmer" element={<EndpointExplorerPage />} />
           <Route path="/single-capture/:operationId" element={<EndpointExplorerPage />} />
           <Route path="/spectrum-analyzer" element={<Navigate to="/spectrum-analyzer/friendly" replace />} />
           <Route path="/spectrum-analyzer/friendly" element={<CmtsSpectrumFriendlyWorkflowPage />} />

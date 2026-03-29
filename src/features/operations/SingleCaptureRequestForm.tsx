@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import type { ReactNode } from "react";
 import { useForm } from "react-hook-form";
 
@@ -29,6 +29,7 @@ interface SingleCaptureRequestFormProps {
   onConnectivityInputsChange?: (inputs: CaptureConnectivityInputs) => void;
   errorMessage?: string;
   extraActions?: ReactNode;
+  requestDefaultsOverride?: Partial<SingleCaptureFormValues>;
 }
 
 export function SingleCaptureRequestForm({
@@ -39,8 +40,16 @@ export function SingleCaptureRequestForm({
   onConnectivityInputsChange,
   errorMessage,
   extraActions,
+  requestDefaultsOverride,
 }: SingleCaptureRequestFormProps) {
-  const requestDefaults = useCommonRequestFormDefaults();
+  const baseRequestDefaults = useCommonRequestFormDefaults();
+  const requestDefaults = useMemo(
+    () => ({
+      ...baseRequestDefaults,
+      ...requestDefaultsOverride,
+    }),
+    [baseRequestDefaults, requestDefaultsOverride],
+  );
   const { register, handleSubmit, reset, watch } = useForm<SingleCaptureFormValues>({
     defaultValues: requestDefaults,
   });

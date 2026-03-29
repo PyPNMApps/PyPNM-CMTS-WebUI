@@ -97,7 +97,8 @@
   cards, chips, or helper elements at once when the same outcome can be shown
   with fewer visible controls.
 - Keep major workflow families as explicit top-level navigation items. Serving
-  Group and Spectrum Analyzer must remain separate top-level sections.
+  Group, SingleCapture, and Spectrum Analyzer must remain separate top-level
+  sections.
 - Prefer progressive disclosure over always-visible detail: advanced metadata,
   secondary counters, and raw diagnostics should live in foldable sections or
   on-demand views.
