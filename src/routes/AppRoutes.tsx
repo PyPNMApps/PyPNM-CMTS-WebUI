@@ -89,10 +89,7 @@ export function AppRoutes() {
           <Route path="/single-capture/rxmer" element={<EndpointExplorerPage />} />
           <Route path="/single-capture/:operationId" element={<EndpointExplorerPage />} />
           <Route path="/spectrum-analyzer" element={<Navigate to="/spectrum-analyzer/friendly" replace />} />
-          <Route path="/spectrum-analyzer/friendly" element={<CmtsSpectrumFriendlyWorkflowPage />} />
-          <Route path="/spectrum-analyzer/full-band" element={<Navigate to="/spectrum-analyzer/friendly" replace />} />
-          <Route path="/spectrum-analyzer/ofdm" element={<Navigate to="/spectrum-analyzer/friendly" replace />} />
-          <Route path="/spectrum-analyzer/scqam" element={<Navigate to="/spectrum-analyzer/friendly" replace />} />
+          <Route path="/spectrum-analyzer/:operationId" element={<EndpointExplorerPage />} />
           <Route path="/endpoints" element={<Navigate to="/operations" replace />} />
           <Route path="/operations" element={<Navigate to="/operations/cmts-sg-ds-ofdm-rxmer" replace />} />
           <Route path="/operations/cmts-sg-ds-ofdm-rxmer" element={<CmtsSgRxMerWorkflowPage />} />

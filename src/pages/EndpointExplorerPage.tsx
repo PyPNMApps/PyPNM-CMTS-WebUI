@@ -1,4 +1,4 @@
-import { NavLink, Navigate, useLocation } from "react-router-dom";
+import { NavLink, Navigate, useLocation, useParams } from "react-router-dom";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 
@@ -112,6 +112,7 @@ function buildJsonFilename(label: string): string {
 
 export function EndpointExplorerPage() {
   const location = useLocation();
+  const { operationId } = useParams<{ operationId?: string }>();
   const { selectedInstance } = useInstanceConfig();
   const isSingleCaptureRoute = location.pathname.startsWith("/single-capture");
   const isOperationExplorerRoute = location.pathname.startsWith("/operations/");
@@ -145,7 +146,12 @@ export function EndpointExplorerPage() {
   const [spectrumFullBandResponse, setSpectrumFullBandResponse] = useState<SingleSpectrumFriendlyCaptureResponse | null>(null);
   const [spectrumOfdmResponse, setSpectrumOfdmResponse] = useState<SingleSpectrumOfdmCaptureResponse | null>(null);
   const [spectrumScqamResponse, setSpectrumScqamResponse] = useState<SingleSpectrumScqamCaptureResponse | null>(null);
-  const selectedOperation = getOperationByRoutePath(location.pathname);
+  const selectedOperation = useMemo(() => {
+    if (isOperationExplorerRoute && operationId) {
+      return operationNavigationItems.find((item) => item.id === operationId) ?? null;
+    }
+    return getOperationByRoutePath(location.pathname) ?? null;
+  }, [isOperationExplorerRoute, location.pathname, operationId]);
   const { requestDefaultsOverride: singleCaptureRequestDefaultsOverride, preferredConnectivityInputs } = useSingleCaptureRequestContext(
     isSingleCaptureRoute || isOperationExplorerRoute,
     location.pathname,

@@ -4,6 +4,7 @@
   --bg-soft: #0f1724;
   --panel: #101b2b;
   --panel-alt: #18263a;
+  --surface: #101b2b;
   --ink: #e8eef8;
   --muted: #9eb0c9;
   --line: rgba(255, 255, 255, 0.09);
@@ -33,6 +34,7 @@
   --bg-soft: #e4edf8;
   --panel: #ffffff;
   --panel-alt: #eef4fb;
+  --surface: #ffffff;
   --ink: #162131;
   --muted: #50627d;
   --line: rgba(21, 33, 52, 0.10);
@@ -1031,19 +1033,19 @@ td {
 
 th {
   border-top: none;
-  color: #d9e5fa;
+  color: var(--muted);
   text-transform: uppercase;
   font-size: 11px;
   letter-spacing: 0.08em;
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--surface-overlay);
 }
 
 .chart-frame {
   border: 1px solid var(--line);
   border-radius: 16px;
   background:
-    linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01)),
-    #0a1420;
+    linear-gradient(180deg, var(--surface-overlay), transparent),
+    var(--panel);
   padding: 14px;
 }
 
@@ -1090,8 +1092,8 @@ th {
   border: 1px solid var(--line);
   border-radius: 18px;
   background:
-    linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01)),
-    #0d1622;
+    linear-gradient(180deg, var(--surface-overlay), transparent),
+    var(--panel);
   overflow: hidden;
 }
 
@@ -2063,6 +2065,11 @@ pre {
   background: var(--surface);
   color: var(--ink);
   font: inherit;
+}
+
+.single-capture-row-action-select option {
+  background: var(--surface);
+  color: var(--ink);
 }
 
 .single-capture-poll-group {

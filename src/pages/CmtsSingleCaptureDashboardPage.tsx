@@ -11,7 +11,7 @@ import { saveSelectedModemContext } from "@/features/single-capture/lib/selected
 type SortKey = "sgId" | "registrationStatus" | "vendor" | "model";
 type SortDirection = "asc" | "desc";
 type FilterMode = "all" | "operational";
-type RowAction = "single-capture" | "advanced" | "operation";
+type RowAction = "single-capture" | "advanced" | "operation" | "spectrum-analyzer";
 
 function toRegistrationStatusTone(statusText: string, statusCode: number | null): "operational" | "non_operational" {
   if (statusCode === 8 || statusText.trim().toLowerCase() === "operational") {
@@ -164,6 +164,18 @@ export function CmtsSingleCaptureDashboardPage() {
     navigate("/operations/if31-docsis-base-capability");
   }
 
+  function openSpectrumAnalyzerRoute(row: ServingGroupCableModemRow) {
+    saveSelectedModemContext({
+      sgId: row.sgId,
+      macAddress: row.macAddress,
+      ipAddress: row.ipAddress,
+      snmpCommunity: selectedInstance?.requestDefaults?.snmpRwCommunity ?? "private",
+      channelIds: row.channelIds,
+      selectedAtEpochMs: Date.now(),
+    });
+    navigate("/spectrum-analyzer/friendly");
+  }
+
   function openSelectedRowAction(row: ServingGroupCableModemRow) {
     const selectedAction = rowActionByKey[row.key] ?? "single-capture";
     if (selectedAction === "advanced") {
@@ -172,6 +184,10 @@ export function CmtsSingleCaptureDashboardPage() {
     }
     if (selectedAction === "operation") {
       openOperationsRoute(row);
+      return;
+    }
+    if (selectedAction === "spectrum-analyzer") {
+      openSpectrumAnalyzerRoute(row);
       return;
     }
     openSingleCaptureOperation(row);
@@ -314,6 +330,7 @@ export function CmtsSingleCaptureDashboardPage() {
                         <option value="single-capture">SingleCapture</option>
                         <option value="advanced">Advanced</option>
                         <option value="operation">Operation</option>
+                        <option value="spectrum-analyzer">Spectrum Analyzer</option>
                       </select>
                       <button type="button" className="operations-json-download" onClick={() => openSelectedRowAction(row)}>
                         Go
