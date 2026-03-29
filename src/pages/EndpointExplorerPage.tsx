@@ -4,15 +4,14 @@ import { useMutation } from "@tanstack/react-query";
 
 import { useInstanceConfig } from "@/app/useInstanceConfig";
 import { PageHeader } from "@/components/common/PageHeader";
-import { Panel } from "@/components/common/Panel";
 import { RequestJsonAction } from "@/components/common/RequestJsonAction";
-import { ThinkingIndicator } from "@/components/common/ThinkingIndicator";
 import { ConstellationDisplayCaptureRequestForm } from "@/features/operations/ConstellationDisplayCaptureRequestForm";
 import { DeviceConnectRequestForm } from "@/features/operations/DeviceConnectRequestForm";
 import { HistogramCaptureRequestForm } from "@/features/operations/HistogramCaptureRequestForm";
 import { FecSummaryCaptureRequestForm } from "@/features/operations/FecSummaryCaptureRequestForm";
 import { ScqamCodewordErrorRateRequestForm } from "@/features/operations/ScqamCodewordErrorRateRequestForm";
 import { SingleCaptureRequestForm } from "@/features/operations/SingleCaptureRequestForm";
+import { CaptureOperationShell } from "@/features/operations/components/CaptureOperationShell";
 import type { CaptureConnectivityInputs, CaptureConnectivityStatus } from "@/features/operations/captureConnectivity";
 import {
   hasCompleteCaptureConnectivityInputs,
@@ -475,6 +474,168 @@ export function EndpointExplorerPage() {
     </RequestJsonAction>
   );
   const hasSelectedResponse = selectedResponse !== null;
+  const requestForm = selectedOperation.id === "docs-if30-ds-scqam-chan-codeworderrorrate" ? (
+    <ScqamCodewordErrorRateRequestForm
+      isPending={mutation.isPending}
+      canRun={canExecuteOperation}
+      submitLabel={`Run ${selectedOperation.label}`}
+      errorMessage={mutation.isError ? (mutation.error as Error).message : undefined}
+      onConnectivityInputsChange={setCaptureConnectivityInputs}
+      onSubmit={(payload) => {
+        mutation.mutate({ endpointPath: selectedOperation.endpointPath, payload });
+      }}
+    />
+  ) : selectedOperation.id === "docs-dev-eventlog" || selectedOperation.id === "system-uptime" || selectedOperation.id === "docs-pnm-interface-stats" || selectedOperation.id === "docs-if30-us-atdma-chan-stats" || selectedOperation.id === "docs-if30-us-atdma-chan-preequalization" || selectedOperation.id === "docs-if30-ds-scqam-chan-stats" || selectedOperation.id === "docs-fdd-diplexer-bandedgecapability" || selectedOperation.id === "docs-fdd-system-diplexer-configuration" || selectedOperation.id === "docs-if31-us-ofdma-channel-stats" || selectedOperation.id === "docs-if31-system-diplexer" || selectedOperation.id === "docs-if31-ds-ofdm-profile-stats" || selectedOperation.id === "docs-if31-ds-ofdm-chan-stats" || selectedOperation.id === "docs-if31-docsis-basecapability" ? (
+    <DeviceConnectRequestForm
+      isPending={mutation.isPending}
+      canRun={canExecuteOperation}
+      submitLabel={`Run ${selectedOperation.label}`}
+      errorMessage={mutation.isError ? (mutation.error as Error).message : undefined}
+      onConnectivityInputsChange={setCaptureConnectivityInputs}
+      onSubmit={(payload) => {
+        mutation.mutate({ endpointPath: selectedOperation.endpointPath, payload });
+      }}
+    />
+  ) : selectedOperation.id === "docs-pnm-ds-histogram-getcapture" ? (
+    <HistogramCaptureRequestForm
+      isPending={mutation.isPending}
+      canRun={canExecuteOperation}
+      submitLabel="Get Capture"
+      errorMessage={mutation.isError ? (mutation.error as Error).message : undefined}
+      extraActions={requestJsonAction}
+      onConnectivityInputsChange={setCaptureConnectivityInputs}
+      requestDefaultsOverride={singleCaptureRequestDefaultsOverride}
+      onSubmit={(payload) => {
+        mutation.mutate({ endpointPath: selectedOperation.endpointPath, payload });
+      }}
+    />
+  ) : selectedOperation.id === "docs-pnm-ds-spectrumanalyzer-getcapture-friendly" ? (
+    <SpectrumFriendlyCaptureRequestForm
+      isPending={mutation.isPending}
+      canRun={canExecuteOperation}
+      submitLabel="Get Capture"
+      errorMessage={mutation.isError ? (mutation.error as Error).message : undefined}
+      extraActions={requestJsonAction}
+      onConnectivityInputsChange={setCaptureConnectivityInputs}
+      onSubmit={(payload) => {
+        mutation.mutate({ endpointPath: selectedOperation.endpointPath, payload });
+      }}
+    />
+  ) : selectedOperation.id === "docs-pnm-ds-spectrumanalyzer-getcapture-fullbandcapture" ? (
+    <SpectrumFullBandCaptureRequestForm
+      isPending={mutation.isPending}
+      canRun={canExecuteOperation}
+      submitLabel="Get Capture"
+      errorMessage={mutation.isError ? (mutation.error as Error).message : undefined}
+      extraActions={requestJsonAction}
+      onConnectivityInputsChange={setCaptureConnectivityInputs}
+      onSubmit={(payload) => {
+        mutation.mutate({ endpointPath: selectedOperation.endpointPath, payload });
+      }}
+    />
+  ) : selectedOperation.id === "docs-pnm-ds-spectrumanalyzer-getcapture-ofdm" || selectedOperation.id === "docs-pnm-ds-spectrumanalyzer-getcapture-scqam" ? (
+    <SpectrumOfdmCaptureRequestForm
+      isPending={mutation.isPending}
+      canRun={canExecuteOperation}
+      submitLabel="Get Capture"
+      errorMessage={mutation.isError ? (mutation.error as Error).message : undefined}
+      extraActions={requestJsonAction}
+      onConnectivityInputsChange={setCaptureConnectivityInputs}
+      onSubmit={(payload) => {
+        mutation.mutate({ endpointPath: selectedOperation.endpointPath, payload });
+      }}
+    />
+  ) : selectedOperation.id === "docs-pnm-ds-ofdm-constellationdisplay-getcapture" ? (
+    <ConstellationDisplayCaptureRequestForm
+      isPending={mutation.isPending}
+      canRun={canExecuteOperation}
+      submitLabel="Get Capture"
+      errorMessage={mutation.isError ? (mutation.error as Error).message : undefined}
+      extraActions={requestJsonAction}
+      onConnectivityInputsChange={setCaptureConnectivityInputs}
+      requestDefaultsOverride={singleCaptureRequestDefaultsOverride}
+      onSubmit={(payload) => {
+        mutation.mutate({ endpointPath: selectedOperation.endpointPath, payload });
+      }}
+    />
+  ) : selectedOperation.id === "docs-pnm-ds-ofdm-fecsummary-getcapture" ? (
+    <FecSummaryCaptureRequestForm
+      isPending={mutation.isPending}
+      canRun={canExecuteOperation}
+      submitLabel="Get Capture"
+      errorMessage={mutation.isError ? (mutation.error as Error).message : undefined}
+      extraActions={requestJsonAction}
+      onConnectivityInputsChange={setCaptureConnectivityInputs}
+      requestDefaultsOverride={singleCaptureRequestDefaultsOverride}
+      onSubmit={(payload) => {
+        mutation.mutate({ endpointPath: selectedOperation.endpointPath, payload });
+      }}
+    />
+  ) : (
+    <SingleCaptureRequestForm
+      isPending={mutation.isPending}
+      canRun={canExecuteOperation}
+      submitLabel="Get Capture"
+      errorMessage={mutation.isError ? (mutation.error as Error).message : undefined}
+      extraActions={requestJsonAction}
+      onConnectivityInputsChange={setCaptureConnectivityInputs}
+      requestDefaultsOverride={singleCaptureRequestDefaultsOverride}
+      onSubmit={(payload) => {
+        mutation.mutate({ endpointPath: selectedOperation.endpointPath, payload });
+      }}
+    />
+  );
+  const resultsView = selectedOperation.id === "docs-if31-docsis-basecapability" ? (
+    <SingleIf31DocsisBaseCapabilityView response={if31DocsisBaseCapabilityResponse as If31DocsisBaseCapabilityResponse} />
+  ) : selectedOperation.id === "docs-if31-ds-ofdm-chan-stats" ? (
+    <SingleIf31DsOfdmChannelStatsView response={if31DsOfdmChannelStatsResponse as If31DsOfdmChannelStatsResponse} />
+  ) : selectedOperation.id === "docs-if31-ds-ofdm-profile-stats" ? (
+    <SingleIf31DsOfdmProfileStatsView response={if31DsOfdmProfileStatsResponse as If31DsOfdmProfileStatsResponse} />
+  ) : selectedOperation.id === "docs-if31-system-diplexer" ? (
+    <SingleIf31SystemDiplexerView response={if31SystemDiplexerResponse as If31SystemDiplexerResponse} />
+  ) : selectedOperation.id === "docs-if31-us-ofdma-channel-stats" ? (
+    <SingleIf31UsOfdmaChannelStatsView response={if31UsOfdmaChannelStatsResponse as If31UsOfdmaChannelStatsResponse} />
+  ) : selectedOperation.id === "docs-fdd-system-diplexer-configuration" ? (
+    <SingleFddSystemDiplexerConfigurationView response={fddSystemDiplexerConfigurationResponse as FddSystemDiplexerConfigurationResponse} />
+  ) : selectedOperation.id === "docs-fdd-diplexer-bandedgecapability" ? (
+    <SingleFddDiplexerBandEdgeCapabilityView response={fddDiplexerBandEdgeCapabilityResponse as FddDiplexerBandEdgeCapabilityResponse} />
+  ) : selectedOperation.id === "docs-if30-ds-scqam-chan-codeworderrorrate" ? (
+    <SingleDsScqamCodewordErrorRateView response={dsScqamCodewordErrorRateResponse as DsScqamCodewordErrorRateResponse} />
+  ) : selectedOperation.id === "docs-if30-ds-scqam-chan-stats" ? (
+    <SingleDsScqamChannelStatsView response={dsScqamChannelStatsResponse as DsScqamChannelStatsResponse} />
+  ) : selectedOperation.id === "docs-if30-us-atdma-chan-preequalization" ? (
+    <SingleAtdmaPreEqualizationView response={atdmaPreEqualizationResponse as AtdmaPreEqualizationResponse} />
+  ) : selectedOperation.id === "docs-if30-us-atdma-chan-stats" ? (
+    <SingleAtdmaChannelStatsView response={atdmaChannelStatsResponse as AtdmaChannelStatsResponse} />
+  ) : selectedOperation.id === "system-uptime" ? (
+    <SingleSystemUpTimeView response={systemUpTimeResponse as SystemUpTimeResponse} />
+  ) : selectedOperation.id === "docs-pnm-interface-stats" ? (
+    <SingleInterfaceStatsView response={interfaceStatsResponse as InterfaceStatsResponse} />
+  ) : selectedOperation.id === "docs-dev-eventlog" ? (
+    <SingleDeviceEventLogView response={eventLogResponse as DeviceEventLogResponse} />
+  ) : selectedOperation.id === "docs-pnm-ds-ofdm-rxmer-getcapture" ? (
+    <SingleRxMerCaptureView response={rxMerResponse as SingleRxMerCaptureResponse} />
+  ) : selectedOperation.id === "docs-pnm-ds-spectrumanalyzer-getcapture-friendly" ? (
+    <SingleSpectrumFriendlyCaptureView response={spectrumFriendlyResponse as SingleSpectrumFriendlyCaptureResponse} exportVariant="friendly" />
+  ) : selectedOperation.id === "docs-pnm-ds-spectrumanalyzer-getcapture-fullbandcapture" ? (
+    <SingleSpectrumFriendlyCaptureView response={spectrumFullBandResponse as SingleSpectrumFriendlyCaptureResponse} exportVariant="full-band" />
+  ) : selectedOperation.id === "docs-pnm-ds-spectrumanalyzer-getcapture-ofdm" ? (
+    <SingleSpectrumOfdmCaptureView response={spectrumOfdmResponse as SingleSpectrumOfdmCaptureResponse} />
+  ) : selectedOperation.id === "docs-pnm-ds-spectrumanalyzer-getcapture-scqam" ? (
+    <SingleSpectrumScqamCaptureView response={spectrumScqamResponse as SingleSpectrumScqamCaptureResponse} />
+  ) : selectedOperation.id === "docs-pnm-ds-ofdm-modulationprofile-getcapture" ? (
+    <SingleModulationProfileCaptureView response={modulationProfileResponse as SingleModulationProfileCaptureResponse} />
+  ) : selectedOperation.id === "docs-pnm-us-ofdma-preequalization-getcapture" ? (
+    <SingleUsOfdmaPreEqualizationView response={usOfdmaPreEqualizationResponse as SingleUsOfdmaPreEqualizationCaptureResponse} />
+  ) : selectedOperation.id === "docs-pnm-ds-ofdm-constellationdisplay-getcapture" ? (
+    <SingleConstellationDisplayCaptureView response={constellationResponse as SingleConstellationDisplayCaptureResponse} />
+  ) : selectedOperation.id === "docs-pnm-ds-ofdm-fecsummary-getcapture" ? (
+    <SingleFecSummaryCaptureView response={fecSummaryResponse as SingleFecSummaryCaptureResponse} />
+  ) : selectedOperation.id === "docs-pnm-ds-histogram-getcapture" ? (
+    <SingleHistogramCaptureView response={histogramResponse as SingleHistogramCaptureResponse} />
+  ) : (
+    <SingleChannelEstCoeffCaptureView response={channelEstResponse as SingleChannelEstCoeffCaptureResponse} />
+  );
 
   return (
     <>
@@ -496,194 +657,14 @@ export function EndpointExplorerPage() {
         </nav>
       ) : null}
       <PageHeader title={selectedOperation.label} subtitle="" />
-      <Panel title={captureInputsTitle}>
-        {selectedOperation.id === "docs-if30-ds-scqam-chan-codeworderrorrate" ? (
-          <ScqamCodewordErrorRateRequestForm
-            isPending={mutation.isPending}
-            canRun={canExecuteOperation}
-            submitLabel={`Run ${selectedOperation.label}`}
-            errorMessage={mutation.isError ? (mutation.error as Error).message : undefined}
-            onConnectivityInputsChange={setCaptureConnectivityInputs}
-            onSubmit={(payload) => {
-              mutation.mutate({ endpointPath: selectedOperation.endpointPath, payload });
-            }}
-          />
-        ) : selectedOperation.id === "docs-dev-eventlog" || selectedOperation.id === "system-uptime" || selectedOperation.id === "docs-pnm-interface-stats" || selectedOperation.id === "docs-if30-us-atdma-chan-stats" || selectedOperation.id === "docs-if30-us-atdma-chan-preequalization" || selectedOperation.id === "docs-if30-ds-scqam-chan-stats" || selectedOperation.id === "docs-fdd-diplexer-bandedgecapability" || selectedOperation.id === "docs-fdd-system-diplexer-configuration" || selectedOperation.id === "docs-if31-us-ofdma-channel-stats" || selectedOperation.id === "docs-if31-system-diplexer" || selectedOperation.id === "docs-if31-ds-ofdm-profile-stats" || selectedOperation.id === "docs-if31-ds-ofdm-chan-stats" || selectedOperation.id === "docs-if31-docsis-basecapability" ? (
-          <DeviceConnectRequestForm
-            isPending={mutation.isPending}
-            canRun={canExecuteOperation}
-            submitLabel={`Run ${selectedOperation.label}`}
-            errorMessage={mutation.isError ? (mutation.error as Error).message : undefined}
-            onConnectivityInputsChange={setCaptureConnectivityInputs}
-            onSubmit={(payload) => {
-              mutation.mutate({ endpointPath: selectedOperation.endpointPath, payload });
-            }}
-          />
-        ) : selectedOperation.id === "docs-pnm-ds-histogram-getcapture" ? (
-          <HistogramCaptureRequestForm
-            isPending={mutation.isPending}
-            canRun={canExecuteOperation}
-            submitLabel="Get Capture"
-            errorMessage={mutation.isError ? (mutation.error as Error).message : undefined}
-            extraActions={requestJsonAction}
-            onConnectivityInputsChange={setCaptureConnectivityInputs}
-            requestDefaultsOverride={singleCaptureRequestDefaultsOverride}
-            onSubmit={(payload) => {
-              mutation.mutate({ endpointPath: selectedOperation.endpointPath, payload });
-            }}
-          />
-        ) : selectedOperation.id === "docs-pnm-ds-spectrumanalyzer-getcapture-friendly" ? (
-          <SpectrumFriendlyCaptureRequestForm
-            isPending={mutation.isPending}
-            canRun={canExecuteOperation}
-            submitLabel="Get Capture"
-            errorMessage={mutation.isError ? (mutation.error as Error).message : undefined}
-            extraActions={requestJsonAction}
-            onConnectivityInputsChange={setCaptureConnectivityInputs}
-            onSubmit={(payload) => {
-              mutation.mutate({ endpointPath: selectedOperation.endpointPath, payload });
-            }}
-          />
-        ) : selectedOperation.id === "docs-pnm-ds-spectrumanalyzer-getcapture-fullbandcapture" ? (
-          <SpectrumFullBandCaptureRequestForm
-            isPending={mutation.isPending}
-            canRun={canExecuteOperation}
-            submitLabel="Get Capture"
-            errorMessage={mutation.isError ? (mutation.error as Error).message : undefined}
-            extraActions={requestJsonAction}
-            onConnectivityInputsChange={setCaptureConnectivityInputs}
-            onSubmit={(payload) => {
-              mutation.mutate({ endpointPath: selectedOperation.endpointPath, payload });
-            }}
-          />
-        ) : selectedOperation.id === "docs-pnm-ds-spectrumanalyzer-getcapture-ofdm" || selectedOperation.id === "docs-pnm-ds-spectrumanalyzer-getcapture-scqam" ? (
-          <SpectrumOfdmCaptureRequestForm
-            isPending={mutation.isPending}
-            canRun={canExecuteOperation}
-            submitLabel="Get Capture"
-            errorMessage={mutation.isError ? (mutation.error as Error).message : undefined}
-            extraActions={requestJsonAction}
-            onConnectivityInputsChange={setCaptureConnectivityInputs}
-            onSubmit={(payload) => {
-              mutation.mutate({ endpointPath: selectedOperation.endpointPath, payload });
-            }}
-          />
-        ) : selectedOperation.id === "docs-pnm-ds-ofdm-constellationdisplay-getcapture" ? (
-          <ConstellationDisplayCaptureRequestForm
-            isPending={mutation.isPending}
-            canRun={canExecuteOperation}
-            submitLabel="Get Capture"
-            errorMessage={mutation.isError ? (mutation.error as Error).message : undefined}
-            extraActions={requestJsonAction}
-            onConnectivityInputsChange={setCaptureConnectivityInputs}
-            requestDefaultsOverride={singleCaptureRequestDefaultsOverride}
-            onSubmit={(payload) => {
-              mutation.mutate({ endpointPath: selectedOperation.endpointPath, payload });
-            }}
-          />
-        ) : selectedOperation.id === "docs-pnm-ds-ofdm-fecsummary-getcapture" ? (
-          <FecSummaryCaptureRequestForm
-            isPending={mutation.isPending}
-            canRun={canExecuteOperation}
-            submitLabel="Get Capture"
-            errorMessage={mutation.isError ? (mutation.error as Error).message : undefined}
-            extraActions={requestJsonAction}
-            onConnectivityInputsChange={setCaptureConnectivityInputs}
-            requestDefaultsOverride={singleCaptureRequestDefaultsOverride}
-            onSubmit={(payload) => {
-              mutation.mutate({ endpointPath: selectedOperation.endpointPath, payload });
-            }}
-          />
-        ) : (
-          <SingleCaptureRequestForm
-            isPending={mutation.isPending}
-            canRun={canExecuteOperation}
-            submitLabel="Get Capture"
-            errorMessage={mutation.isError ? (mutation.error as Error).message : undefined}
-            extraActions={requestJsonAction}
-            onConnectivityInputsChange={setCaptureConnectivityInputs}
-            requestDefaultsOverride={singleCaptureRequestDefaultsOverride}
-            onSubmit={(payload) => {
-              mutation.mutate({ endpointPath: selectedOperation.endpointPath, payload });
-            }}
-          />
-        )}
-      </Panel>
-
-      {mutation.isPending ? (
-        <Panel>
-          <ThinkingIndicator label={`Collecting ${selectedOperation.label} data...`} />
-        </Panel>
-      ) : null}
-
-      <Panel title="Results">
-        {!hasSelectedResponse ? (
-          <div className="details-table-wrap">
-            <table className="details-table">
-              <tbody>
-                <tr>
-                  <th>State</th>
-                  <td>N/A</td>
-                </tr>
-                <tr>
-                  <th>Result</th>
-                  <td>No capture results yet. Run the operation to populate this panel.</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        ) : selectedOperation.id === "docs-if31-docsis-basecapability" ? (
-          <SingleIf31DocsisBaseCapabilityView response={if31DocsisBaseCapabilityResponse as If31DocsisBaseCapabilityResponse} />
-        ) : selectedOperation.id === "docs-if31-ds-ofdm-chan-stats" ? (
-          <SingleIf31DsOfdmChannelStatsView response={if31DsOfdmChannelStatsResponse as If31DsOfdmChannelStatsResponse} />
-        ) : selectedOperation.id === "docs-if31-ds-ofdm-profile-stats" ? (
-          <SingleIf31DsOfdmProfileStatsView response={if31DsOfdmProfileStatsResponse as If31DsOfdmProfileStatsResponse} />
-        ) : selectedOperation.id === "docs-if31-system-diplexer" ? (
-          <SingleIf31SystemDiplexerView response={if31SystemDiplexerResponse as If31SystemDiplexerResponse} />
-        ) : selectedOperation.id === "docs-if31-us-ofdma-channel-stats" ? (
-          <SingleIf31UsOfdmaChannelStatsView response={if31UsOfdmaChannelStatsResponse as If31UsOfdmaChannelStatsResponse} />
-        ) : selectedOperation.id === "docs-fdd-system-diplexer-configuration" ? (
-          <SingleFddSystemDiplexerConfigurationView response={fddSystemDiplexerConfigurationResponse as FddSystemDiplexerConfigurationResponse} />
-        ) : selectedOperation.id === "docs-fdd-diplexer-bandedgecapability" ? (
-          <SingleFddDiplexerBandEdgeCapabilityView response={fddDiplexerBandEdgeCapabilityResponse as FddDiplexerBandEdgeCapabilityResponse} />
-        ) : selectedOperation.id === "docs-if30-ds-scqam-chan-codeworderrorrate" ? (
-          <SingleDsScqamCodewordErrorRateView response={dsScqamCodewordErrorRateResponse as DsScqamCodewordErrorRateResponse} />
-        ) : selectedOperation.id === "docs-if30-ds-scqam-chan-stats" ? (
-          <SingleDsScqamChannelStatsView response={dsScqamChannelStatsResponse as DsScqamChannelStatsResponse} />
-        ) : selectedOperation.id === "docs-if30-us-atdma-chan-preequalization" ? (
-          <SingleAtdmaPreEqualizationView response={atdmaPreEqualizationResponse as AtdmaPreEqualizationResponse} />
-        ) : selectedOperation.id === "docs-if30-us-atdma-chan-stats" ? (
-          <SingleAtdmaChannelStatsView response={atdmaChannelStatsResponse as AtdmaChannelStatsResponse} />
-        ) : selectedOperation.id === "system-uptime" ? (
-          <SingleSystemUpTimeView response={systemUpTimeResponse as SystemUpTimeResponse} />
-        ) : selectedOperation.id === "docs-pnm-interface-stats" ? (
-          <SingleInterfaceStatsView response={interfaceStatsResponse as InterfaceStatsResponse} />
-        ) : selectedOperation.id === "docs-dev-eventlog" ? (
-          <SingleDeviceEventLogView response={eventLogResponse as DeviceEventLogResponse} />
-        ) : selectedOperation.id === "docs-pnm-ds-ofdm-rxmer-getcapture" ? (
-          <SingleRxMerCaptureView response={rxMerResponse as SingleRxMerCaptureResponse} />
-        ) : selectedOperation.id === "docs-pnm-ds-spectrumanalyzer-getcapture-friendly" ? (
-          <SingleSpectrumFriendlyCaptureView response={spectrumFriendlyResponse as SingleSpectrumFriendlyCaptureResponse} exportVariant="friendly" />
-        ) : selectedOperation.id === "docs-pnm-ds-spectrumanalyzer-getcapture-fullbandcapture" ? (
-          <SingleSpectrumFriendlyCaptureView response={spectrumFullBandResponse as SingleSpectrumFriendlyCaptureResponse} exportVariant="full-band" />
-        ) : selectedOperation.id === "docs-pnm-ds-spectrumanalyzer-getcapture-ofdm" ? (
-          <SingleSpectrumOfdmCaptureView response={spectrumOfdmResponse as SingleSpectrumOfdmCaptureResponse} />
-        ) : selectedOperation.id === "docs-pnm-ds-spectrumanalyzer-getcapture-scqam" ? (
-          <SingleSpectrumScqamCaptureView response={spectrumScqamResponse as SingleSpectrumScqamCaptureResponse} />
-        ) : selectedOperation.id === "docs-pnm-ds-ofdm-modulationprofile-getcapture" ? (
-          <SingleModulationProfileCaptureView response={modulationProfileResponse as SingleModulationProfileCaptureResponse} />
-        ) : selectedOperation.id === "docs-pnm-us-ofdma-preequalization-getcapture" ? (
-          <SingleUsOfdmaPreEqualizationView response={usOfdmaPreEqualizationResponse as SingleUsOfdmaPreEqualizationCaptureResponse} />
-        ) : selectedOperation.id === "docs-pnm-ds-ofdm-constellationdisplay-getcapture" ? (
-          <SingleConstellationDisplayCaptureView response={constellationResponse as SingleConstellationDisplayCaptureResponse} />
-        ) : selectedOperation.id === "docs-pnm-ds-ofdm-fecsummary-getcapture" ? (
-          <SingleFecSummaryCaptureView response={fecSummaryResponse as SingleFecSummaryCaptureResponse} />
-        ) : selectedOperation.id === "docs-pnm-ds-histogram-getcapture" ? (
-          <SingleHistogramCaptureView response={histogramResponse as SingleHistogramCaptureResponse} />
-        ) : (
-          <SingleChannelEstCoeffCaptureView response={channelEstResponse as SingleChannelEstCoeffCaptureResponse} />
-        )}
-      </Panel>
+      <CaptureOperationShell
+        captureInputsTitle={captureInputsTitle}
+        requestForm={requestForm}
+        isPending={mutation.isPending}
+        pendingLabel={`Collecting ${selectedOperation.label} data...`}
+        hasSelectedResponse={hasSelectedResponse}
+        resultsView={resultsView}
+      />
     </>
   );
 }
