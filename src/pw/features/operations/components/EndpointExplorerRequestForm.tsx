@@ -8,9 +8,9 @@ import { FecSummaryCaptureRequestForm } from "@/pw/features/operations/FecSummar
 import { HistogramCaptureRequestForm } from "@/pw/features/operations/HistogramCaptureRequestForm";
 import { ScqamCodewordErrorRateRequestForm } from "@/pw/features/operations/ScqamCodewordErrorRateRequestForm";
 import { SingleCaptureRequestForm } from "@/pw/features/operations/SingleCaptureRequestForm";
-import { SpectrumFriendlyCaptureRequestForm } from "@/pw/features/operations/SpectrumFriendlyCaptureRequestForm";
-import { SpectrumFullBandCaptureRequestForm } from "@/pw/features/operations/SpectrumFullBandCaptureRequestForm";
-import { SpectrumOfdmCaptureRequestForm } from "@/pw/features/operations/SpectrumOfdmCaptureRequestForm";
+import { SpectrumFriendlyCaptureRequestForm } from "@/pw/features/spectrum-analyzer/SpectrumFriendlyCaptureRequestForm";
+import { SpectrumFullBandCaptureRequestForm } from "@/pw/features/spectrum-analyzer/SpectrumFullBandCaptureRequestForm";
+import { SpectrumOfdmCaptureRequestForm } from "@/pw/features/spectrum-analyzer/SpectrumOfdmCaptureRequestForm";
 
 export interface EndpointExplorerRequestFormParams {
   selectedOperationId: string;

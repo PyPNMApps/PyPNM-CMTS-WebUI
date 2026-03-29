@@ -20,7 +20,7 @@ import {
   defaultSpectrumAnalyzerWindowFunction,
   spectrumAnalyzerRetrievalTypeOptions,
   spectrumAnalyzerWindowFunctionOptions,
-} from "@/pw/features/operations/spectrumAnalyzerOptions";
+} from "@/pw/features/spectrum-analyzer/spectrumAnalyzerOptions";
 import { useCommonRequestFormDefaults } from "@/pw/features/operations/useRequestFormDefaults";
 import { formatIntegerLikeInput, parseIntegerLikeInput } from "@/lib/forms/numericInput";
 import type { SingleSpectrumFriendlyCaptureRequest } from "@/types/api";

@@ -25,7 +25,7 @@ const CmtsSgHistogramWorkflowPage = lazy(() =>
   import("@/pcw/pages/CmtsSgHistogramWorkflowPage").then((module) => ({ default: module.CmtsSgHistogramWorkflowPage })),
 );
 const CmtsSpectrumFriendlyWorkflowPage = lazy(() =>
-  import("@/pcw/pages/CmtsSpectrumFriendlyWorkflowPage").then((module) => ({ default: module.CmtsSpectrumFriendlyWorkflowPage })),
+  import("@/pcw/features/spectrum-analyzer/pages/CmtsSpectrumFriendlyWorkflowPage").then((module) => ({ default: module.CmtsSpectrumFriendlyWorkflowPage })),
 );
 const CmtsSingleCaptureDashboardPage = lazy(() =>
   import("@/pcw/pages/CmtsSingleCaptureDashboardPage").then((module) => ({ default: module.CmtsSingleCaptureDashboardPage })),

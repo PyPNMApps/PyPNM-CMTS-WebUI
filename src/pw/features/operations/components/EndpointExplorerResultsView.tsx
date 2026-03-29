@@ -19,9 +19,9 @@ import { SingleIf31UsOfdmaChannelStatsView } from "@/pw/features/operations/Sing
 import { SingleInterfaceStatsView } from "@/pw/features/operations/SingleInterfaceStatsView";
 import { SingleModulationProfileCaptureView } from "@/pw/features/operations/SingleModulationProfileCaptureView";
 import { SingleRxMerCaptureView } from "@/pw/features/operations/SingleRxMerCaptureView";
-import { SingleSpectrumFriendlyCaptureView } from "@/pw/features/operations/SingleSpectrumFriendlyCaptureView";
-import { SingleSpectrumOfdmCaptureView } from "@/pw/features/operations/SingleSpectrumOfdmCaptureView";
-import { SingleSpectrumScqamCaptureView } from "@/pw/features/operations/SingleSpectrumScqamCaptureView";
+import { SingleSpectrumFriendlyCaptureView } from "@/pw/features/spectrum-analyzer/SingleSpectrumFriendlyCaptureView";
+import { SingleSpectrumOfdmCaptureView } from "@/pw/features/spectrum-analyzer/SingleSpectrumOfdmCaptureView";
+import { SingleSpectrumScqamCaptureView } from "@/pw/features/spectrum-analyzer/SingleSpectrumScqamCaptureView";
 import { SingleSystemUpTimeView } from "@/pw/features/operations/SingleSystemUpTimeView";
 import { SingleUsOfdmaPreEqualizationView } from "@/pw/features/operations/SingleUsOfdmaPreEqualizationView";
 import type {

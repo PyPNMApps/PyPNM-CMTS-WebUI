@@ -12,9 +12,9 @@ import { FecSummaryCaptureRequestForm } from "@/pw/features/operations/FecSummar
 import { HistogramCaptureRequestForm } from "@/pw/features/operations/HistogramCaptureRequestForm";
 import { ScqamCodewordErrorRateRequestForm } from "@/pw/features/operations/ScqamCodewordErrorRateRequestForm";
 import { SingleCaptureRequestForm } from "@/pw/features/operations/SingleCaptureRequestForm";
-import { SpectrumFriendlyCaptureRequestForm } from "@/pw/features/operations/SpectrumFriendlyCaptureRequestForm";
-import { SpectrumFullBandCaptureRequestForm } from "@/pw/features/operations/SpectrumFullBandCaptureRequestForm";
-import { SpectrumOfdmCaptureRequestForm } from "@/pw/features/operations/SpectrumOfdmCaptureRequestForm";
+import { SpectrumFriendlyCaptureRequestForm } from "@/pw/features/spectrum-analyzer/SpectrumFriendlyCaptureRequestForm";
+import { SpectrumFullBandCaptureRequestForm } from "@/pw/features/spectrum-analyzer/SpectrumFullBandCaptureRequestForm";
+import { SpectrumOfdmCaptureRequestForm } from "@/pw/features/spectrum-analyzer/SpectrumOfdmCaptureRequestForm";
 import { SingleAtdmaChannelStatsView } from "@/pw/features/operations/SingleAtdmaChannelStatsView";
 import { SingleAtdmaPreEqualizationView } from "@/pw/features/operations/SingleAtdmaPreEqualizationView";
 import { SingleChannelEstCoeffCaptureView } from "@/pw/features/operations/SingleChannelEstCoeffCaptureView";
@@ -34,9 +34,9 @@ import { SingleIf31UsOfdmaChannelStatsView } from "@/pw/features/operations/Sing
 import { SingleInterfaceStatsView } from "@/pw/features/operations/SingleInterfaceStatsView";
 import { SingleModulationProfileCaptureView } from "@/pw/features/operations/SingleModulationProfileCaptureView";
 import { SingleRxMerCaptureView } from "@/pw/features/operations/SingleRxMerCaptureView";
-import { SingleSpectrumFriendlyCaptureView } from "@/pw/features/operations/SingleSpectrumFriendlyCaptureView";
-import { SingleSpectrumOfdmCaptureView } from "@/pw/features/operations/SingleSpectrumOfdmCaptureView";
-import { SingleSpectrumScqamCaptureView } from "@/pw/features/operations/SingleSpectrumScqamCaptureView";
+import { SingleSpectrumFriendlyCaptureView } from "@/pw/features/spectrum-analyzer/SingleSpectrumFriendlyCaptureView";
+import { SingleSpectrumOfdmCaptureView } from "@/pw/features/spectrum-analyzer/SingleSpectrumOfdmCaptureView";
+import { SingleSpectrumScqamCaptureView } from "@/pw/features/spectrum-analyzer/SingleSpectrumScqamCaptureView";
 import { SingleSystemUpTimeView } from "@/pw/features/operations/SingleSystemUpTimeView";
 import { SingleUsOfdmaPreEqualizationView } from "@/pw/features/operations/SingleUsOfdmaPreEqualizationView";
 import type { CaptureConnectivityInputs, CaptureConnectivityStatus } from "@/pw/features/operations/captureConnectivity";

@@ -3,13 +3,13 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import { SingleSpectrumFriendlyCaptureView } from "@/pw/features/operations/SingleSpectrumFriendlyCaptureView";
-import { SingleSpectrumOfdmCaptureView } from "@/pw/features/operations/SingleSpectrumOfdmCaptureView";
-import { SingleSpectrumScqamCaptureView } from "@/pw/features/operations/SingleSpectrumScqamCaptureView";
-import { singleSpectrumFriendlyCaptureFixture } from "@/pw/features/operations/singleSpectrumFriendlyCaptureFixture";
-import { singleSpectrumFullBandCaptureFixture } from "@/pw/features/operations/singleSpectrumFullBandCaptureFixture";
-import { singleSpectrumOfdmCaptureFixture } from "@/pw/features/operations/singleSpectrumOfdmCaptureFixture";
-import { singleSpectrumScqamCaptureFixture } from "@/pw/features/operations/singleSpectrumScqamCaptureFixture";
+import { SingleSpectrumFriendlyCaptureView } from "@/pw/features/spectrum-analyzer/SingleSpectrumFriendlyCaptureView";
+import { SingleSpectrumOfdmCaptureView } from "@/pw/features/spectrum-analyzer/SingleSpectrumOfdmCaptureView";
+import { SingleSpectrumScqamCaptureView } from "@/pw/features/spectrum-analyzer/SingleSpectrumScqamCaptureView";
+import { singleSpectrumFriendlyCaptureFixture } from "@/pw/features/spectrum-analyzer/fixtures/singleSpectrumFriendlyCaptureFixture";
+import { singleSpectrumFullBandCaptureFixture } from "@/pw/features/spectrum-analyzer/fixtures/singleSpectrumFullBandCaptureFixture";
+import { singleSpectrumOfdmCaptureFixture } from "@/pw/features/spectrum-analyzer/fixtures/singleSpectrumOfdmCaptureFixture";
+import { singleSpectrumScqamCaptureFixture } from "@/pw/features/spectrum-analyzer/fixtures/singleSpectrumScqamCaptureFixture";
 
 describe("spectrum export actions", () => {
   it("renders PNG and CSV actions for friendly and full-band spectrum views", () => {
