@@ -33,7 +33,15 @@ export interface ServingGroupCaptureRequestPayload {
     per_modem_timeout_seconds: number;
     overall_timeout_seconds: number;
   };
+  capture_settings?: {
+    fec_summary_type: number;
+  };
 }
+
+export const FEC_SUMMARY_TYPE_OPTIONS = [
+  { value: 3, label: "24 Hours" },
+  { value: 2, label: "10 Min" },
+] as const;
 
 interface ServingGroupCaptureRequestFormProps {
   baseUrl?: string;
@@ -41,6 +49,7 @@ interface ServingGroupCaptureRequestFormProps {
   initialSnmpCommunity?: string;
   initialTftpIpv4?: string;
   initialTftpIpv6?: string;
+  captureSettingsMode?: "none" | "fec-summary";
   onPayloadChange?: (payload: ServingGroupCaptureRequestPayload | null) => void;
 }
 
@@ -158,6 +167,7 @@ export function ServingGroupCaptureRequestForm({
   initialSnmpCommunity = "",
   initialTftpIpv4 = "",
   initialTftpIpv6 = "",
+  captureSettingsMode = "none",
   onPayloadChange,
 }: ServingGroupCaptureRequestFormProps) {
   const [availableServingGroupIds, setAvailableServingGroupIds] = useState<number[]>([]);
@@ -174,6 +184,7 @@ export function ServingGroupCaptureRequestForm({
   const [executionRetryDelaySeconds, setExecutionRetryDelaySeconds] = useState("5");
   const [executionPerModemTimeoutSeconds, setExecutionPerModemTimeoutSeconds] = useState("30");
   const [executionOverallTimeoutSeconds, setExecutionOverallTimeoutSeconds] = useState("120");
+  const [fecSummaryType, setFecSummaryType] = useState<number>(2);
   const [cableModemRows, setCableModemRows] = useState<CableModemRow[]>([]);
   const [selectedCableModems, setSelectedCableModems] = useState<string[]>([]);
   const [loadingCableModems, setLoadingCableModems] = useState(false);
@@ -313,7 +324,7 @@ export function ServingGroupCaptureRequestForm({
     const servingGroupIdsForRequest = allServingGroupsSelected ? [] : selectedServingGroupIds;
     const cableModemsForRequest = allCableModemsSelected ? [] : selectedCableModems;
 
-    return {
+    const payload: ServingGroupCaptureRequestPayload = {
       cmts: {
         serving_group: {
           id: servingGroupIdsForRequest,
@@ -344,6 +355,12 @@ export function ServingGroupCaptureRequestForm({
         overall_timeout_seconds: parsePositiveInteger(executionOverallTimeoutSeconds, 120),
       },
     };
+    if (captureSettingsMode === "fec-summary") {
+      payload.capture_settings = {
+        fec_summary_type: fecSummaryType,
+      };
+    }
+    return payload;
   }, [
     availableServingGroupIds,
     cableModemRows,
@@ -358,6 +375,8 @@ export function ServingGroupCaptureRequestForm({
     executionRetryDelaySeconds,
     executionPerModemTimeoutSeconds,
     executionOverallTimeoutSeconds,
+    captureSettingsMode,
+    fecSummaryType,
   ]);
 
   const sortedCableModemRows = useMemo(() => {
@@ -531,6 +550,20 @@ export function ServingGroupCaptureRequestForm({
                 />
               </div>
             </div>
+            {captureSettingsMode === "fec-summary" ? (
+              <div className="field capture-request-compact-input">
+                <label htmlFor={`${idPrefix}-fec-summary-type`}>FEC Summary Type</label>
+                <select
+                  id={`${idPrefix}-fec-summary-type`}
+                  value={String(fecSummaryType)}
+                  onChange={(event) => setFecSummaryType(Number.parseInt(event.target.value, 10) || 2)}
+                >
+                  {FEC_SUMMARY_TYPE_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>{option.label}</option>
+                  ))}
+                </select>
+              </div>
+            ) : null}
             <details className="capture-request-dropdown">
               <summary className="capture-request-dropdown-summary">
                 <span>Execution</span>

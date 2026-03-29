@@ -12,6 +12,9 @@ const CmtsSgRxMerWorkflowPage = lazy(() =>
 const CmtsSgChannelEstCoeffWorkflowPage = lazy(() =>
   import("@/pages/CmtsSgChannelEstCoeffWorkflowPage").then((module) => ({ default: module.CmtsSgChannelEstCoeffWorkflowPage })),
 );
+const CmtsSgFecSummaryWorkflowPage = lazy(() =>
+  import("@/pages/CmtsSgFecSummaryWorkflowPage").then((module) => ({ default: module.CmtsSgFecSummaryWorkflowPage })),
+);
 const AnalysisViewerPage = lazy(() =>
   import("@/pages/AnalysisViewerPage").then((module) => ({ default: module.AnalysisViewerPage })),
 );
@@ -55,6 +58,7 @@ export function AppRoutes() {
           <Route path="/serving-group" element={<Navigate to="/serving-group/rxmer" replace />} />
           <Route path="/serving-group/rxmer" element={<CmtsSgRxMerWorkflowPage />} />
           <Route path="/serving-group/channel-est-coeff" element={<CmtsSgChannelEstCoeffWorkflowPage />} />
+          <Route path="/serving-group/fec-summary" element={<CmtsSgFecSummaryWorkflowPage />} />
           <Route path="/advanced" element={<Navigate to="/serving-group/rxmer" replace />} />
           <Route path="/advanced/rxmer" element={<Navigate to="/serving-group/rxmer" replace />} />
           <Route path="/advanced/channel-estimation" element={<Navigate to="/serving-group/rxmer" replace />} />
@@ -67,6 +71,7 @@ export function AppRoutes() {
           <Route path="/operations" element={<Navigate to="/operations/cmts-sg-ds-ofdm-rxmer" replace />} />
           <Route path="/operations/cmts-sg-ds-ofdm-rxmer" element={<CmtsSgRxMerWorkflowPage />} />
           <Route path="/operations/cmts-sg-ds-ofdm-channel-est-coeff" element={<CmtsSgChannelEstCoeffWorkflowPage />} />
+          <Route path="/operations/cmts-sg-ds-ofdm-fec-summary" element={<CmtsSgFecSummaryWorkflowPage />} />
           <Route path="/operations/:operationId" element={<EndpointExplorerPage />} />
           <Route path="/operations/spectrum-analyzer" element={<Navigate to="/spectrum-analyzer/friendly" replace />} />
           <Route path="/operations/spectrum-analyzer-full-band" element={<Navigate to="/spectrum-analyzer/full-band" replace />} />

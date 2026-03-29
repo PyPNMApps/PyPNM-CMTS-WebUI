@@ -69,9 +69,17 @@ const channelEstCoeffSeriesDefinition: OperationSeriesDefinition = {
   descriptionPrefix: "serving-group downstream OFDM Channel Estimation",
 };
 
+const fecSummarySeriesDefinition: OperationSeriesDefinition = {
+  idPrefix: "cmts-sg-ds-ofdm-fec-summary",
+  endpointBase: "/cmts/pnm/sg/ds/ofdm/fecSummary",
+  categoryPath: ["CMTS", "PNM", "Serving Group", "Downstream OFDM FEC Summary"],
+  descriptionPrefix: "serving-group downstream OFDM FEC Summary",
+};
+
 export const operationRegistry: OperationNode[] = [
   ...buildStartStatusResultsSeries(rxMerSeriesDefinition),
   ...buildStartStatusResultsSeries(channelEstCoeffSeriesDefinition),
+  ...buildStartStatusResultsSeries(fecSummarySeriesDefinition),
 ];
 
 export function getOperationById(operationId: string): OperationNode | undefined {
@@ -88,6 +96,11 @@ export const operationFolderGroups: OperationFolderGroup[] = [
     id: "cmts-sg-channel-est-coeff-workflow",
     label: "CMTS / PNM / Serving Group / Downstream OFDM Channel Estimation",
     operations: operationRegistry.filter((operation) => operation.id.startsWith("cmts-sg-ds-ofdm-channel-est-coeff")),
+  },
+  {
+    id: "cmts-sg-fec-summary-workflow",
+    label: "CMTS / PNM / Serving Group / Downstream OFDM FEC Summary",
+    operations: operationRegistry.filter((operation) => operation.id.startsWith("cmts-sg-ds-ofdm-fec-summary")),
   },
 ];
 

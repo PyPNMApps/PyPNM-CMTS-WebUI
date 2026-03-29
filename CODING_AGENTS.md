@@ -95,6 +95,18 @@
 - When x-axis labels are large numeric values and horizontal rendering hurts readability, angle the labels so they remain visible and readable.
 - Render custom chart y-axis labels as vertical axis text with clear spacing
   from tick labels; do not fall back to top-left caption-style y labels.
+- For group-delay visuals with range-selection zoom, when a zoom window is
+  applied on x-axis, tighten the y-axis to the zoomed data window with about
+  15 percent padding so local variation is easier to inspect.
+- FEC summary charts must include a per-chart summary table beneath each graph
+  and the table values must recalculate from the active zoom selection window.
+- FEC summary x-axis labeling must be explicit time context (`Time (UTC)`), not
+  frequency labeling.
+- FEC summary line styling uses solid strokes only with fixed semantic colors:
+  blue for Total CW, green for Corrected CW, and red for Uncorrected CW.
+- For range-selection charts that expose `Zoom` and `Reset Zoom`, place those
+  controls in the right-side chart header action area next to export actions
+  (`PNG`/`CSV`) instead of placing them as a separate control row below.
 - Prefer lazy-loading at route or page boundaries when it reduces initial bundle cost.
 - Do not micro-chunk small shared UI pieces; keep lazy-loading focused on meaningful page-level splits.
 - For generated modem-specific download artifacts, place the modem identity and

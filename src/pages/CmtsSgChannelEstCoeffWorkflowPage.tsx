@@ -26,6 +26,7 @@ import {
 const servingGroupRoutes = [
   { to: "/serving-group/rxmer", label: "RxMER" },
   { to: "/serving-group/channel-est-coeff", label: "Channel Estimation" },
+  { to: "/serving-group/fec-summary", label: "FEC Summary" },
 ] as const;
 
 export function CmtsSgChannelEstCoeffWorkflowPage() {
@@ -333,4 +334,3 @@ export function CmtsSgChannelEstCoeffWorkflowPage() {
     </>
   );
 }
-

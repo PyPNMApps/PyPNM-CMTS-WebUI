@@ -1613,7 +1613,17 @@ pre {
 }
 
 .fec-toggle-row {
+  margin-top: 8px;
   margin-bottom: 10px;
+}
+
+.fec-header-actions {
+  margin-right: 2px;
+}
+
+.fec-series-toggle-row {
+  margin-top: 14px;
+  margin-bottom: 12px;
 }
 
 .profile-stats-chart-controls {
