@@ -2218,6 +2218,17 @@ pre {
   max-width: 460px;
 }
 
+.capture-request-params-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  align-items: start;
+}
+
+.capture-request-params-grid .capture-request-compact-input {
+  max-width: none;
+}
+
 @media (max-width: 860px) {
   .capture-request-top-grid {
     grid-template-columns: 1fr;
@@ -2225,6 +2236,10 @@ pre {
 
   .capture-request-compact-input {
     max-width: none;
+  }
+
+  .capture-request-params-grid {
+    grid-template-columns: 1fr;
   }
 }
 

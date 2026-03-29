@@ -138,6 +138,9 @@
   (about 8-12px) to keep the layout symmetric and readable.
 - Capture-input fields should preserve stable browser autocomplete behavior on
   the same machine when that improves operator workflows.
+- Related capture-parameter inputs shown together (for example `TFTP IPv4`,
+  `TFTP IPv6`, and `FEC Summary Type`) must use a shared equal-width layout so
+  control widths stay visually aligned.
 - Sensitive editable request inputs such as `SNMP RW Community` should be
   masked by default and revealed through a shared trailing-eye control rather
   than shown inline by default.

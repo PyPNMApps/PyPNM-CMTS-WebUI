@@ -530,7 +530,7 @@ export function ServingGroupCaptureRequestForm({
                 <p className="advanced-error-text">{channelIdValidation.error}</p>
               ) : null}
             </div>
-            <div className="grid two">
+            <div className="capture-request-params-grid">
               <div className="field capture-request-compact-input">
                 <label htmlFor={`${idPrefix}-tftp-ipv4`}>TFTP IPv4</label>
                 <input
@@ -549,21 +549,21 @@ export function ServingGroupCaptureRequestForm({
                   placeholder="::"
                 />
               </div>
+              {captureSettingsMode === "fec-summary" ? (
+                <div className="field capture-request-compact-input">
+                  <label htmlFor={`${idPrefix}-fec-summary-type`}>FEC Summary Type</label>
+                  <select
+                    id={`${idPrefix}-fec-summary-type`}
+                    value={String(fecSummaryType)}
+                    onChange={(event) => setFecSummaryType(Number.parseInt(event.target.value, 10) || 2)}
+                  >
+                    {FEC_SUMMARY_TYPE_OPTIONS.map((option) => (
+                      <option key={option.value} value={option.value}>{option.label}</option>
+                    ))}
+                  </select>
+                </div>
+              ) : null}
             </div>
-            {captureSettingsMode === "fec-summary" ? (
-              <div className="field capture-request-compact-input">
-                <label htmlFor={`${idPrefix}-fec-summary-type`}>FEC Summary Type</label>
-                <select
-                  id={`${idPrefix}-fec-summary-type`}
-                  value={String(fecSummaryType)}
-                  onChange={(event) => setFecSummaryType(Number.parseInt(event.target.value, 10) || 2)}
-                >
-                  {FEC_SUMMARY_TYPE_OPTIONS.map((option) => (
-                    <option key={option.value} value={option.value}>{option.label}</option>
-                  ))}
-                </select>
-              </div>
-            ) : null}
             <details className="capture-request-dropdown">
               <summary className="capture-request-dropdown-summary">
                 <span>Execution</span>
