@@ -1,6 +1,7 @@
 import { lazy, Suspense } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 
+import { PRODUCT_PROFILE_PCW, resolveProductProfile } from "@/app/productProfile";
 import { AppLayout } from "@/layouts/AppLayout";
 
 const AboutPage = lazy(() =>
@@ -67,55 +68,86 @@ function RouteLoadingFallback() {
   return <p className="panel-copy">Loading page...</p>;
 }
 
+function ProfileConfigurationError() {
+  return (
+    <div className="panel-container">
+      <article className="panel">
+        <h2>Invalid Runtime Profile</h2>
+        <p className="panel-copy">Set VITE_PRODUCT_PROFILE to pypnm-webui or pypnm-cmts-webui and restart the WebUI.</p>
+      </article>
+    </div>
+  );
+}
+
 export function AppRoutes() {
+  const profile = resolveProductProfile();
+  if (!profile) {
+    return <ProfileConfigurationError />;
+  }
+
   return (
     <Suspense fallback={<RouteLoadingFallback />}>
       <Routes>
         <Route element={<AppLayout />}>
-          <Route path="/" element={<Navigate to="/serving-group/rxmer" replace />} />
-          <Route path="/health" element={<HealthPage />} />
-          <Route path="/about" element={<AboutPage />} />
-          <Route path="/serving-group" element={<Navigate to="/serving-group/rxmer" replace />} />
-          <Route path="/serving-group/rxmer" element={<CmtsSgRxMerWorkflowPage />} />
-          <Route path="/serving-group/channel-est-coeff" element={<CmtsSgChannelEstCoeffWorkflowPage />} />
-          <Route path="/serving-group/fec-summary" element={<CmtsSgFecSummaryWorkflowPage />} />
-          <Route path="/serving-group/constellation-display" element={<CmtsSgConstellationDisplayWorkflowPage />} />
-          <Route path="/serving-group/modulation-profile" element={<CmtsSgModulationProfileWorkflowPage />} />
-          <Route path="/serving-group/histogram" element={<CmtsSgHistogramWorkflowPage />} />
+          {profile === PRODUCT_PROFILE_PCW ? (
+            <>
+              <Route path="/" element={<Navigate to="/serving-group/rxmer" replace />} />
+              <Route path="/serving-group" element={<Navigate to="/serving-group/rxmer" replace />} />
+              <Route path="/serving-group/rxmer" element={<CmtsSgRxMerWorkflowPage />} />
+              <Route path="/serving-group/channel-est-coeff" element={<CmtsSgChannelEstCoeffWorkflowPage />} />
+              <Route path="/serving-group/fec-summary" element={<CmtsSgFecSummaryWorkflowPage />} />
+              <Route path="/serving-group/constellation-display" element={<CmtsSgConstellationDisplayWorkflowPage />} />
+              <Route path="/serving-group/modulation-profile" element={<CmtsSgModulationProfileWorkflowPage />} />
+              <Route path="/serving-group/histogram" element={<CmtsSgHistogramWorkflowPage />} />
+              <Route path="/single-capture" element={<Navigate to="/single-capture/dashboard" replace />} />
+              <Route path="/single-capture/dashboard" element={<CmtsSingleCaptureDashboardPage />} />
+              <Route path="/single-capture/spectrum-analyzer" element={<Navigate to="/single-capture/spectrum-analyzer/friendly" replace />} />
+              <Route path="/single-capture/spectrum-analyzer/:operationId" element={<EndpointExplorerPage />} />
+              <Route path="/single-capture/rxmer" element={<EndpointExplorerPage />} />
+              <Route path="/single-capture/:operationId" element={<EndpointExplorerPage />} />
+              <Route path="/spectrum-analyzer" element={<Navigate to="/spectrum-analyzer/friendly" replace />} />
+              <Route path="/spectrum-analyzer/friendly" element={<CmtsSpectrumFriendlyWorkflowPage />} />
+              <Route path="/spectrum-analyzer/:operationId" element={<Navigate to="/spectrum-analyzer/friendly" replace />} />
+              <Route path="/operations" element={<Navigate to="/operations/cmts-sg-ds-ofdm-rxmer" replace />} />
+              <Route path="/operations/cmts-sg-ds-ofdm-rxmer" element={<CmtsSgRxMerWorkflowPage />} />
+              <Route path="/operations/cmts-sg-ds-ofdm-channel-est-coeff" element={<CmtsSgChannelEstCoeffWorkflowPage />} />
+              <Route path="/operations/cmts-sg-ds-ofdm-fec-summary" element={<CmtsSgFecSummaryWorkflowPage />} />
+              <Route path="/operations/cmts-sg-ds-ofdm-constellation-display" element={<CmtsSgConstellationDisplayWorkflowPage />} />
+              <Route path="/operations/cmts-sg-ds-ofdm-modulation-profile" element={<CmtsSgModulationProfileWorkflowPage />} />
+              <Route path="/operations/cmts-sg-ds-histogram" element={<CmtsSgHistogramWorkflowPage />} />
+              <Route path="/operations/cmts-sg-ds-ofdm-histogram" element={<CmtsSgHistogramWorkflowPage />} />
+              <Route path="/operations/cmts-spectrum-friendly" element={<CmtsSpectrumFriendlyWorkflowPage />} />
+            </>
+          ) : (
+            <>
+              <Route path="/" element={<Navigate to="/single-capture/rxmer" replace />} />
+              <Route path="/single-capture" element={<Navigate to="/single-capture/rxmer" replace />} />
+              <Route path="/single-capture/spectrum-analyzer" element={<Navigate to="/single-capture/spectrum-analyzer/friendly" replace />} />
+              <Route path="/single-capture/spectrum-analyzer/:operationId" element={<EndpointExplorerPage />} />
+              <Route path="/single-capture/:operationId" element={<EndpointExplorerPage />} />
+              <Route path="/spectrum-analyzer" element={<Navigate to="/single-capture/spectrum-analyzer/friendly" replace />} />
+              <Route path="/spectrum-analyzer/:operationId" element={<Navigate to="/single-capture/spectrum-analyzer/friendly" replace />} />
+              <Route path="/operations" element={<EndpointExplorerPage />} />
+              <Route path="/operations/:operationId" element={<EndpointExplorerPage />} />
+              <Route path="/operations/spectrum-analyzer" element={<Navigate to="/single-capture/spectrum-analyzer/friendly" replace />} />
+              <Route path="/operations/spectrum-analyzer-full-band" element={<Navigate to="/single-capture/spectrum-analyzer/full-band" replace />} />
+              <Route path="/operations/spectrum-analyzer-ofdm" element={<Navigate to="/single-capture/spectrum-analyzer/ofdm" replace />} />
+              <Route path="/operations/spectrum-analyzer-scqam" element={<Navigate to="/single-capture/spectrum-analyzer/scqam" replace />} />
+            </>
+          )}
           <Route path="/advanced" element={<Navigate to="/advanced/rxmer" replace />} />
           <Route path="/advanced/rxmer" element={<AdvancedPage />} />
           <Route path="/advanced/channel-estimation" element={<AdvancedPage />} />
           <Route path="/advanced/ofdma-pre-eq" element={<AdvancedPage />} />
-          <Route path="/single-capture" element={<Navigate to="/single-capture/dashboard" replace />} />
-          <Route path="/single-capture/dashboard" element={<CmtsSingleCaptureDashboardPage />} />
-          <Route path="/single-capture/spectrum-analyzer" element={<Navigate to="/single-capture/spectrum-analyzer/friendly" replace />} />
-          <Route path="/single-capture/spectrum-analyzer/:operationId" element={<EndpointExplorerPage />} />
-          <Route path="/single-capture/rxmer" element={<EndpointExplorerPage />} />
-          <Route path="/single-capture/:operationId" element={<EndpointExplorerPage />} />
-          <Route path="/spectrum-analyzer" element={<Navigate to="/spectrum-analyzer/friendly" replace />} />
-          <Route path="/spectrum-analyzer/friendly" element={<CmtsSpectrumFriendlyWorkflowPage />} />
-          <Route path="/spectrum-analyzer/:operationId" element={<Navigate to="/spectrum-analyzer/friendly" replace />} />
           <Route path="/endpoints" element={<Navigate to="/operations" replace />} />
-          <Route path="/operations" element={<Navigate to="/operations/cmts-sg-ds-ofdm-rxmer" replace />} />
-          <Route path="/operations/cmts-sg-ds-ofdm-rxmer" element={<CmtsSgRxMerWorkflowPage />} />
-          <Route path="/operations/cmts-sg-ds-ofdm-channel-est-coeff" element={<CmtsSgChannelEstCoeffWorkflowPage />} />
-          <Route path="/operations/cmts-sg-ds-ofdm-fec-summary" element={<CmtsSgFecSummaryWorkflowPage />} />
-          <Route path="/operations/cmts-sg-ds-ofdm-constellation-display" element={<CmtsSgConstellationDisplayWorkflowPage />} />
-          <Route path="/operations/cmts-sg-ds-ofdm-modulation-profile" element={<CmtsSgModulationProfileWorkflowPage />} />
-          <Route path="/operations/cmts-sg-ds-histogram" element={<CmtsSgHistogramWorkflowPage />} />
-          <Route path="/operations/cmts-sg-ds-ofdm-histogram" element={<CmtsSgHistogramWorkflowPage />} />
-          <Route path="/operations/cmts-spectrum-friendly" element={<CmtsSpectrumFriendlyWorkflowPage />} />
-          <Route path="/operations/:operationId" element={<EndpointExplorerPage />} />
-          <Route path="/operations/spectrum-analyzer" element={<Navigate to="/spectrum-analyzer/friendly" replace />} />
-          <Route path="/operations/spectrum-analyzer-full-band" element={<Navigate to="/spectrum-analyzer/friendly" replace />} />
-          <Route path="/operations/spectrum-analyzer-ofdm" element={<Navigate to="/spectrum-analyzer/friendly" replace />} />
-          <Route path="/operations/spectrum-analyzer-scqam" element={<Navigate to="/spectrum-analyzer/friendly" replace />} />
           <Route path="/measurements" element={<MeasurementRequestPage />} />
           <Route path="/results" element={<ResultsPage />} />
           <Route path="/files" element={<FileListPage />} />
           <Route path="/files/analyze/:analysisKey" element={<FileAnalysisPage />} />
           <Route path="/files/hexdump/:hexdumpKey" element={<FileHexdumpPage />} />
           <Route path="/analysis" element={<AnalysisViewerPage />} />
+          <Route path="/health" element={<HealthPage />} />
+          <Route path="/about" element={<AboutPage />} />
           <Route path="/settings" element={<SettingsPage />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />

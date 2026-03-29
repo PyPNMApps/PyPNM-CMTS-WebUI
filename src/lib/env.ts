@@ -1,3 +1,4 @@
+import { productProfileLabel, resolveProductProfileWithFallback } from "@/app/productProfile";
 import type { AppEnv } from "@/types/env";
 
 const fallbackBaseUrl = "http://127.0.0.1:8080";
@@ -8,7 +9,11 @@ function asInt(value: string | undefined, fallback: number): number {
   return Number.isNaN(parsed) ? fallback : parsed;
 }
 
+const profile = resolveProductProfileWithFallback();
+
 export const env: AppEnv = {
+  productProfile: profile,
+  productProfileLabel: productProfileLabel(profile),
   apiBaseUrl: import.meta.env.VITE_PYPNM_API_BASE_URL ?? fallbackBaseUrl,
   pwWebUiBaseUrl: import.meta.env.VITE_PW_WEBUI_BASE_URL ?? fallbackPwWebUiBaseUrl,
   requestTimeoutMs: asInt(import.meta.env.VITE_REQUEST_TIMEOUT_MS, 30000),

@@ -605,6 +605,7 @@ main() {
   prepare_nvm
   ensure_env_file
   upsert_env_value "PRODUCT_PROFILE" "${PRODUCT_PROFILE}"
+  upsert_env_value "VITE_PRODUCT_PROFILE" "${PRODUCT_PROFILE}"
   sync_runtime_template_for_profile
 
   log "Installing npm dependencies"
