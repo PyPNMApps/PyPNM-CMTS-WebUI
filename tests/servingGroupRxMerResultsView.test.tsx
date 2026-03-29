@@ -43,5 +43,7 @@ describe("ServingGroupRxMerResultsView", () => {
     const { container } = render(<ServingGroupRxMerResultsView payload={payload} />);
     expect(screen.getAllByText("1 CM").length).toBeGreaterThan(0);
     expect(container.querySelectorAll(".analysis-channels-grid-single").length).toBeGreaterThan(0);
+    expect(screen.getAllByRole("button", { name: "Zoom" }).length).toBeGreaterThan(0);
+    expect(screen.getAllByRole("button", { name: "Reset Zoom" }).length).toBeGreaterThan(0);
   });
 });

@@ -1,9 +1,12 @@
+import { useState } from "react";
+import { SpectrumSelectionActions } from "@/components/common/SpectrumSelectionActions";
 import { LineAnalysisChart } from "@/features/analysis/components/LineAnalysisChart";
 import { ModulationCountsChart } from "@/features/operations/ModulationCountsChart";
 import {
   normalizeServingGroupRxMerResultsPayload,
   type ServingGroupRxMerGroupVisual,
 } from "@/features/serving-group/lib/rxmerResults";
+import type { SpectrumSelectionRange } from "@/lib/spectrumPower";
 
 interface ServingGroupRxMerResultsViewProps {
   payload: unknown;
@@ -14,6 +17,10 @@ function formatCmCountLabel(count: number): string {
 }
 
 function ChannelSection({ groupId, channel }: { groupId: string; channel: ServingGroupRxMerGroupVisual["channels"][number] }) {
+  const [combinedSelection, setCombinedSelection] = useState<SpectrumSelectionRange | null>(null);
+  const [combinedZoomDomain, setCombinedZoomDomain] = useState<[number, number] | null>(null);
+  const [modemSelection, setModemSelection] = useState<Record<string, SpectrumSelectionRange | null>>({});
+  const [modemZoomDomain, setModemZoomDomain] = useState<Record<string, [number, number] | null>>({});
   const modemGridClassName = channel.modems.length === 1
     ? "analysis-channels-grid analysis-channels-grid-single"
     : "analysis-channels-grid";
@@ -36,6 +43,19 @@ function ChannelSection({ groupId, channel }: { groupId: string; channel: Servin
           yLabel="RxMER (dB)"
           showLegend
           series={channel.combinedSeries}
+          xDomain={combinedZoomDomain ?? undefined}
+          enableRangeSelection
+          selection={combinedSelection}
+          onSelectionChange={setCombinedSelection}
+          selectionActions={(
+            <SpectrumSelectionActions
+              selection={combinedSelection}
+              hasZoomDomain={combinedZoomDomain !== null}
+              showIntegratedPower={false}
+              onApplyZoom={(domain) => setCombinedZoomDomain(domain)}
+              onResetZoom={() => setCombinedZoomDomain(null)}
+            />
+          )}
           exportBaseName={`sg-rxmer-sg-${groupId}-channel-${channel.channelId}-combined`}
         />
       ) : (
@@ -57,6 +77,28 @@ function ChannelSection({ groupId, channel }: { groupId: string; channel: Servin
               yLabel="RxMER (dB)"
               showLegend
               series={modem.rxMerSeries}
+              xDomain={modemZoomDomain[modem.key] ?? undefined}
+              enableRangeSelection
+              selection={modemSelection[modem.key] ?? null}
+              onSelectionChange={(nextSelection) => setModemSelection((current) => ({
+                ...current,
+                [modem.key]: nextSelection,
+              }))}
+              selectionActions={(
+                <SpectrumSelectionActions
+                  selection={modemSelection[modem.key] ?? null}
+                  hasZoomDomain={(modemZoomDomain[modem.key] ?? null) !== null}
+                  showIntegratedPower={false}
+                  onApplyZoom={(domain) => setModemZoomDomain((current) => ({
+                    ...current,
+                    [modem.key]: domain,
+                  }))}
+                  onResetZoom={() => setModemZoomDomain((current) => ({
+                    ...current,
+                    [modem.key]: null,
+                  }))}
+                />
+              )}
               exportBaseName={`sg-rxmer-sg-${groupId}-channel-${channel.channelId}-mac-${modem.macAddress.replaceAll(":", "")}`}
             />
             <ModulationCountsChart

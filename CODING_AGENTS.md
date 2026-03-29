@@ -83,6 +83,8 @@
   on-demand views.
 - Multi-series line graphs must provide shared mute/show controls for
   individual series instead of forcing all lines to remain visible.
+- RxMER visuals that support frequency-range drag selection must provide zoom
+  controls (`Zoom` and `Reset Zoom`) via the shared selection-action pattern.
 - Generic raw-response JSON download actions belong in the `Capture Inputs`
   card as shared request-panel controls, not as floating mid-page actions.
 - Shared request-panel JSON controls must remain visually muted and disabled
