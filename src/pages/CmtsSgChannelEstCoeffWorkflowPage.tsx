@@ -28,6 +28,7 @@ const servingGroupRoutes = [
   { to: "/serving-group/channel-est-coeff", label: "Channel Estimation" },
   { to: "/serving-group/fec-summary", label: "FEC Summary" },
   { to: "/serving-group/constellation-display", label: "Constellation Display" },
+  { to: "/serving-group/modulation-profile", label: "Modulation Profile" },
 ] as const;
 
 export function CmtsSgChannelEstCoeffWorkflowPage() {

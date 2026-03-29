@@ -10,18 +10,18 @@ import {
   ServingGroupCaptureRequestForm,
   type ServingGroupCaptureRequestPayload,
 } from "@/features/serving-group/components/ServingGroupCaptureRequestForm";
-import { ServingGroupConstellationDisplayResultsView } from "@/features/serving-group/components/ServingGroupConstellationDisplayResultsView";
+import { ServingGroupModulationProfileResultsView } from "@/features/serving-group/components/ServingGroupModulationProfileResultsView";
 import {
   formatOperationEpoch,
   parseServingGroupOperationStartResponse,
   parseServingGroupOperationStatusResponse,
 } from "@/features/serving-group/lib/operationStatus";
 import {
-  cancelServingGroupConstellationDisplayCapture,
-  getServingGroupConstellationDisplayCaptureStatus,
-  getServingGroupConstellationDisplayResults,
-  startServingGroupConstellationDisplayCapture,
-} from "@/services/servingGroupConstellationDisplayService";
+  cancelServingGroupModulationProfileCapture,
+  getServingGroupModulationProfileCaptureStatus,
+  getServingGroupModulationProfileResults,
+  startServingGroupModulationProfileCapture,
+} from "@/services/servingGroupModulationProfileService";
 
 const servingGroupRoutes = [
   { to: "/serving-group/rxmer", label: "RxMER" },
@@ -31,7 +31,7 @@ const servingGroupRoutes = [
   { to: "/serving-group/modulation-profile", label: "Modulation Profile" },
 ] as const;
 
-export function CmtsSgConstellationDisplayWorkflowPage() {
+export function CmtsSgModulationProfileWorkflowPage() {
   const { selectedInstance } = useInstanceConfig();
   const [requestPayload, setRequestPayload] = useState<ServingGroupCaptureRequestPayload | null>(null);
   const [isJsonModalOpen, setIsJsonModalOpen] = useState(false);
@@ -53,13 +53,13 @@ export function CmtsSgConstellationDisplayWorkflowPage() {
       if (!selectedInstance?.baseUrl || !requestPayload) {
         throw new Error("Capture request payload is not ready.");
       }
-      return startServingGroupConstellationDisplayCapture(selectedInstance.baseUrl, requestPayload);
+      return startServingGroupModulationProfileCapture(selectedInstance.baseUrl, requestPayload);
     },
     getStatus: async (operationId: string) => {
       if (!selectedInstance?.baseUrl) {
         throw new Error("No instance selected.");
       }
-      const response = await getServingGroupConstellationDisplayCaptureStatus(selectedInstance.baseUrl, operationId);
+      const response = await getServingGroupModulationProfileCaptureStatus(selectedInstance.baseUrl, operationId);
       setLatestStatusResponsePayload(response);
       return response;
     },
@@ -67,7 +67,7 @@ export function CmtsSgConstellationDisplayWorkflowPage() {
       if (!selectedInstance?.baseUrl) {
         throw new Error("No instance selected.");
       }
-      const response = await cancelServingGroupConstellationDisplayCapture(selectedInstance.baseUrl, operationId);
+      const response = await cancelServingGroupModulationProfileCapture(selectedInstance.baseUrl, operationId);
       setLatestStatusResponsePayload(response);
       return response;
     },
@@ -85,12 +85,12 @@ export function CmtsSgConstellationDisplayWorkflowPage() {
     setIsResultsLoading(true);
     setResultsError("");
     try {
-      const response = await getServingGroupConstellationDisplayResults(selectedInstance.baseUrl, operationId);
+      const response = await getServingGroupModulationProfileResults(selectedInstance.baseUrl, operationId);
       setResultsPayload(response);
       setResultsOperationId(operationId);
       setIsCaptureResultsCollapsed(false);
     } catch (error) {
-      setResultsError(error instanceof Error ? error.message : "Failed to load SG Constellation Display results.");
+      setResultsError(error instanceof Error ? error.message : "Failed to load SG Modulation Profile results.");
     } finally {
       setIsResultsLoading(false);
     }
@@ -127,7 +127,7 @@ export function CmtsSgConstellationDisplayWorkflowPage() {
         title={(
           <div className="capture-request-title-layout">
             <FoldablePanelTitle
-              id="cmts-sg-constellation-display-capture-request-body"
+              id="cmts-sg-modulation-profile-capture-request-body"
               label="Capture Request"
               isCollapsed={isCaptureRequestCollapsed}
               onToggle={() => setIsCaptureRequestCollapsed((current) => !current)}
@@ -172,14 +172,13 @@ export function CmtsSgConstellationDisplayWorkflowPage() {
           </div>
         )}
       >
-        <div id="cmts-sg-constellation-display-capture-request-body" hidden={isCaptureRequestCollapsed}>
+        <div id="cmts-sg-modulation-profile-capture-request-body" hidden={isCaptureRequestCollapsed}>
           <ServingGroupCaptureRequestForm
             baseUrl={selectedInstance?.baseUrl}
-            idPrefix="cmts-sg-constellation-display"
+            idPrefix="cmts-sg-modulation-profile"
             initialSnmpCommunity={selectedInstance?.requestDefaults?.snmpRwCommunity ?? ""}
             initialTftpIpv4={selectedInstance?.requestDefaults?.tftpIpv4 ?? ""}
             initialTftpIpv6={selectedInstance?.requestDefaults?.tftpIpv6 ?? ""}
-            captureSettingsMode="constellation-display"
             onPayloadChange={setRequestPayload}
           />
         </div>
@@ -188,7 +187,7 @@ export function CmtsSgConstellationDisplayWorkflowPage() {
         title={(
           <div className="capture-status-title-layout">
             <FoldablePanelTitle
-              id="cmts-sg-constellation-display-capture-status-body"
+              id="cmts-sg-modulation-profile-capture-status-body"
               label="Capture Status"
               isCollapsed={isCaptureStatusCollapsed}
               onToggle={() => setIsCaptureStatusCollapsed((current) => !current)}
@@ -204,13 +203,13 @@ export function CmtsSgConstellationDisplayWorkflowPage() {
           </div>
         )}
       >
-        <div id="cmts-sg-constellation-display-capture-status-body" className="operation-status-stack" hidden={isCaptureStatusCollapsed}>
+        <div id="cmts-sg-modulation-profile-capture-status-body" className="operation-status-stack" hidden={isCaptureStatusCollapsed}>
           <div className="operation-status-id-row">
             <label className="field">
               <span>Operation ID</span>
               <input
-                id="cmts-sg-constellation-display-operation-id-input"
-                name="cmtsSgConstellationDisplayOperationId"
+                id="cmts-sg-modulation-profile-operation-id-input"
+                name="cmtsSgModulationProfileOperationId"
                 type="text"
                 value={operationIdInput}
                 placeholder="Paste pnm_capture_operation_id"
@@ -279,7 +278,7 @@ export function CmtsSgConstellationDisplayWorkflowPage() {
             </div>
           </details>
           {machine.lifecycleState === "starting" || machine.lifecycleState === "running" ? (
-            <ThinkingIndicator label="Running SG Constellation Display capture and polling status..." />
+            <ThinkingIndicator label="Running SG Modulation Profile capture and polling status..." />
           ) : null}
           {machine.statusSummary?.message ? <p className="panel-copy">{machine.statusSummary.message}</p> : null}
           {machine.errorMessage ? <p className="advanced-error-text">{machine.errorMessage}</p> : null}
@@ -289,7 +288,7 @@ export function CmtsSgConstellationDisplayWorkflowPage() {
         title={(
           <div className="capture-status-title-layout">
             <FoldablePanelTitle
-              id="cmts-sg-constellation-display-capture-results-body"
+              id="cmts-sg-modulation-profile-capture-results-body"
               label="Capture Results"
               isCollapsed={isCaptureResultsCollapsed}
               onToggle={() => setIsCaptureResultsCollapsed((current) => !current)}
@@ -310,26 +309,26 @@ export function CmtsSgConstellationDisplayWorkflowPage() {
           </div>
         )}
       >
-        <div id="cmts-sg-constellation-display-capture-results-body" hidden={isCaptureResultsCollapsed}>
-          {isResultsLoading ? <ThinkingIndicator label="Loading SG Constellation Display results..." /> : null}
+        <div id="cmts-sg-modulation-profile-capture-results-body" hidden={isCaptureResultsCollapsed}>
+          {isResultsLoading ? <ThinkingIndicator label="Loading SG Modulation Profile results..." /> : null}
           {resultsError ? <p className="advanced-error-text">{resultsError}</p> : null}
           {!isResultsLoading && !resultsError && resultsPayload ? (
-            <ServingGroupConstellationDisplayResultsView payload={resultsPayload} />
+            <ServingGroupModulationProfileResultsView payload={resultsPayload} />
           ) : null}
           {!isResultsLoading && !resultsError && !resultsPayload ? (
-            <p className="panel-copy">Run capture to completion or click Get Results to load SG Constellation Display visuals.</p>
+            <p className="panel-copy">Run capture to completion or click Get Results to load SG Modulation Profile visuals.</p>
           ) : null}
         </div>
       </Panel>
       <JsonPayloadModal
-        id="cmts-sg-constellation-display-request-json-modal"
+        id="cmts-sg-modulation-profile-request-json-modal"
         title="Capture Request JSON"
         payload={requestPayload}
         isOpen={isJsonModalOpen}
         onClose={() => setIsJsonModalOpen(false)}
       />
       <JsonPayloadModal
-        id="cmts-sg-constellation-display-response-json-modal"
+        id="cmts-sg-modulation-profile-response-json-modal"
         title="Capture Status Response JSON"
         payload={latestStatusResponsePayload}
         isOpen={isResponseJsonModalOpen}

@@ -83,11 +83,19 @@ const constellationDisplaySeriesDefinition: OperationSeriesDefinition = {
   descriptionPrefix: "serving-group downstream OFDM Constellation Display",
 };
 
+const modulationProfileSeriesDefinition: OperationSeriesDefinition = {
+  idPrefix: "cmts-sg-ds-ofdm-modulation-profile",
+  endpointBase: "/cmts/pnm/sg/ds/ofdm/modulationProfile",
+  categoryPath: ["CMTS", "PNM", "Serving Group", "Downstream OFDM Modulation Profile"],
+  descriptionPrefix: "serving-group downstream OFDM Modulation Profile",
+};
+
 export const operationRegistry: OperationNode[] = [
   ...buildStartStatusResultsSeries(rxMerSeriesDefinition),
   ...buildStartStatusResultsSeries(channelEstCoeffSeriesDefinition),
   ...buildStartStatusResultsSeries(fecSummarySeriesDefinition),
   ...buildStartStatusResultsSeries(constellationDisplaySeriesDefinition),
+  ...buildStartStatusResultsSeries(modulationProfileSeriesDefinition),
 ];
 
 export function getOperationById(operationId: string): OperationNode | undefined {
@@ -114,6 +122,11 @@ export const operationFolderGroups: OperationFolderGroup[] = [
     id: "cmts-sg-constellation-display-workflow",
     label: "CMTS / PNM / Serving Group / Downstream OFDM Constellation Display",
     operations: operationRegistry.filter((operation) => operation.id.startsWith("cmts-sg-ds-ofdm-constellation-display")),
+  },
+  {
+    id: "cmts-sg-modulation-profile-workflow",
+    label: "CMTS / PNM / Serving Group / Downstream OFDM Modulation Profile",
+    operations: operationRegistry.filter((operation) => operation.id.startsWith("cmts-sg-ds-ofdm-modulation-profile")),
   },
 ];
 
