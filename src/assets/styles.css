@@ -873,6 +873,26 @@ button[aria-disabled="true"]:focus-visible,
   margin-bottom: 6px;
 }
 
+.operation-status-id-row {
+  display: grid;
+  grid-template-columns: minmax(280px, 520px) auto;
+  align-items: end;
+  gap: 10px;
+}
+
+.operation-status-id-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 860px) {
+  .operation-status-id-row {
+    grid-template-columns: 1fr;
+  }
+}
+
 .capture-status-title-layout {
   width: 100%;
   display: flex;

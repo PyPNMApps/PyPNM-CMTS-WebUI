@@ -40,6 +40,7 @@ export function CmtsSgRxMerWorkflowPage() {
   const [resultsOperationId, setResultsOperationId] = useState<string | null>(null);
   const [isCaptureRequestCollapsed, setIsCaptureRequestCollapsed] = useState(true);
   const [isCaptureStatusCollapsed, setIsCaptureStatusCollapsed] = useState(false);
+  const [operationIdInput, setOperationIdInput] = useState("");
   const machine = useAdvancedOperationMachine<unknown, unknown>({
     parseStart: (response) => parseServingGroupOperationStartResponse(response, "serving-group"),
     parseStatus: parseServingGroupOperationStatusResponse,
@@ -72,6 +73,8 @@ export function CmtsSgRxMerWorkflowPage() {
     && machine.canStart
   );
   const canCancelCapture = machine.canStop;
+  const normalizedOperationIdInput = operationIdInput.trim();
+  const canLoadOperationId = Boolean(selectedInstance?.baseUrl && normalizedOperationIdInput.length > 0);
 
   async function loadResults(operationId: string) {
     if (!selectedInstance?.baseUrl) {
@@ -101,6 +104,13 @@ export function CmtsSgRxMerWorkflowPage() {
     }
     void loadResults(operationId);
   }, [machine.lifecycleState, machine.operationId, resultsOperationId, resultsPayload, selectedInstance?.baseUrl]);
+
+  useEffect(() => {
+    if (!machine.operationId) {
+      return;
+    }
+    setOperationIdInput(machine.operationId);
+  }, [machine.operationId]);
 
   return (
     <>
@@ -192,6 +202,52 @@ export function CmtsSgRxMerWorkflowPage() {
         )}
       >
         <div id="cmts-sg-rxmer-capture-status-body" className="operation-status-stack" hidden={isCaptureStatusCollapsed}>
+          <div className="operation-status-id-row">
+            <label className="field">
+              <span>Operation ID</span>
+              <input
+                id="cmts-sg-rxmer-operation-id-input"
+                name="cmtsSgRxMerOperationId"
+                type="text"
+                value={operationIdInput}
+                placeholder="Paste pnm_capture_operation_id"
+                onChange={(event) => setOperationIdInput(event.target.value)}
+              />
+            </label>
+            <div className="operation-status-id-actions">
+              <button
+                type="button"
+                className="operations-json-download"
+                disabled={!canLoadOperationId}
+                onClick={() => {
+                  if (!canLoadOperationId) {
+                    return;
+                  }
+                  setLatestStatusResponsePayload(null);
+                  setResultsError("");
+                  setResultsPayload(null);
+                  setResultsOperationId(null);
+                  void machine.trackOperation(normalizedOperationIdInput);
+                }}
+              >
+                Load Status
+              </button>
+              <button
+                type="button"
+                className="operations-json-download"
+                disabled={!canLoadOperationId || isResultsLoading}
+                onClick={() => {
+                  if (!canLoadOperationId) {
+                    return;
+                  }
+                  void machine.trackOperation(normalizedOperationIdInput);
+                  void loadResults(normalizedOperationIdInput);
+                }}
+              >
+                {isResultsLoading ? "Loading Results..." : "Load Results"}
+              </button>
+            </div>
+          </div>
           <div className="status-chip-row operation-status-chip-row">
             <span className="analysis-chip"><b>State</b> {machine.lifecycleState.toUpperCase()}</span>
             <span className="analysis-chip"><b>Polling</b> {machine.isPolling ? "yes" : "no"}</span>

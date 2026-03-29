@@ -163,6 +163,23 @@ export function useAdvancedOperationMachine<TStartResponse, TStatusResponse>({
     await pollOnce(operationId);
   }, [clearPollTimer, operationId, pollOnce]);
 
+  const trackOperation = useCallback(async (nextOperationId: string) => {
+    const normalizedOperationId = nextOperationId.trim();
+    if (!normalizedOperationId) {
+      return;
+    }
+    clearPollTimer();
+    clearStopEnableTimer();
+    setGroupId(null);
+    setOperationId(normalizedOperationId);
+    setStartMessage(null);
+    setStatusSummary(null);
+    setErrorMessage(null);
+    setLifecycleState("running");
+    setStopEnabled(true);
+    await pollOnce(normalizedOperationId);
+  }, [clearPollTimer, clearStopEnableTimer, pollOnce]);
+
   const canStart = useMemo(() => lifecycleState !== "starting" && lifecycleState !== "running" && lifecycleState !== "stopping", [lifecycleState]);
   const canStop = lifecycleState === "running" && Boolean(operationId) && stopEnabled;
   const hasOperation = Boolean(operationId);
@@ -181,5 +198,6 @@ export function useAdvancedOperationMachine<TStartResponse, TStatusResponse>({
     start,
     stop,
     refreshStatus,
+    trackOperation,
   };
 }
