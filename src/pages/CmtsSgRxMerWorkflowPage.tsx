@@ -8,16 +8,18 @@ import {
   ServingGroupCaptureRequestForm,
   type ServingGroupCaptureRequestPayload,
 } from "@/features/serving-group/components/ServingGroupCaptureRequestForm";
+import { ServingGroupRxMerResultsView } from "@/features/serving-group/components/ServingGroupRxMerResultsView";
 import {
   formatOperationEpoch,
   parseServingGroupOperationStartResponse,
   parseServingGroupOperationStatusResponse,
 } from "@/features/serving-group/lib/operationStatus";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 import {
   cancelServingGroupRxMerCapture,
   getServingGroupRxMerCaptureStatus,
+  getServingGroupRxMerResults,
   startServingGroupRxMerCapture,
 } from "@/services/servingGroupRxMerService";
 
@@ -31,6 +33,11 @@ export function CmtsSgRxMerWorkflowPage() {
   const [isJsonModalOpen, setIsJsonModalOpen] = useState(false);
   const [isResponseJsonModalOpen, setIsResponseJsonModalOpen] = useState(false);
   const [latestStatusResponsePayload, setLatestStatusResponsePayload] = useState<unknown | null>(null);
+  const [resultsPayload, setResultsPayload] = useState<unknown | null>(null);
+  const [resultsError, setResultsError] = useState<string>("");
+  const [isResultsLoading, setIsResultsLoading] = useState(false);
+  const [isCaptureResultsCollapsed, setIsCaptureResultsCollapsed] = useState(true);
+  const [resultsOperationId, setResultsOperationId] = useState<string | null>(null);
   const [isCaptureRequestCollapsed, setIsCaptureRequestCollapsed] = useState(true);
   const [isCaptureStatusCollapsed, setIsCaptureStatusCollapsed] = useState(false);
   const machine = useAdvancedOperationMachine<unknown, unknown>({
@@ -66,6 +73,35 @@ export function CmtsSgRxMerWorkflowPage() {
   );
   const canCancelCapture = machine.canStop;
 
+  async function loadResults(operationId: string) {
+    if (!selectedInstance?.baseUrl) {
+      return;
+    }
+    setIsResultsLoading(true);
+    setResultsError("");
+    try {
+      const response = await getServingGroupRxMerResults(selectedInstance.baseUrl, operationId);
+      setResultsPayload(response);
+      setResultsOperationId(operationId);
+      setIsCaptureResultsCollapsed(false);
+    } catch (error) {
+      setResultsError(error instanceof Error ? error.message : "Failed to load SG RxMER results.");
+    } finally {
+      setIsResultsLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    const operationId = machine.operationId;
+    if (!operationId || machine.lifecycleState !== "completed") {
+      return;
+    }
+    if (resultsOperationId === operationId && resultsPayload) {
+      return;
+    }
+    void loadResults(operationId);
+  }, [machine.lifecycleState, machine.operationId, resultsOperationId, resultsPayload, selectedInstance?.baseUrl]);
+
   return (
     <>
       <nav className="advanced-subnav">
@@ -92,6 +128,9 @@ export function CmtsSgRxMerWorkflowPage() {
                 onClick={() => {
                   setIsCaptureStatusCollapsed(false);
                   setLatestStatusResponsePayload(null);
+                  setResultsPayload(null);
+                  setResultsError("");
+                  setResultsOperationId(null);
                   void machine.start();
                 }}
               >
@@ -185,6 +224,42 @@ export function CmtsSgRxMerWorkflowPage() {
           ) : null}
           {machine.statusSummary?.message ? <p className="panel-copy">{machine.statusSummary.message}</p> : null}
           {machine.errorMessage ? <p className="advanced-error-text">{machine.errorMessage}</p> : null}
+        </div>
+      </Panel>
+      <Panel
+        title={(
+          <div className="capture-status-title-layout">
+            <FoldablePanelTitle
+              id="cmts-sg-rxmer-capture-results-body"
+              label="Capture Results"
+              isCollapsed={isCaptureResultsCollapsed}
+              onToggle={() => setIsCaptureResultsCollapsed((current) => !current)}
+            />
+            <button
+              type="button"
+              className="operations-json-download"
+              disabled={!machine.operationId || isResultsLoading}
+              onClick={() => {
+                if (!machine.operationId) {
+                  return;
+                }
+                void loadResults(machine.operationId);
+              }}
+            >
+              {isResultsLoading ? "Loading Results..." : "Get Results"}
+            </button>
+          </div>
+        )}
+      >
+        <div id="cmts-sg-rxmer-capture-results-body" hidden={isCaptureResultsCollapsed}>
+          {isResultsLoading ? <ThinkingIndicator label="Loading SG RxMER results..." /> : null}
+          {resultsError ? <p className="advanced-error-text">{resultsError}</p> : null}
+          {!isResultsLoading && !resultsError && resultsPayload ? (
+            <ServingGroupRxMerResultsView payload={resultsPayload} />
+          ) : null}
+          {!isResultsLoading && !resultsError && !resultsPayload ? (
+            <p className="panel-copy">Run capture to completion or click Get Results to load SG RxMER visuals.</p>
+          ) : null}
         </div>
       </Panel>
       <JsonPayloadModal

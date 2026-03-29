@@ -8,6 +8,7 @@ import * as httpModule from "../src/services/http";
 import {
   cancelServingGroupRxMerCapture,
   getServingGroupRxMerCaptureStatus,
+  getServingGroupRxMerResults,
   startServingGroupRxMerCapture,
 } from "../src/services/servingGroupRxMerService";
 
@@ -74,6 +75,22 @@ describe("servingGroupRxMerService", () => {
     expect(requestWithBaseUrl).toHaveBeenCalledWith("http://127.0.0.1:8080", {
       method: "POST",
       url: "/cmts/pnm/sg/ds/ofdm/rxmer/cancel",
+      data: {
+        pnm_capture_operation_id: "op-1",
+      },
+      timeout: 30000,
+    });
+  });
+
+  it("calls results with POST and pnm_capture_operation_id", async () => {
+    const requestWithBaseUrl = vi.mocked(httpModule.requestWithBaseUrl);
+    requestWithBaseUrl.mockResolvedValueOnce({ data: { results: {} } } as never);
+
+    await getServingGroupRxMerResults("http://127.0.0.1:8080", "op-1");
+
+    expect(requestWithBaseUrl).toHaveBeenCalledWith("http://127.0.0.1:8080", {
+      method: "POST",
+      url: "/cmts/pnm/sg/ds/ofdm/rxmer/results",
       data: {
         pnm_capture_operation_id: "op-1",
       },

@@ -1027,6 +1027,10 @@ th {
   gap: 18px;
 }
 
+.analysis-channels-grid-single {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 .analysis-channel-card {
   border: 1px solid var(--line);
   border-radius: 18px;

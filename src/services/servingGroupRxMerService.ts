@@ -68,3 +68,15 @@ export async function cancelServingGroupRxMerCapture(baseUrl: string, operationI
   });
   return response.data;
 }
+
+export async function getServingGroupRxMerResults(baseUrl: string, operationId: string): Promise<unknown> {
+  const response = await requestWithBaseUrl<unknown>(baseUrl, {
+    method: "POST",
+    url: `${SERVING_GROUP_RXMER_BASE}/results`,
+    data: {
+      pnm_capture_operation_id: operationId,
+    },
+    timeout: ADVANCED_OPERATION_STATUS_TIMEOUT_MS,
+  });
+  return response.data;
+}

@@ -113,6 +113,12 @@
 - Chip rows must include consistent vertical breathing room. Keep at least
   10px of separation above and below status/summary chip rows so cards do not
   appear visually crowded in either theme.
+- For SG/CM grouped result cards, render density adaptively:
+  single-channel groups should occupy a full row and single-CM channel sections
+  should use a single-column layout instead of preserving empty two-column
+  space.
+- When a channel visual contains exactly one cable modem, summarize that as
+  `1 CM` in headers/metadata and avoid redundant multi-item row treatment.
 - Status-monitoring sections should use a consistent vertical stack rhythm:
   chip row, loading/status text, and messages/errors separated by clear gaps
   (about 8-12px) to keep the layout symmetric and readable.
