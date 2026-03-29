@@ -40,6 +40,12 @@ defaults:
 instances: []
 ```
 
+`config-menu` resolves `PRODUCT_PROFILE` from `.env` (or `VITE_PRODUCT_PROFILE`)
+and updates labels/schema hints based on the active profile:
+
+- `pypnm-cmts-webui`: CMTS agent naming, no `request_defaults.cable_modem`
+- `pypnm-webui`: PyPNM agent naming, optional `request_defaults.cable_modem`
+
 Notes:
 
 - `instances: []` is valid for a minimal local file.

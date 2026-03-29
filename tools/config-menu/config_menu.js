@@ -19,11 +19,77 @@ const DEFAULT_CONFIG = {
   },
   instances: [],
 };
-const AGENT_BRAND = "PyPNM-CMTS";
-const AGENT_LABEL_SINGULAR = `${AGENT_BRAND} Agent`;
-const AGENT_LABEL_PLURAL = `${AGENT_BRAND} Agents`;
+const PRODUCT_PROFILE_PW = "pypnm-webui";
+const PRODUCT_PROFILE_PCW = "pypnm-cmts-webui";
+const DEFAULT_PRODUCT_PROFILE = PRODUCT_PROFILE_PCW;
 const RESERVED_LOCAL_AGENT_ID = "local-pypnm-agent";
 const RESERVED_LOCAL_AGENT_TAG = "combined-install";
+const DEFAULT_PROFILE_CONTEXT = buildProfileContext(DEFAULT_PRODUCT_PROFILE);
+
+export function parseProductProfile(value) {
+  const normalized = typeof value === "string" ? value.trim().toLowerCase() : "";
+  if (normalized === PRODUCT_PROFILE_PW || normalized === PRODUCT_PROFILE_PCW) {
+    return normalized;
+  }
+  return "";
+}
+
+export function resolveProductProfileFromEnv(repoRoot = "") {
+  const explicitProfile = parseProductProfile(process.env.PRODUCT_PROFILE)
+    || parseProductProfile(process.env.VITE_PRODUCT_PROFILE);
+  if (explicitProfile !== "") {
+    return explicitProfile;
+  }
+
+  const root = repoRoot || process.cwd();
+  const envPath = path.join(root, ".env");
+  if (!fs.existsSync(envPath)) {
+    return DEFAULT_PRODUCT_PROFILE;
+  }
+
+  const envContent = fs.readFileSync(envPath, "utf8");
+  const lines = envContent.split(/\r?\n/);
+  for (const line of lines) {
+    if (line.startsWith("PRODUCT_PROFILE=")) {
+      const parsed = parseProductProfile(line.slice("PRODUCT_PROFILE=".length));
+      if (parsed !== "") {
+        return parsed;
+      }
+    }
+    if (line.startsWith("VITE_PRODUCT_PROFILE=")) {
+      const parsed = parseProductProfile(line.slice("VITE_PRODUCT_PROFILE=".length));
+      if (parsed !== "") {
+        return parsed;
+      }
+    }
+  }
+  return DEFAULT_PRODUCT_PROFILE;
+}
+
+function buildProfileContext(productProfile) {
+  if (productProfile === PRODUCT_PROFILE_PW) {
+    return {
+      productProfile,
+      productLabel: "PyPNM-WebUI",
+      agentBrand: "PyPNM",
+      agentLabelSingular: "PyPNM Agent",
+      agentLabelPlural: "PyPNM Agents",
+      includeCableModemDefaults: true,
+    };
+  }
+  return {
+    productProfile: PRODUCT_PROFILE_PCW,
+    productLabel: "PyPNM-CMTS-WebUI",
+    agentBrand: "PyPNM-CMTS",
+    agentLabelSingular: "PyPNM-CMTS Agent",
+    agentLabelPlural: "PyPNM-CMTS Agents",
+    includeCableModemDefaults: false,
+  };
+}
+
+export function resolveProfileContext(repoRoot = "") {
+  return buildProfileContext(resolveProductProfileFromEnv(repoRoot));
+}
 
 function normalizeLogLevel(value) {
   switch (typeof value === "string" ? value.trim().toUpperCase() : "") {
@@ -88,7 +154,7 @@ function cloneValue(value) {
   return JSON.parse(JSON.stringify(value));
 }
 
-function dedupeInstances(instances, sourceLabel) {
+function dedupeInstances(instances, sourceLabel, profileContext = DEFAULT_PROFILE_CONTEXT) {
   const nextInstances = Array.isArray(instances) ? instances : [];
   const seenIds = new Set();
   const duplicateIds = new Set();
@@ -112,17 +178,17 @@ function dedupeInstances(instances, sourceLabel) {
 
   if (duplicateIds.size > 0) {
     console.warn(
-      `Duplicate ${AGENT_BRAND} agent ids found in ${sourceLabel}: ${Array.from(duplicateIds).join(", ")}. Keeping first occurrence only.`,
+      `Duplicate ${profileContext.agentBrand} agent ids found in ${sourceLabel}: ${Array.from(duplicateIds).join(", ")}. Keeping first occurrence only.`,
     );
   }
 
   return deduped;
 }
 
-function sanitizeConfig(raw, sourceLabel) {
+function sanitizeConfig(raw, sourceLabel, profileContext = DEFAULT_PROFILE_CONTEXT) {
   return {
     ...(raw ?? {}),
-    instances: dedupeInstances(raw?.instances, sourceLabel),
+    instances: dedupeInstances(raw?.instances, sourceLabel, profileContext),
   };
 }
 
@@ -148,7 +214,27 @@ function channelIdsToPromptValue(value) {
   return normalized.length === 0 ? "0" : normalized.join(",");
 }
 
-function normalizeInstance(instance, defaults) {
+function normalizeInstance(instance, defaults, profileContext = DEFAULT_PROFILE_CONTEXT) {
+  const requestDefaults = {
+    tftp: {
+      ipv4: instance?.request_defaults?.tftp?.ipv4 ?? "",
+      ipv6: instance?.request_defaults?.tftp?.ipv6 ?? "",
+    },
+    capture: {
+      channel_ids: normalizeChannelIds(instance?.request_defaults?.capture?.channel_ids),
+    },
+    snmp: {
+      rw_community: instance?.request_defaults?.snmp?.rw_community ?? "private",
+    },
+  };
+  const includeCableModemDefaults = profileContext.includeCableModemDefaults || instance?.request_defaults?.cable_modem;
+  if (includeCableModemDefaults) {
+    requestDefaults.cable_modem = {
+      mac_address: instance?.request_defaults?.cable_modem?.mac_address ?? "",
+      ip_address: instance?.request_defaults?.cable_modem?.ip_address ?? "",
+    };
+  }
+
   return {
     id: typeof instance?.id === "string" && instance.id.trim() !== "" ? instance.id.trim() : "default",
     label: typeof instance?.label === "string" && instance.label.trim() !== "" ? instance.label.trim() : "Default",
@@ -164,18 +250,7 @@ function normalizeInstance(instance, defaults) {
         ? instance.polling.interval_ms
         : defaults.poll_interval_ms,
     },
-    request_defaults: {
-      tftp: {
-        ipv4: instance?.request_defaults?.tftp?.ipv4 ?? "",
-        ipv6: instance?.request_defaults?.tftp?.ipv6 ?? "",
-      },
-      capture: {
-        channel_ids: normalizeChannelIds(instance?.request_defaults?.capture?.channel_ids),
-      },
-      snmp: {
-        rw_community: instance?.request_defaults?.snmp?.rw_community ?? "private",
-      },
-    },
+    request_defaults: requestDefaults,
   };
 }
 
@@ -245,7 +320,7 @@ export function normalizeBaseUrl(value, fallback = "http://127.0.0.1:8080") {
   return fallback;
 }
 
-export function normalizeConfig(raw) {
+export function normalizeConfig(raw, profileContext = DEFAULT_PROFILE_CONTEXT) {
   const base = cloneValue(DEFAULT_CONFIG);
   const defaults = {
     selected_instance:
@@ -268,8 +343,8 @@ export function normalizeConfig(raw) {
   };
 
   const instances = Array.isArray(raw?.instances)
-    ? raw.instances.map((instance) => normalizeInstance(instance, defaults))
-    : base.instances.map((instance) => normalizeInstance(instance, defaults));
+    ? raw.instances.map((instance) => normalizeInstance(instance, defaults, profileContext))
+    : base.instances.map((instance) => normalizeInstance(instance, defaults, profileContext));
 
   if (instances.length > 0 && !instances.some((instance) => instance.id === defaults.selected_instance)) {
     defaults.selected_instance = instances[0].id;
@@ -282,7 +357,7 @@ export function normalizeConfig(raw) {
   };
 }
 
-function validateConfig(config) {
+function validateConfig(config, profileContext = DEFAULT_PROFILE_CONTEXT) {
   if (!config || typeof config !== "object") {
     return "Config is missing or invalid.";
   }
@@ -319,6 +394,10 @@ function validateConfig(config) {
     if (!url.ok) {
       return `Invalid base_url for instance '${id}': ${url.error}`;
     }
+
+    if (!profileContext.includeCableModemDefaults && instance?.request_defaults?.cable_modem) {
+      return `request_defaults.cable_modem is not supported for profile ${profileContext.productProfile}.`;
+    }
   }
 
   const selectedId = typeof config?.defaults?.selected_instance === "string"
@@ -331,16 +410,16 @@ function validateConfig(config) {
   return null;
 }
 
-function loadConfig(configPath, fallbackPath) {
+function loadConfig(configPath, fallbackPath, profileContext = DEFAULT_PROFILE_CONTEXT) {
   if (!fs.existsSync(configPath)) {
     if (fallbackPath && fs.existsSync(fallbackPath)) {
-      const fallbackRaw = sanitizeConfig(parse(fs.readFileSync(fallbackPath, "utf8")) ?? {}, fallbackPath);
-      return normalizeConfig(fallbackRaw);
+      const fallbackRaw = sanitizeConfig(parse(fs.readFileSync(fallbackPath, "utf8")) ?? {}, fallbackPath, profileContext);
+      return normalizeConfig(fallbackRaw, profileContext);
     }
     return cloneValue(DEFAULT_CONFIG);
   }
-  const raw = sanitizeConfig(parse(fs.readFileSync(configPath, "utf8")) ?? {}, configPath);
-  return normalizeConfig(raw);
+  const raw = sanitizeConfig(parse(fs.readFileSync(configPath, "utf8")) ?? {}, configPath, profileContext);
+  return normalizeConfig(raw, profileContext);
 }
 
 function backupPathFor(configPath) {
@@ -348,8 +427,8 @@ function backupPathFor(configPath) {
   return `${configPath}.${timestamp}.bak`;
 }
 
-export function saveConfig(configPath, config) {
-  const validationError = validateConfig(config);
+export function saveConfig(configPath, config, profileContext = DEFAULT_PROFILE_CONTEXT) {
+  const validationError = validateConfig(config, profileContext);
   if (validationError) {
     throw new Error(validationError);
   }
@@ -364,16 +443,16 @@ export function saveConfig(configPath, config) {
   fs.writeFileSync(configPath, nextContent, "utf8");
 }
 
-export function ensureLocalRuntimeConfig(configPath, fallbackPath) {
+export function ensureLocalRuntimeConfig(configPath, fallbackPath, profileContext = DEFAULT_PROFILE_CONTEXT) {
   if (fs.existsSync(configPath)) {
     return {
-      config: loadConfig(configPath, fallbackPath),
+      config: loadConfig(configPath, fallbackPath, profileContext),
       generated: false,
     };
   }
 
-  const config = loadConfig(configPath, fallbackPath);
-  saveConfig(configPath, config);
+  const config = loadConfig(configPath, fallbackPath, profileContext);
+  saveConfig(configPath, config, profileContext);
   return {
     config,
     generated: true,
@@ -385,11 +464,14 @@ function printConfig(configPath, config) {
   process.stdout.write(`${stringify(config, { indent: 2 })}\n`);
 }
 
-export function buildRuntimeConfigSchemaExample() {
+export function buildRuntimeConfigSchemaExample(profileContext = DEFAULT_PROFILE_CONTEXT) {
+  const selectedInstance = profileContext.productProfile === PRODUCT_PROFILE_PCW
+    ? "pypnm-cmts-agent-1"
+    : "pypnm-agent-1";
   return {
     version: 1,
     defaults: {
-      selected_instance: "pypnm-agent-1",
+      selected_instance: selectedInstance,
       poll_interval_ms: 5000,
       request_timeout_ms: 30000,
       health_path: "/health",
@@ -401,34 +483,43 @@ export function buildRuntimeConfigSchemaExample() {
   };
 }
 
-function printRuntimeConfigSchema() {
+function printRuntimeConfigSchema(profileContext = DEFAULT_PROFILE_CONTEXT) {
   process.stdout.write("\nRuntime Config Schema (Minimal)\n===============================\n");
-  process.stdout.write(`${stringify(buildRuntimeConfigSchemaExample(), { indent: 2 })}\n`);
-  process.stdout.write(
-    [
-      "Optional instance entry shape:",
-      "- id: pypnm-agent-1",
-      "  label: pypnm-agent-1",
-      "  base_url: http://127.0.0.1:8000",
-      "  enabled: true",
-      "  tags: []",
-      "  capabilities:",
-      "    - health",
-      "    - analysis",
-      "  polling:",
-      "    enabled: true",
-      "    interval_ms: 5000",
-      "  request_defaults:",
-      "    tftp:",
-      "      ipv4: \"\"",
-      "      ipv6: \"\"",
-      "    capture:",
-      "      channel_ids: []",
-      "    snmp:",
-      "      rw_community: private",
-      "",
-    ].join("\n"),
+  process.stdout.write(`Profile: ${profileContext.productLabel}\n`);
+  process.stdout.write(`${stringify(buildRuntimeConfigSchemaExample(profileContext), { indent: 2 })}\n`);
+  const schemaLines = [
+    "Optional instance entry shape:",
+    "- id: pypnm-agent-1",
+    "  label: pypnm-agent-1",
+    "  base_url: http://127.0.0.1:8000",
+    "  enabled: true",
+    "  tags: []",
+    "  capabilities:",
+    "    - health",
+    "    - analysis",
+    "  polling:",
+    "    enabled: true",
+    "    interval_ms: 5000",
+    "  request_defaults:",
+  ];
+  if (profileContext.includeCableModemDefaults) {
+    schemaLines.push(
+      "    cable_modem:",
+      "      mac_address: \"\"",
+      "      ip_address: \"\"",
+    );
+  }
+  schemaLines.push(
+    "    tftp:",
+    "      ipv4: \"\"",
+    "      ipv6: \"\"",
+    "    capture:",
+    "      channel_ids: []",
+    "    snmp:",
+    "      rw_community: private",
+    "",
   );
+  process.stdout.write(`${schemaLines.join("\n")}`);
 }
 
 function slugifyId(value) {
@@ -552,8 +643,8 @@ async function editRuntimeDefaults(rl, config) {
   }
 }
 
-async function addAgent(rl, config) {
-  process.stdout.write(`\nAdd ${AGENT_LABEL_SINGULAR}\n===============\n`);
+async function addAgent(rl, config, profileContext = DEFAULT_PROFILE_CONTEXT) {
+  process.stdout.write(`\nAdd ${profileContext.agentLabelSingular}\n===============\n`);
   const hadNoInstances = config.instances.length === 0;
   const label = await promptLine(rl, "Agent label", "");
   const id = await promptLine(rl, "Agent id", slugifyId(label));
@@ -567,6 +658,12 @@ async function addAgent(rl, config) {
   const tftpIpv6 = await promptLine(rl, "Default TFTP IPv6", "");
   const channelIds = await promptLine(rl, "Default channel ids (0 means all)", "0");
   const snmpRwCommunity = await promptLine(rl, "Default SNMP RW community", "private");
+  const cableModemMac = profileContext.includeCableModemDefaults
+    ? await promptLine(rl, "Default cable modem MAC", "")
+    : "";
+  const cableModemIp = profileContext.includeCableModemDefaults
+    ? await promptLine(rl, "Default cable modem IP", "")
+    : "";
 
   const existingIndex = config.instances.findIndex((instance) => instance.id === id);
   if (hasReservedLocalAgent(config) && id === RESERVED_LOCAL_AGENT_ID) {
@@ -575,6 +672,25 @@ async function addAgent(rl, config) {
     );
     return;
   }
+  const requestDefaults = {
+    tftp: {
+      ipv4: tftpIpv4,
+      ipv6: tftpIpv6,
+    },
+    capture: {
+      channel_ids: normalizeChannelIds(channelIds),
+    },
+    snmp: {
+      rw_community: snmpRwCommunity,
+    },
+  };
+  if (profileContext.includeCableModemDefaults) {
+    requestDefaults.cable_modem = {
+      mac_address: cableModemMac,
+      ip_address: cableModemIp,
+    };
+  }
+
   const agent = {
     id,
     label: label || id,
@@ -586,18 +702,7 @@ async function addAgent(rl, config) {
       enabled: pollingEnabled,
       interval_ms: pollingInterval,
     },
-    request_defaults: {
-      tftp: {
-        ipv4: tftpIpv4,
-        ipv6: tftpIpv6,
-      },
-      capture: {
-        channel_ids: normalizeChannelIds(channelIds),
-      },
-      snmp: {
-        rw_community: snmpRwCommunity,
-      },
-    },
+    request_defaults: requestDefaults,
   };
 
   if (existingIndex >= 0) {
@@ -611,7 +716,7 @@ async function addAgent(rl, config) {
   }
 }
 
-async function editAgent(rl, config) {
+async function editAgent(rl, config, profileContext = DEFAULT_PROFILE_CONTEXT) {
   if (config.instances.length === 0) {
     process.stdout.write("No agents configured.\n");
     return;
@@ -658,6 +763,17 @@ async function editAgent(rl, config) {
   instance.capabilities = await promptCsv(rl, "Capabilities (comma-separated)", instance.capabilities);
   instance.polling.enabled = await promptBoolean(rl, "Polling enabled", instance.polling.enabled);
   instance.polling.interval_ms = await promptNumber(rl, "Polling interval ms", instance.polling.interval_ms);
+  if (profileContext.includeCableModemDefaults || instance.request_defaults?.cable_modem) {
+    const existingCableModem = instance.request_defaults?.cable_modem ?? { mac_address: "", ip_address: "" };
+    instance.request_defaults.cable_modem = {
+      mac_address: await promptLine(rl, "Default cable modem MAC", existingCableModem.mac_address ?? ""),
+      ip_address: await promptLine(rl, "Default cable modem IP", existingCableModem.ip_address ?? ""),
+    };
+  } else {
+    if (instance.request_defaults && typeof instance.request_defaults === "object") {
+      delete instance.request_defaults.cable_modem;
+    }
+  }
   instance.request_defaults.tftp.ipv4 = await promptLine(
     rl,
     "Default TFTP IPv4",
@@ -715,11 +831,11 @@ async function deleteAgent(rl, config) {
   }
 }
 
-async function manageAgents(rl, config, configPath) {
+async function manageAgents(rl, config, configPath, profileContext = DEFAULT_PROFILE_CONTEXT) {
   while (true) {
     process.stdout.write(
       [
-        `\n${AGENT_LABEL_PLURAL}`,
+        `\n${profileContext.agentLabelPlural}`,
         "============",
         "1) Add agent",
         "2) Edit agent",
@@ -735,9 +851,9 @@ async function manageAgents(rl, config, configPath) {
       return;
     }
     if (choice === "1") {
-      await addAgent(rl, config);
+      await addAgent(rl, config, profileContext);
       try {
-        saveConfig(configPath, config);
+        saveConfig(configPath, config, profileContext);
         process.stdout.write(`Saved ${configPath}\n`);
       } catch (error) {
         process.stdout.write(`Config validation failed: ${error instanceof Error ? error.message : String(error)}\n`);
@@ -745,9 +861,9 @@ async function manageAgents(rl, config, configPath) {
       continue;
     }
     if (choice === "2") {
-      await editAgent(rl, config);
+      await editAgent(rl, config, profileContext);
       try {
-        saveConfig(configPath, config);
+        saveConfig(configPath, config, profileContext);
         process.stdout.write(`Saved ${configPath}\n`);
       } catch (error) {
         process.stdout.write(`Config validation failed: ${error instanceof Error ? error.message : String(error)}\n`);
@@ -757,7 +873,7 @@ async function manageAgents(rl, config, configPath) {
     if (choice === "3") {
       await deleteAgent(rl, config);
       try {
-        saveConfig(configPath, config);
+        saveConfig(configPath, config, profileContext);
         process.stdout.write(`Saved ${configPath}\n`);
       } catch (error) {
         process.stdout.write(`Config validation failed: ${error instanceof Error ? error.message : String(error)}\n`);
@@ -769,7 +885,7 @@ async function manageAgents(rl, config, configPath) {
       continue;
     }
     if (choice === "s") {
-      printRuntimeConfigSchema();
+      printRuntimeConfigSchema(profileContext);
       continue;
     }
     process.stdout.write("Invalid selection.\n");
@@ -783,9 +899,10 @@ export async function runConfigMenu(metaUrl) {
   }
 
   const repoRoot = repoRootFromModule(metaUrl);
+  const profileContext = resolveProfileContext(repoRoot);
   const configPath = configPathFromRepoRoot(repoRoot);
   const templatePath = templateConfigPathFromRepoRoot(repoRoot);
-  const config = loadConfig(configPath, templatePath);
+  const config = loadConfig(configPath, templatePath, profileContext);
   const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout,
@@ -795,10 +912,10 @@ export async function runConfigMenu(metaUrl) {
     while (true) {
       process.stdout.write(
         [
-          "\nPyPNM-CMTS-WebUI Config Menu",
-          "============================",
+          `\n${profileContext.productLabel} Config Menu`,
+          "==============================",
           "1) Edit runtime defaults",
-          "2) Manage PyPNM-CMTS agents",
+          `2) Manage ${profileContext.agentBrand} agents`,
           "s) Show local runtime YAML schema",
           "p) Print current pypnm-instances.local.yaml",
           "q) Quit",
@@ -814,7 +931,7 @@ export async function runConfigMenu(metaUrl) {
       if (choice === "1") {
         await editRuntimeDefaults(rl, config);
         try {
-          saveConfig(configPath, config);
+          saveConfig(configPath, config, profileContext);
           process.stdout.write(`Saved ${configPath}\n`);
         } catch (error) {
           process.stdout.write(`Config validation failed: ${error instanceof Error ? error.message : String(error)}\n`);
@@ -822,7 +939,7 @@ export async function runConfigMenu(metaUrl) {
         continue;
       }
       if (choice === "2") {
-        await manageAgents(rl, config, configPath);
+        await manageAgents(rl, config, configPath, profileContext);
         continue;
       }
       if (choice === "p") {
@@ -830,7 +947,7 @@ export async function runConfigMenu(metaUrl) {
         continue;
       }
       if (choice === "s") {
-        printRuntimeConfigSchema();
+        printRuntimeConfigSchema(profileContext);
         continue;
       }
       process.stdout.write("Invalid selection.\n");

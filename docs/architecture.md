@@ -131,6 +131,12 @@ Runtime template selection is profile-aware:
 - `public/config/templates/pcw/pypnm-instances.yaml`
 - copied to `public/config/pypnm-instances.yaml` before runtime local merge
 
+Config editing is also profile-aware:
+
+- `config-menu` resolves profile from `.env`
+- menu branding switches between PyPNM and PyPNM-CMTS naming
+- schema preview and request-default validation are profile-scoped
+
 ```mermaid
 flowchart TD
   A[install.sh flags] --> B{Select profile}

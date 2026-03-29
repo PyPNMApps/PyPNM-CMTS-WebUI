@@ -1,4 +1,14 @@
 export function normalizeChannelIds(value: unknown): number[];
+export function parseProductProfile(value: unknown): "pypnm-webui" | "pypnm-cmts-webui" | "";
+export function resolveProductProfileFromEnv(repoRoot?: string): "pypnm-webui" | "pypnm-cmts-webui";
+export function resolveProfileContext(repoRoot?: string): {
+  productProfile: "pypnm-webui" | "pypnm-cmts-webui";
+  productLabel: string;
+  agentBrand: string;
+  agentLabelSingular: string;
+  agentLabelPlural: string;
+  includeCableModemDefaults: boolean;
+};
 export function tryNormalizeBaseUrl(value: unknown): {
   ok: true;
   value: string;
@@ -15,7 +25,14 @@ export function configPathFromRepoRoot(repoRoot: string): string;
 
 export function templateConfigPathFromRepoRoot(repoRoot: string): string;
 
-export function buildRuntimeConfigSchemaExample(): {
+export function buildRuntimeConfigSchemaExample(profileContext?: {
+  productProfile: "pypnm-webui" | "pypnm-cmts-webui";
+  productLabel: string;
+  agentBrand: string;
+  agentLabelSingular: string;
+  agentLabelPlural: string;
+  includeCableModemDefaults: boolean;
+}): {
   version: number;
   defaults: {
     selected_instance: string;
@@ -38,6 +55,10 @@ export function buildRuntimeConfigSchemaExample(): {
       interval_ms: number;
     };
     request_defaults: {
+      cable_modem?: {
+        mac_address: string;
+        ip_address: string;
+      };
       tftp: {
         ipv4: string;
         ipv6: string;
@@ -52,7 +73,14 @@ export function buildRuntimeConfigSchemaExample(): {
   }>;
 };
 
-export function normalizeConfig(raw: unknown): {
+export function normalizeConfig(raw: unknown, profileContext?: {
+  productProfile: "pypnm-webui" | "pypnm-cmts-webui";
+  productLabel: string;
+  agentBrand: string;
+  agentLabelSingular: string;
+  agentLabelPlural: string;
+  includeCableModemDefaults: boolean;
+}): {
   version: number;
   defaults: {
     selected_instance: string;
@@ -75,6 +103,10 @@ export function normalizeConfig(raw: unknown): {
       interval_ms: number;
     };
     request_defaults: {
+      cable_modem?: {
+        mac_address: string;
+        ip_address: string;
+      };
       tftp: {
         ipv4: string;
         ipv6: string;
@@ -120,6 +152,10 @@ export function saveConfig(
         interval_ms: number;
       };
       request_defaults: {
+        cable_modem?: {
+          mac_address: string;
+          ip_address: string;
+        };
         tftp: {
           ipv4: string;
           ipv6: string;
@@ -133,11 +169,27 @@ export function saveConfig(
       };
     }>;
   },
+  profileContext?: {
+    productProfile: "pypnm-webui" | "pypnm-cmts-webui";
+    productLabel: string;
+    agentBrand: string;
+    agentLabelSingular: string;
+    agentLabelPlural: string;
+    includeCableModemDefaults: boolean;
+  },
 ): void;
 
 export function ensureLocalRuntimeConfig(
   configPath: string,
   fallbackPath?: string,
+  profileContext?: {
+    productProfile: "pypnm-webui" | "pypnm-cmts-webui";
+    productLabel: string;
+    agentBrand: string;
+    agentLabelSingular: string;
+    agentLabelPlural: string;
+    includeCableModemDefaults: boolean;
+  },
 ): {
   config: {
     version: number;
@@ -162,6 +214,10 @@ export function ensureLocalRuntimeConfig(
         interval_ms: number;
       };
       request_defaults: {
+        cable_modem?: {
+          mac_address: string;
+          ip_address: string;
+        };
         tftp: {
           ipv4: string;
           ipv6: string;
