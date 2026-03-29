@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useInstanceConfig } from "@/app/useInstanceConfig";
 import { CableModemDetailsModal } from "@/components/common/CableModemDetailsModal";
+import { operationsMenuNavigationItems } from "@/pw/features/operations/operationsNavigation";
 import {
   getServingGroupCableModems,
   type ServingGroupCableModemRow,
@@ -64,6 +65,22 @@ export function CmtsSingleCaptureDashboardPage() {
   const [heavyPollingEnabled, setHeavyPollingEnabled] = useState(false);
   const [detailsRow, setDetailsRow] = useState<ServingGroupCableModemRow | null>(null);
   const [rowActionByKey, setRowActionByKey] = useState<Record<string, RowAction>>({});
+  const [operationPickerRow, setOperationPickerRow] = useState<ServingGroupCableModemRow | null>(null);
+
+  const operationMenuGroups = useMemo(() => {
+    const levelOneEntries = [...new Set(operationsMenuNavigationItems.map((item) => item.menuPath[0]))];
+    return levelOneEntries.map((levelOne) => {
+      const levelOneItems = operationsMenuNavigationItems.filter((item) => item.menuPath[0] === levelOne);
+      const levelTwoEntries = [...new Set(levelOneItems.map((item) => item.menuPath[1]))];
+      return {
+        levelOne,
+        levelTwoGroups: levelTwoEntries.map((levelTwo) => ({
+          levelTwo,
+          items: levelOneItems.filter((item) => item.menuPath[1] === levelTwo),
+        })),
+      };
+    });
+  }, []);
 
   async function refreshCableModems(mode: "light" | "heavy") {
     if (!selectedInstance?.baseUrl) {
@@ -128,7 +145,7 @@ export function CmtsSingleCaptureDashboardPage() {
     return sortDirection === "asc" ? " ▲" : " ▼";
   }
 
-  function openSingleCaptureOperation(row: ServingGroupCableModemRow) {
+  function persistSelectedModemContext(row: ServingGroupCableModemRow) {
     saveSelectedModemContext({
       sgId: row.sgId,
       macAddress: row.macAddress,
@@ -137,42 +154,33 @@ export function CmtsSingleCaptureDashboardPage() {
       channelIds: row.channelIds,
       selectedAtEpochMs: Date.now(),
     });
+  }
+
+  function openSingleCaptureOperation(row: ServingGroupCableModemRow) {
+    persistSelectedModemContext(row);
     navigate("/single-capture/rxmer");
   }
 
   function openAdvancedOperation(row: ServingGroupCableModemRow) {
-    saveSelectedModemContext({
-      sgId: row.sgId,
-      macAddress: row.macAddress,
-      ipAddress: row.ipAddress,
-      snmpCommunity: selectedInstance?.requestDefaults?.snmpRwCommunity ?? "private",
-      channelIds: row.channelIds,
-      selectedAtEpochMs: Date.now(),
-    });
+    persistSelectedModemContext(row);
     navigate("/advanced/rxmer");
   }
 
   function openOperationsRoute(row: ServingGroupCableModemRow) {
-    saveSelectedModemContext({
-      sgId: row.sgId,
-      macAddress: row.macAddress,
-      ipAddress: row.ipAddress,
-      snmpCommunity: selectedInstance?.requestDefaults?.snmpRwCommunity ?? "private",
-      channelIds: row.channelIds,
-      selectedAtEpochMs: Date.now(),
-    });
-    navigate("/operations/if31-docsis-base-capability");
+    setOperationPickerRow(row);
+  }
+
+  function openOperationFromPicker(routePath: string) {
+    if (!operationPickerRow) {
+      return;
+    }
+    persistSelectedModemContext(operationPickerRow);
+    setOperationPickerRow(null);
+    navigate(routePath);
   }
 
   function openSpectrumAnalyzerRoute(row: ServingGroupCableModemRow) {
-    saveSelectedModemContext({
-      sgId: row.sgId,
-      macAddress: row.macAddress,
-      ipAddress: row.ipAddress,
-      snmpCommunity: selectedInstance?.requestDefaults?.snmpRwCommunity ?? "private",
-      channelIds: row.channelIds,
-      selectedAtEpochMs: Date.now(),
-    });
+    persistSelectedModemContext(row);
     navigate("/single-capture/spectrum-analyzer/friendly");
   }
 
@@ -351,6 +359,51 @@ export function CmtsSingleCaptureDashboardPage() {
         </div>
       </article>
       <CableModemDetailsModal details={detailsRow} onClose={() => setDetailsRow(null)} />
+      {operationPickerRow ? (
+        <div
+          className="selection-insights-modal-overlay"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="single-capture-operation-picker-title"
+          onClick={() => setOperationPickerRow(null)}
+        >
+          <div className="selection-insights-modal-card" onClick={(event) => event.stopPropagation()}>
+            <div className="selection-insights-modal-header">
+              <h3 id="single-capture-operation-picker-title" className="selection-insights-modal-title">Pick Operation</h3>
+              <button type="button" className="selection-insights-modal-close" onClick={() => setOperationPickerRow(null)}>
+                Close
+              </button>
+            </div>
+            <p className="panel-copy">
+              {operationPickerRow.macAddress} · {operationPickerRow.ipAddress}
+            </p>
+            <div className="operations-menu-columns">
+              {operationMenuGroups.map((group) => (
+                <section key={group.levelOne} className="operations-menu-column">
+                  <div className="operations-menu-heading">{group.levelOne}</div>
+                  {group.levelTwoGroups.map((subgroup) => (
+                    <div key={`${group.levelOne}-${subgroup.levelTwo}`} className="operations-menu-group">
+                      <div className="operations-menu-subheading">{subgroup.levelTwo}</div>
+                      <div className="operations-menu-links">
+                        {subgroup.items.map((item) => (
+                          <button
+                            key={item.id}
+                            type="button"
+                            className="operations-menu-link operation-picker-link-button"
+                            onClick={() => openOperationFromPicker(item.routePath)}
+                          >
+                            <span>{item.label}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </section>
+              ))}
+            </div>
+          </div>
+        </div>
+      ) : null}
     </>
   );
 }

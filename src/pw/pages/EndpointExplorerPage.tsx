@@ -149,7 +149,8 @@ export function EndpointExplorerPage() {
   const [spectrumScqamResponse, setSpectrumScqamResponse] = useState<SingleSpectrumScqamCaptureResponse | null>(null);
   const selectedOperation = useMemo(() => {
     if (isOperationExplorerRoute && operationId) {
-      return operationNavigationItems.find((item) => item.id === operationId) ?? null;
+      const routePath = `/operations/${operationId}`;
+      return operationNavigationItems.find((item) => item.id === operationId || item.routePath === routePath) ?? null;
     }
     return getOperationByRoutePath(location.pathname) ?? null;
   }, [isOperationExplorerRoute, location.pathname, operationId]);
