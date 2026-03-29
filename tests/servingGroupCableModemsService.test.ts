@@ -5,7 +5,7 @@ vi.mock("../src/services/http", () => ({
 }));
 
 import * as httpModule from "../src/services/http";
-import { getServingGroupCableModems } from "../src/services/servingGroupCableModemsService";
+import { getServingGroupCableModems } from "../src/pcw/services/servingGroupCableModemsService";
 
 describe("servingGroupCableModemsService", () => {
   it("calls endpoint with light refresh by default and normalizes rows", async () => {

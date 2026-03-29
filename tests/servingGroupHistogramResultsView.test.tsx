@@ -2,7 +2,7 @@
 
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { ServingGroupHistogramResultsView } from "../src/features/serving-group/components/ServingGroupHistogramResultsView";
+import { ServingGroupHistogramResultsView } from "../src/pcw/features/serving-group/components/ServingGroupHistogramResultsView";
 
 describe("ServingGroupHistogramResultsView", () => {
   it("renders a flat combined preview with foldable modem filter and row preview", () => {

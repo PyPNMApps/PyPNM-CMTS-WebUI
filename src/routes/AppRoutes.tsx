@@ -7,37 +7,37 @@ const AboutPage = lazy(() =>
   import("@/pages/AboutPage").then((module) => ({ default: module.AboutPage })),
 );
 const CmtsSgRxMerWorkflowPage = lazy(() =>
-  import("@/pages/CmtsSgRxMerWorkflowPage").then((module) => ({ default: module.CmtsSgRxMerWorkflowPage })),
+  import("@/pcw/pages/CmtsSgRxMerWorkflowPage").then((module) => ({ default: module.CmtsSgRxMerWorkflowPage })),
 );
 const CmtsSgChannelEstCoeffWorkflowPage = lazy(() =>
-  import("@/pages/CmtsSgChannelEstCoeffWorkflowPage").then((module) => ({ default: module.CmtsSgChannelEstCoeffWorkflowPage })),
+  import("@/pcw/pages/CmtsSgChannelEstCoeffWorkflowPage").then((module) => ({ default: module.CmtsSgChannelEstCoeffWorkflowPage })),
 );
 const CmtsSgFecSummaryWorkflowPage = lazy(() =>
-  import("@/pages/CmtsSgFecSummaryWorkflowPage").then((module) => ({ default: module.CmtsSgFecSummaryWorkflowPage })),
+  import("@/pcw/pages/CmtsSgFecSummaryWorkflowPage").then((module) => ({ default: module.CmtsSgFecSummaryWorkflowPage })),
 );
 const CmtsSgConstellationDisplayWorkflowPage = lazy(() =>
-  import("@/pages/CmtsSgConstellationDisplayWorkflowPage").then((module) => ({ default: module.CmtsSgConstellationDisplayWorkflowPage })),
+  import("@/pcw/pages/CmtsSgConstellationDisplayWorkflowPage").then((module) => ({ default: module.CmtsSgConstellationDisplayWorkflowPage })),
 );
 const CmtsSgModulationProfileWorkflowPage = lazy(() =>
-  import("@/pages/CmtsSgModulationProfileWorkflowPage").then((module) => ({ default: module.CmtsSgModulationProfileWorkflowPage })),
+  import("@/pcw/pages/CmtsSgModulationProfileWorkflowPage").then((module) => ({ default: module.CmtsSgModulationProfileWorkflowPage })),
 );
 const CmtsSgHistogramWorkflowPage = lazy(() =>
-  import("@/pages/CmtsSgHistogramWorkflowPage").then((module) => ({ default: module.CmtsSgHistogramWorkflowPage })),
+  import("@/pcw/pages/CmtsSgHistogramWorkflowPage").then((module) => ({ default: module.CmtsSgHistogramWorkflowPage })),
 );
 const CmtsSpectrumFriendlyWorkflowPage = lazy(() =>
-  import("@/pages/CmtsSpectrumFriendlyWorkflowPage").then((module) => ({ default: module.CmtsSpectrumFriendlyWorkflowPage })),
+  import("@/pcw/pages/CmtsSpectrumFriendlyWorkflowPage").then((module) => ({ default: module.CmtsSpectrumFriendlyWorkflowPage })),
 );
 const CmtsSingleCaptureDashboardPage = lazy(() =>
-  import("@/pages/CmtsSingleCaptureDashboardPage").then((module) => ({ default: module.CmtsSingleCaptureDashboardPage })),
+  import("@/pcw/pages/CmtsSingleCaptureDashboardPage").then((module) => ({ default: module.CmtsSingleCaptureDashboardPage })),
 );
 const AdvancedPage = lazy(() =>
-  import("@/pages/AdvancedPage").then((module) => ({ default: module.AdvancedPage })),
+  import("@/pw/pages/AdvancedPage").then((module) => ({ default: module.AdvancedPage })),
 );
 const AnalysisViewerPage = lazy(() =>
-  import("@/pages/AnalysisViewerPage").then((module) => ({ default: module.AnalysisViewerPage })),
+  import("@/pw/pages/AnalysisViewerPage").then((module) => ({ default: module.AnalysisViewerPage })),
 );
 const EndpointExplorerPage = lazy(() =>
-  import("@/pages/EndpointExplorerPage").then((module) => ({ default: module.EndpointExplorerPage })),
+  import("@/pw/pages/EndpointExplorerPage").then((module) => ({ default: module.EndpointExplorerPage })),
 );
 const FileListPage = lazy(() =>
   import("@/pages/FileListPage").then((module) => ({ default: module.FileListPage })),

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import { buildCombinedSeries, summarizeAnalysis, summarizeChannel } from "@/features/analysis/analysisViewModel";
-import { rxmerEchoFixture } from "@/features/analysis/fixtures/rxmerEchoFixture";
+import { buildCombinedSeries, summarizeAnalysis, summarizeChannel } from "@/pw/features/analysis/analysisViewModel";
+import { rxmerEchoFixture } from "@/pw/features/analysis/fixtures/rxmerEchoFixture";
 
 describe("analysisViewModel", () => {
   it("summarizes channel metrics from averaged RxMER values", () => {

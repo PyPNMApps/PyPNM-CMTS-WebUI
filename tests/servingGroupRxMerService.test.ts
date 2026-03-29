@@ -10,7 +10,7 @@ import {
   getServingGroupRxMerCaptureStatus,
   getServingGroupRxMerResults,
   startServingGroupRxMerCapture,
-} from "../src/services/servingGroupRxMerService";
+} from "../src/pcw/services/servingGroupRxMerService";
 
 describe("servingGroupRxMerService", () => {
   it("calls startCapture with POST and payload", async () => {

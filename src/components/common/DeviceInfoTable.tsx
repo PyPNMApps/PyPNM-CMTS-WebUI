@@ -1,4 +1,4 @@
-import type { DeviceInfo } from "@/features/analysis/types";
+import type { DeviceInfo } from "@/pw/features/analysis/types";
 
 interface DeviceInfoTableProps {
   deviceInfo: DeviceInfo;

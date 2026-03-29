@@ -11,7 +11,7 @@ vi.mock("@/components/layout/InstanceSelector", () => ({
   InstanceSelector: () => <div>Instance Selector</div>,
 }));
 
-vi.mock("@/features/operations/components/OperationsMenu", () => ({
+vi.mock("@/pw/features/operations/components/OperationsMenu", () => ({
   OperationsMenu: () => <button type="button">Operations</button>,
 }));
 

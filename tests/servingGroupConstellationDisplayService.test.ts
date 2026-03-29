@@ -10,7 +10,7 @@ import {
   getServingGroupConstellationDisplayCaptureStatus,
   getServingGroupConstellationDisplayResults,
   startServingGroupConstellationDisplayCapture,
-} from "../src/services/servingGroupConstellationDisplayService";
+} from "../src/pcw/services/servingGroupConstellationDisplayService";
 
 describe("servingGroupConstellationDisplayService", () => {
   it("calls startCapture with POST and payload", async () => {

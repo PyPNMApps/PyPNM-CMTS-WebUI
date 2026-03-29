@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { normalizeServingGroupHistogramResultsPayload } from "../src/features/serving-group/lib/histogramResults";
+import { normalizeServingGroupHistogramResultsPayload } from "../src/pcw/features/serving-group/lib/histogramResults";
 
 describe("normalizeServingGroupHistogramResultsPayload", () => {
   it("normalizes SG histogram results into flat modem visuals and missing rows", () => {

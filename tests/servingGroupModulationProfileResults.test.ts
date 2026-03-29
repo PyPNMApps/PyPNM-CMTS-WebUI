@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { normalizeServingGroupModulationProfileResultsPayload } from "../src/features/serving-group/lib/modulationProfileResults";
+import { normalizeServingGroupModulationProfileResultsPayload } from "../src/pcw/features/serving-group/lib/modulationProfileResults";
 
 describe("normalizeServingGroupModulationProfileResultsPayload", () => {
   it("normalizes SG modulation-profile results into chart-friendly groups/channels/modems", () => {

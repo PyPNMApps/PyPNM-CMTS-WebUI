@@ -59,11 +59,14 @@
 ## Architecture Constraints (Required)
 
 - Keep a clean split between:
-  - `features/` (workflow modules)
+  - `pcw/` (CMTS-specific workflows and integrations)
+  - `pw/` (PW-derived shared workflows and views)
   - `components/` (reusable UI)
-  - `services/` (API integrations)
+  - `services/` (shared infrastructure integrations)
   - `types/` (contracts)
   - `lib/` (pure utilities)
+- Do not place new workflow code under legacy flat paths such as
+  `src/features/*` or `src/pages/Cmts*`; use `src/pcw/*` and `src/pw/*`.
 - Keep presentational components free of API side effects when practical.
 - Put endpoint-specific logic inside feature modules, not global app shell.
 - Keep shared visual primitives generic: device context tables, epoch-to-UTC formatting, frequency-range formatting, and numeric summary helpers belong in common modules, not in endpoint-specific components.

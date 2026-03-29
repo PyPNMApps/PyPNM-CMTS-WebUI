@@ -10,7 +10,7 @@ import {
   getServingGroupHistogramCaptureStatus,
   getServingGroupHistogramResults,
   startServingGroupHistogramCapture,
-} from "../src/services/servingGroupHistogramService";
+} from "../src/pcw/services/servingGroupHistogramService";
 
 describe("servingGroupHistogramService", () => {
   it("calls startCapture with POST and payload", async () => {

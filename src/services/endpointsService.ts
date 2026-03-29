@@ -1,4 +1,4 @@
-import { parseOpenApiEndpoints } from "@/features/endpoint-explorer/openApi";
+import { parseOpenApiEndpoints } from "@/pw/features/endpoint-explorer/openApi";
 import { requestWithBaseUrl } from "@/services/http";
 import type { EndpointDescriptor } from "@/types/api";
 

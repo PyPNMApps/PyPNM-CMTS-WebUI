@@ -6,7 +6,7 @@ import { PageHeader } from "@/components/common/PageHeader";
 import { FieldLabel } from "@/components/common/FieldLabel";
 import { Panel } from "@/components/common/Panel";
 import { ThinkingIndicator } from "@/components/common/ThinkingIndicator";
-import { requestFieldHints } from "@/features/operations/requestFieldHints";
+import { requestFieldHints } from "@/pw/features/operations/requestFieldHints";
 import { formatEpochSecondsUtc } from "@/lib/formatters/dateTime";
 import { storeFileAnalysisRecord, toFileAnalysisStorageKey } from "@/lib/fileAnalysis";
 import { storeFileHexdumpRecord, toFileHexdumpStorageKey } from "@/lib/fileHexdump";

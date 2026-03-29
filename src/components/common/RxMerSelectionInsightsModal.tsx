@@ -1,4 +1,4 @@
-import { HistogramBarChart } from "@/features/operations/HistogramBarChart";
+import { HistogramBarChart } from "@/pw/features/operations/HistogramBarChart";
 import type { RxMerSelectionInsights } from "@/lib/rxMerSelectionInsights";
 
 export interface RxMerSelectionModalState {

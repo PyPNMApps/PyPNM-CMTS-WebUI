@@ -10,23 +10,34 @@
 ## Current MVP UI surfaces
 
 - `Serving Group` (RxMER first operation)
+- `SingleCapture`
+- `Spectrum Analyzer`
 - `Health`
 - `Settings`
 - `About`
 
 ## Source layout
 
-- `src/pages`: route-level pages
-- `src/features`: workflow-specific modules
+- `src/pcw`: CMTS-specific UI/workflow code
+- `src/pw`: PW-derived shared UI/workflow code
 - `src/components/common`: reusable UI pieces
-- `src/services`: endpoint clients
+- `src/services`: shared infrastructure services (`http`, `health`, `files`, etc.)
 - `src/types`: request/response contracts
 - `src/lib`: pure shared helpers
 
+### Namespaced split
+
+- `src/pcw/pages`: CMTS workflow pages (`Cmts*`)
+- `src/pcw/features`: CMTS feature modules (`serving-group`, `spectrum-analyzer`)
+- `src/pcw/services`: CMTS endpoint services (`servingGroup*`)
+- `src/pw/pages`: PW-style explorer/analysis pages
+- `src/pw/features`: PW-derived features (`operations`, `advanced`, `analysis`, `single-capture`)
+- `src/pw/services`: PW-style capture and advanced services
+
 ## Serving Group RxMER architecture
 
-- route page: `CmtsSgRxMerWorkflowPage`
-- reusable request form: `ServingGroupCaptureRequestForm`
+- route page: `src/pcw/pages/CmtsSgRxMerWorkflowPage.tsx`
+- reusable request form: `src/pcw/features/serving-group/components/ServingGroupCaptureRequestForm.tsx`
 - API transport: `requestWithBaseUrl` in `src/services/http.ts`
 - runtime instance selection from YAML via app provider
 

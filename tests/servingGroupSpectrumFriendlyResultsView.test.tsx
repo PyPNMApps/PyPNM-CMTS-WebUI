@@ -2,7 +2,7 @@
 
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { ServingGroupSpectrumFriendlyResultsView } from "../src/features/spectrum-analyzer/components/ServingGroupSpectrumFriendlyResultsView";
+import { ServingGroupSpectrumFriendlyResultsView } from "../src/pcw/features/spectrum-analyzer/components/ServingGroupSpectrumFriendlyResultsView";
 
 describe("ServingGroupSpectrumFriendlyResultsView", () => {
   it("renders friendly linkage summary chips and record table", () => {

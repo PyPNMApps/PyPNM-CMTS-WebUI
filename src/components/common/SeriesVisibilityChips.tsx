@@ -1,4 +1,4 @@
-import type { ChartSeries } from "@/features/analysis/types";
+import type { ChartSeries } from "@/pw/features/analysis/types";
 
 export function SeriesVisibilityChips({
   series,

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildZoomedYDomain } from "../src/features/serving-group/components/ServingGroupChannelEstCoeffResultsView";
+import { buildZoomedYDomain } from "../src/pcw/features/serving-group/components/ServingGroupChannelEstCoeffResultsView";
 
 describe("buildZoomedYDomain", () => {
   it("builds a y-domain from selected x-range with 15% margin", () => {

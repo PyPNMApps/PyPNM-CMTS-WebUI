@@ -20,6 +20,13 @@
 
 Frontend-only web client for CMTS-facing REST APIs.
 
+## Source structure
+
+- `src/pcw`: CMTS-specific workflows, pages, and services
+- `src/pw`: PW-derived shared explorer/analysis/capture modules
+- `src/components/common`: shared UI primitives
+- `src/services`: shared infra services (HTTP, health, files, etc.)
+
 ## Requirements
 
 - Linux, validated on:

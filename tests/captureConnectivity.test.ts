@@ -5,7 +5,7 @@ import {
   hasCompleteCaptureConnectivityInputs,
   isCaptureConnectivityOnline,
   normalizeCaptureConnectivityInputs,
-} from "@/features/operations/captureConnectivity";
+} from "@/pw/features/operations/captureConnectivity";
 
 describe("captureConnectivity", () => {
   it("normalizes capture connectivity inputs", () => {

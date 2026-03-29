@@ -9,7 +9,7 @@ import { AppTopNav } from "@/components/layout/AppTopNav";
 import {
   operationsMenuNavigationItems,
   spectrumAnalyzerNavigationItems,
-} from "@/features/operations/operationsNavigation";
+} from "@/pw/features/operations/operationsNavigation";
 
 vi.mock("@/components/layout/InstanceSelector", () => ({
   InstanceSelector: () => <div>Instance Selector</div>,

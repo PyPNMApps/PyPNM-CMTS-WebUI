@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { normalizeServingGroupRxMerResultsPayload } from "../src/features/serving-group/lib/rxmerResults";
+import { normalizeServingGroupRxMerResultsPayload } from "../src/pcw/features/serving-group/lib/rxmerResults";
 
 describe("normalizeServingGroupRxMerResultsPayload", () => {
   it("normalizes SG results into chart-friendly groups/channels/modems", () => {

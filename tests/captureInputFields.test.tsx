@@ -8,7 +8,7 @@ import {
   CaptureIpAddressField,
   CaptureMacAddressField,
 } from "@/components/common/CaptureInputFields";
-import { captureInputAutocomplete } from "@/features/operations/captureInputAutocomplete";
+import { captureInputAutocomplete } from "@/pw/features/operations/captureInputAutocomplete";
 
 describe("CaptureInputFields", () => {
   it("renders shared capture fields with autocomplete and masked community", () => {

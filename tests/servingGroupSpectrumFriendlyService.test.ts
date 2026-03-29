@@ -10,7 +10,7 @@ import {
   getServingGroupSpectrumFriendlyCaptureStatus,
   getServingGroupSpectrumFriendlyResults,
   startServingGroupSpectrumFriendlyCapture,
-} from "../src/services/servingGroupSpectrumFriendlyService";
+} from "../src/pcw/services/servingGroupSpectrumFriendlyService";
 
 describe("servingGroupSpectrumFriendlyService", () => {
   it("calls startCapture with POST and payload", async () => {

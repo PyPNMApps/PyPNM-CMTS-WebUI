@@ -3,12 +3,12 @@ import { Navigate, useParams } from "react-router-dom";
 
 import { PageHeader } from "@/components/common/PageHeader";
 import { Panel } from "@/components/common/Panel";
-import { SingleChannelEstCoeffCaptureView } from "@/features/operations/SingleChannelEstCoeffCaptureView";
-import { SingleConstellationDisplayCaptureView } from "@/features/operations/SingleConstellationDisplayCaptureView";
-import { SingleFecSummaryCaptureView } from "@/features/operations/SingleFecSummaryCaptureView";
-import { SingleHistogramCaptureView } from "@/features/operations/SingleHistogramCaptureView";
-import { SingleModulationProfileCaptureView } from "@/features/operations/SingleModulationProfileCaptureView";
-import { SingleRxMerCaptureView } from "@/features/operations/SingleRxMerCaptureView";
+import { SingleChannelEstCoeffCaptureView } from "@/pw/features/operations/SingleChannelEstCoeffCaptureView";
+import { SingleConstellationDisplayCaptureView } from "@/pw/features/operations/SingleConstellationDisplayCaptureView";
+import { SingleFecSummaryCaptureView } from "@/pw/features/operations/SingleFecSummaryCaptureView";
+import { SingleHistogramCaptureView } from "@/pw/features/operations/SingleHistogramCaptureView";
+import { SingleModulationProfileCaptureView } from "@/pw/features/operations/SingleModulationProfileCaptureView";
+import { SingleRxMerCaptureView } from "@/pw/features/operations/SingleRxMerCaptureView";
 import { isSupportedPnmFileType, loadFileAnalysisRecord, removeFileAnalysisRecord, toVisualResponse } from "@/lib/fileAnalysis";
 import type {
   SingleChannelEstCoeffCaptureResponse,

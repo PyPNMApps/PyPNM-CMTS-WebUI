@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { normalizeServingGroupFecSummaryResultsPayload } from "../src/features/serving-group/lib/fecSummaryResults";
+import { normalizeServingGroupFecSummaryResultsPayload } from "../src/pcw/features/serving-group/lib/fecSummaryResults";
 
 describe("normalizeServingGroupFecSummaryResultsPayload", () => {
   it("normalizes SG FEC Summary results into chart-friendly groups/channels/modems", () => {

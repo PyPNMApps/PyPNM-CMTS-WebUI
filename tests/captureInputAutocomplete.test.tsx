@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { captureInputAutocomplete } from "@/features/operations/captureInputAutocomplete";
+import { captureInputAutocomplete } from "@/pw/features/operations/captureInputAutocomplete";
 
 describe("capture input autocomplete", () => {
   it("defines stable browser autocomplete tokens for capture identity inputs", () => {

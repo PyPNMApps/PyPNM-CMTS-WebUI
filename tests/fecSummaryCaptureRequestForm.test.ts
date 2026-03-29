@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { FEC_SUMMARY_TYPE_OPTIONS } from "@/features/operations/FecSummaryCaptureRequestForm";
+import { FEC_SUMMARY_TYPE_OPTIONS } from "@/pw/features/operations/FecSummaryCaptureRequestForm";
 
 describe("FecSummaryCaptureRequestForm", () => {
   it("uses backend-compatible enum values for the FEC summary type options", () => {

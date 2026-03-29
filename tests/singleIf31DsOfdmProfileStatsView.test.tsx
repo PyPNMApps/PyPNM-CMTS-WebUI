@@ -3,8 +3,8 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import { SingleIf31DsOfdmProfileStatsView } from "@/features/operations/SingleIf31DsOfdmProfileStatsView";
-import { singleIf31DsOfdmProfileStatsFixture } from "@/features/operations/singleIf31DsOfdmProfileStatsFixture";
+import { SingleIf31DsOfdmProfileStatsView } from "@/pw/features/operations/SingleIf31DsOfdmProfileStatsView";
+import { singleIf31DsOfdmProfileStatsFixture } from "@/pw/features/operations/singleIf31DsOfdmProfileStatsFixture";
 
 describe("SingleIf31DsOfdmProfileStatsView", () => {
   it("does not use reserved profile ids for the dominant profile summary", () => {

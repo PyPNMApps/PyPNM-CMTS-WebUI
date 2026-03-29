@@ -7,13 +7,13 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { InstanceConfigContext } from "@/app/InstanceConfigContext";
 import type { InstanceConfigContextValue } from "@/app/InstanceConfigProvider";
-import { EndpointExplorerPage } from "@/pages/EndpointExplorerPage";
+import { EndpointExplorerPage } from "@/pw/pages/EndpointExplorerPage";
 
-vi.mock("@/services/captureConnectivityService", () => ({
+vi.mock("@/pw/services/captureConnectivityService", () => ({
   checkCaptureInputsOnline: vi.fn(),
 }));
 
-vi.mock("@/services/singleCaptureService", () => ({
+vi.mock("@/pw/services/singleCaptureService", () => ({
   runSingleCaptureEndpoint: vi.fn(),
 }));
 

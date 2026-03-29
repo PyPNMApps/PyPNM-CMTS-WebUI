@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 import { afterEach, describe, expect, it } from "vitest";
-import { readSelectedModemContext, saveSelectedModemContext } from "../src/features/single-capture/lib/selectedModemContext";
+import { readSelectedModemContext, saveSelectedModemContext } from "../src/pw/features/single-capture/lib/selectedModemContext";
 
 describe("selectedModemContext", () => {
   afterEach(() => {

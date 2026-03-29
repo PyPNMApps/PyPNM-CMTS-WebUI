@@ -5,7 +5,7 @@ vi.mock("../src/services/http", () => ({
 }));
 
 import * as httpModule from "../src/services/http";
-import { checkCaptureInputsOnline } from "../src/services/captureConnectivityService";
+import { checkCaptureInputsOnline } from "../src/pw/services/captureConnectivityService";
 
 describe("captureConnectivityService", () => {
   it("checks modem connectivity through embedded PW sysDescr endpoint", async () => {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import type { ChartSeries } from "@/features/analysis/types";
+import type { ChartSeries } from "@/pw/features/analysis/types";
 import { serializeCsv, seriesToCsvRows } from "@/lib/export/csv";
 
 describe("export csv helpers", () => {

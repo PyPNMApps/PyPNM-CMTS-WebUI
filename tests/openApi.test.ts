@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { parseOpenApiEndpoints } from "@/features/endpoint-explorer/openApi";
+import { parseOpenApiEndpoints } from "@/pw/features/endpoint-explorer/openApi";
 
 describe("parseOpenApiEndpoints", () => {
   it("extracts and sorts endpoints from an OpenAPI document", () => {
