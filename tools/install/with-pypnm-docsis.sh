@@ -114,7 +114,7 @@ Usage:
   ./tools/install/with-pypnm-docsis.sh --root-dir <repo-root> [options]
 
 Options:
-  --root-dir <path>              PyPNM-WebUI repo root (required).
+  --root-dir <path>              PyPNM-CMTS-WebUI repo root (required).
   --python-bin <python>          Python executable to use (default: python3).
   --pypnm-docsis-path <path>     Install backend from a local PyPNM checkout.
   --pypnm-docsis-version <ver>   Install a specific pypnm-docsis-cmts version from pip.
@@ -463,7 +463,7 @@ EOF
 
 install_local_stack_shim() {
   local user_bin_dir="${HOME}/.local/bin"
-  local shim_path="${user_bin_dir}/pypnm-webui-local-stack"
+  local shim_path="${user_bin_dir}/pypnm-cmts-webui-local-stack"
 
   mkdir -p "${user_bin_dir}"
   printf '%s\n' "#!/usr/bin/env bash" >"${shim_path}"
@@ -474,7 +474,7 @@ install_local_stack_shim() {
 
 install_backend_cli_shim() {
   local user_bin_dir="${HOME}/.local/bin"
-  local shim_path="${user_bin_dir}/pypnm-docsis"
+  local shim_path="${user_bin_dir}/pypnm-docsis-cmts"
   local backend_cli="${ROOT_DIR}/${BACKEND_VENV_PATH}/bin/pypnm"
 
   [ -x "${backend_cli}" ] || fail "Backend CLI missing after install: ${backend_cli}"
@@ -507,8 +507,8 @@ main() {
 
   log "Combined local install complete"
   log "Local PyPNM API URL: http://${selected_host}:${selected_port}"
-  log "Run backend directly with: pypnm-docsis serve --host ${selected_host} --port ${selected_port}"
-  log "Start both services with: pypnm-webui start-local-stack"
+  log "Run backend directly with: pypnm-docsis-cmts serve --host ${selected_host} --port ${selected_port}"
+  log "Start both services with: pypnm-cmts-webui start-local-stack"
 }
 
 main "$@"

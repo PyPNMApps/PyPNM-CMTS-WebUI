@@ -45,29 +45,29 @@ function readCliVersion(metaUrl) {
 function printRootHelp() {
   process.stdout.write(
     [
-      "PyPNM-WebUI CLI for local development and preview workflows.",
+      "PyPNM-CMTS-WebUI CLI for local development and preview workflows.",
       "",
       "Usage:",
-      "  pypnm-webui <command> [options]",
+      "  pypnm-cmts-webui <command> [options]",
       "",
       "Commands:",
       "  serve        Start the Vite development server.",
       "  config-menu  Launch the interactive pypnm-instances.yaml editor.",
       "  start-local-stack  Start local pypnm-docsis and WebUI together.",
-      "  kill-pypnm-webui  List or stop running local PyPNM-WebUI processes.",
+      "  kill-pypnm-webui  List or stop running local PyPNM-CMTS-WebUI processes.",
       "",
       "Options:",
       "  -h, --help   Show this help.",
       "  -v, --version Show version and exit.",
       "",
       "Examples:",
-      "  pypnm-webui serve",
-      "  pypnm-webui serve --host 0.0.0.0 --port 4175",
-      "  pypnm-webui serve --open",
-      "  pypnm-webui config-menu",
-      "  pypnm-webui start-local-stack",
+      "  pypnm-cmts-webui serve",
+      "  pypnm-cmts-webui serve --host 0.0.0.0 --port 4175",
+      "  pypnm-cmts-webui serve --open",
+      "  pypnm-cmts-webui config-menu",
+      "  pypnm-cmts-webui start-local-stack",
       "",
-      'Use "pypnm-webui <command> --help" for command-specific options.',
+      'Use "pypnm-cmts-webui <command> --help" for command-specific options.',
       "",
     ].join("\n"),
   );
@@ -76,10 +76,10 @@ function printRootHelp() {
 function printServeHelp() {
   process.stdout.write(
     [
-      "Start the PyPNM-WebUI Vite development server.",
+      "Start the PyPNM-CMTS-WebUI Vite development server.",
       "",
       "Usage:",
-      "  pypnm-webui serve [options]",
+      "  pypnm-cmts-webui serve [options]",
       "",
       "Options:",
       `  --host <host>        Host to bind (default: ${DEFAULT_HOST})`,
@@ -94,9 +94,9 @@ function printServeHelp() {
       "  -h, --help           Show this help.",
       "",
       "Examples:",
-      "  pypnm-webui serve",
-      "  pypnm-webui serve --host 0.0.0.0 --port 4175",
-      "  pypnm-webui serve --strict-port --log-level warn",
+      "  pypnm-cmts-webui serve",
+      "  pypnm-cmts-webui serve --host 0.0.0.0 --port 4175",
+      "  pypnm-cmts-webui serve --strict-port --log-level warn",
       "",
     ].join("\n"),
   );
@@ -108,7 +108,7 @@ function printConfigMenuHelp() {
       "Launch the interactive pypnm-instances.yaml configuration menu.",
       "",
       "Usage:",
-      "  pypnm-webui config-menu",
+      "  pypnm-cmts-webui config-menu",
       "",
       "Behavior:",
       "  - edits public/config/pypnm-instances.local.yaml",
@@ -124,10 +124,10 @@ function printConfigMenuHelp() {
 function printStartLocalStackHelp() {
   process.stdout.write(
     [
-      "Start local pypnm-docsis and PyPNM-WebUI together.",
+      "Start local pypnm-docsis-cmts and PyPNM-CMTS-WebUI together.",
       "",
       "Usage:",
-      "  pypnm-webui start-local-stack [options]",
+      "  pypnm-cmts-webui start-local-stack [options]",
       "",
       "Options:",
       "  --api-host <host>     Bind host for both backend and WebUI (default: 0.0.0.0)",
@@ -143,15 +143,15 @@ function printStartLocalStackHelp() {
 function printKillWebUiHelp() {
   process.stdout.write(
     [
-      "List or stop local PyPNM-WebUI processes for this repo.",
+      "List or stop local PyPNM-CMTS-WebUI processes for this repo.",
       "",
       "Usage:",
-      "  pypnm-webui kill-pypnm-webui --list",
-      "  pypnm-webui kill-pypnm-webui --kill [INDEX_OR_PID]",
-      "  pypnm-webui kill-pypnm-webui --kill-all",
+      "  pypnm-cmts-webui kill-pypnm-webui --list",
+      "  pypnm-cmts-webui kill-pypnm-webui --kill [INDEX_OR_PID]",
+      "  pypnm-cmts-webui kill-pypnm-webui --kill-all",
       "",
       "Behavior:",
-      "  - matches running PyPNM-WebUI / Vite processes for this repo only",
+      "  - matches running PyPNM-CMTS-WebUI / Vite processes for this repo only",
       "  - --kill with no argument shows numbered entries and prompts for a selection",
       "  - --kill accepts either a list index or an exact PID",
       "",
@@ -336,7 +336,7 @@ async function preflightLocalAgent(config) {
   const baseUrl = String(localAgent.base_url ?? "").trim();
   if (baseUrl === "") {
     process.stderr.write(
-      "WARN: local-pypnm-agent is selected but has no base_url. Re-run ./install.sh --with-pypnm-docsis --reconfigure-local-agent\n",
+      "WARN: local-pypnm-agent is selected but has no base_url. Re-run ./install.sh --with-pypnm-docsis-cmts --reconfigure-local-agent\n",
     );
     return;
   }
@@ -352,7 +352,7 @@ async function preflightLocalAgent(config) {
     process.stderr.write(
       `WARN: local-pypnm-agent is selected but pypnm-docsis is not reachable at ${healthUrl}\n`,
     );
-    process.stderr.write("WARN: Start backend with pypnm-webui start-local-stack\n");
+    process.stderr.write("WARN: Start backend with pypnm-cmts-webui start-local-stack\n");
   }
 }
 
@@ -399,7 +399,7 @@ async function maybeStartLocalPyPnmDocsis(repoRoot, config, enabled) {
   const backendCli = resolveBackendCliPath(repoRoot);
   if (backendCli === "") {
     process.stderr.write(
-      "WARN: backend CLI not found in .venv or .pypnm-venv; run ./install.sh --with-pypnm-docsis\n",
+      "WARN: backend CLI not found in .venv or .pypnm-venv; run ./install.sh --with-pypnm-docsis-cmts\n",
     );
     return { process: null };
   }

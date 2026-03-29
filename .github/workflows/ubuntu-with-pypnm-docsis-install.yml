@@ -63,4 +63,4 @@ jobs:
       - name: Dump Combined Stack Logs On Failure
         if: failure()
         run: |
-          cat /tmp/pypnm-webui-stack.log || true
+          cat /tmp/pypnm-cmts-webui-stack.log || true

@@ -17,7 +17,7 @@ If you also want docs/release tooling in `.venv`:
 If WebUI and local backend are on the same machine:
 
 ```bash
-./install.sh --with-pypnm-docsis
+./install.sh --with-pypnm-docsis-cmts
 ```
 
 ## 2. Start the WebUI

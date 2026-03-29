@@ -11,7 +11,7 @@ From the repo root:
 Install WebUI plus same-machine backend:
 
 ```bash
-./install.sh --with-pypnm-docsis
+./install.sh --with-pypnm-docsis-cmts
 ```
 
 Install docs/release development tooling:
@@ -39,7 +39,7 @@ test matrix.
 ## Dependencies
 
 `install.sh` can bootstrap missing Python venv tooling on Ubuntu/Debian when
-`--development` or `--with-pypnm-docsis` is used.
+`--development` or `--with-pypnm-docsis-cmts` is used.
 
 Required for all installs:
 
@@ -47,7 +47,7 @@ Required for all installs:
 - `curl`
 - `node`/`npm` via `nvm` (Node 22)
 
-Required only for `--development` and/or `--with-pypnm-docsis`:
+Required only for `--development` and/or `--with-pypnm-docsis-cmts`:
 
 - Python 3 (`python3` or `PYTHON_BIN`)
 - Python venv support (`python -m venv`)
@@ -80,11 +80,11 @@ When `--development` is used, it also:
 - installs Python tooling for release and docs workflows into `.venv`
 - installs Playwright Chromium used by `npm run docs:capture-ui-previews`
 
-When `--with-pypnm-docsis` is used, it also:
+When `--with-pypnm-docsis-cmts` is used, it also:
 
 - uses the same `.venv` created by WebUI install
-- installs `pypnm-docsis` into that shared virtual environment
-- installs `~/.local/bin/pypnm-docsis` as a shim to that backend CLI
+- installs `pypnm-docsis-cmts` into that shared virtual environment
+- installs `~/.local/bin/pypnm-docsis-cmts` as a shim to that backend CLI
 - chooses a local API host automatically or with one prompt
 - prompts for local API port in interactive installs unless overridden
 - configures `Local PyPNM-CMTS Agent` in `public/config/pypnm-instances.local.yaml`
@@ -112,7 +112,7 @@ running.
 Start only the backend FastAPI service with:
 
 ```bash
-pypnm-docsis serve --host <selected-local-api-host> --port <selected-local-api-port>
+pypnm-docsis-cmts serve --host <selected-local-api-host> --port <selected-local-api-port>
 ```
 
 If you need to inspect or stop local WebUI dev servers:

@@ -26,7 +26,7 @@ cover the Ubuntu/Python matrix combinations.
 
 Combined-install coverage verifies:
 
-- `./install.sh --with-pypnm-docsis`
+- `./install.sh --with-pypnm-docsis-cmts`
 - runtime config generation
 - local stack startup expectations
 

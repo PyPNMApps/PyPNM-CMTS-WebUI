@@ -7,11 +7,11 @@ STACK_PID=""
 WEBUI_PORT="${WEBUI_PORT:-4175}"
 
 log() {
-  printf '[ci][with-pypnm-docsis] %s\n' "$1"
+  printf '[ci][with-pypnm-docsis-cmts] %s\n' "$1"
 }
 
 fail() {
-  printf '[ci][with-pypnm-docsis][error] %s\n' "$1" >&2
+  printf '[ci][with-pypnm-docsis-cmts][error] %s\n' "$1" >&2
   exit 1
 }
 
@@ -107,7 +107,7 @@ main() {
 
   log "Running combined install"
   PYTHON_BIN="${detected_python_bin}" ./install.sh \
-    --with-pypnm-docsis \
+    --with-pypnm-docsis-cmts \
     --pypnm-docsis-path "${PYPNM_PATH}" \
     --local-api-host 127.0.0.1
 
@@ -117,7 +117,7 @@ main() {
   verify_runtime_config
 
   log "Starting combined local stack"
-  ./tools/install/start-local-stack.sh --api-host 127.0.0.1 > /tmp/pypnm-webui-stack.log 2>&1 &
+  ./tools/install/start-local-stack.sh --api-host 127.0.0.1 > /tmp/pypnm-cmts-webui-stack.log 2>&1 &
   STACK_PID="$!"
 
   cleanup() {

@@ -21,7 +21,7 @@ Usage:
   ./tools/install/uninstall.sh --root-dir <repo-root> [options]
 
 Options:
-  --root-dir <path>   PyPNM-WebUI repo root (required).
+  --root-dir <path>   PyPNM-CMTS-WebUI repo root (required).
   --confirm-uninstall Run without interactive confirmation prompt.
   --remove-env        Remove .env in addition to runtime/local artifacts.
   --remove-data       Remove .data capture directory.
@@ -93,7 +93,7 @@ confirm_uninstall() {
   printf '  - .venv and .pypnm-venv\n' >&2
   printf '  - dist, release-reports, logs\n' >&2
   printf '  - public/config/pypnm-instances.local.yaml and backups\n' >&2
-  printf '  - ~/.local/bin shims for pypnm-webui / pypnm-docsis / pypnm-webui-local-stack\n' >&2
+  printf '  - ~/.local/bin shims for pypnm-cmts-webui / pypnm-docsis-cmts / pypnm-cmts-webui-local-stack\n' >&2
   if [ "${REMOVE_ENV}" -eq 1 ]; then
     printf '  - .env\n' >&2
   fi
@@ -141,9 +141,12 @@ main() {
     remove_path_if_present "${ROOT_DIR}/.data" "capture data"
   fi
 
-  remove_file_if_present "${HOME}/.local/bin/pypnm-webui" "CLI shim"
-  remove_file_if_present "${HOME}/.local/bin/pypnm-docsis" "backend CLI shim"
-  remove_file_if_present "${HOME}/.local/bin/pypnm-webui-local-stack" "local stack helper shim"
+  remove_file_if_present "${HOME}/.local/bin/pypnm-cmts-webui" "CLI shim"
+  remove_file_if_present "${HOME}/.local/bin/pypnm-docsis-cmts" "backend CLI shim"
+  remove_file_if_present "${HOME}/.local/bin/pypnm-cmts-webui-local-stack" "local stack helper shim"
+  remove_file_if_present "${HOME}/.local/bin/pypnm-webui" "legacy CLI compatibility shim"
+  remove_file_if_present "${HOME}/.local/bin/pypnm-docsis" "legacy backend compatibility shim"
+  remove_file_if_present "${HOME}/.local/bin/pypnm-webui-local-stack" "legacy local stack compatibility shim"
 
   log "Uninstall complete"
   log "Reinstall with: ./install.sh"

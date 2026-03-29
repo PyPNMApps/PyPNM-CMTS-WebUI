@@ -7,7 +7,7 @@ NODE_MAJOR="22"
 PYTHON_BIN="${PYTHON_BIN:-python3}"
 UPDATE_WEBUI=0
 UPDATE_TAG=""
-UPDATE_BRANCH_PREFIX="webui-"
+UPDATE_BRANCH_PREFIX="cmts-webui-"
 WITH_PYPNM_DOCSIS=0
 PYPNM_DOCSIS_PATH=""
 PYPNM_DOCSIS_VERSION=""
@@ -137,15 +137,17 @@ print_help() {
 Usage:
   ./install.sh
   ./install.sh --development
-  ./install.sh --update-webui [tag]
-  ./install.sh --with-pypnm-docsis [options]
+  ./install.sh --update-cmts-webui [tag]
+  ./install.sh --with-pypnm-docsis-cmts [options]
 
 Options:
   --development         Install Python development tooling into .venv.
-  --update-webui [tag]  Update this existing checkout to the latest tag or the
+  --update-cmts-webui [tag]
+                        Update this existing checkout to the latest tag or the
                         provided tag, then reinstall dependencies and refresh
                         the local runtime config override.
-  --with-pypnm-docsis   Install a local pypnm-docsis-cmts backend alongside WebUI.
+  --with-pypnm-docsis-cmts
+                        Install a local pypnm-docsis-cmts backend alongside WebUI.
   --pypnm-docsis-path   Install pypnm-docsis-cmts from a local PyPNM checkout.
   --pypnm-docsis-version
                         Install a specific pypnm-docsis-cmts version from pip.
@@ -160,14 +162,20 @@ EOF
 parse_args() {
   while [ "$#" -gt 0 ]; do
     case "$1" in
-      --update-webui)
+      --update-cmts-webui|--update-webui)
+        if [ "$1" = "--update-webui" ]; then
+          log "WARN: --update-webui is deprecated. Use --update-cmts-webui."
+        fi
         UPDATE_WEBUI=1
         if [ "$#" -gt 1 ] && [[ ! "$2" =~ ^- ]]; then
           UPDATE_TAG="$2"
           shift
         fi
         ;;
-      --with-pypnm-docsis)
+      --with-pypnm-docsis-cmts|--with-pypnm-docsis)
+        if [ "$1" = "--with-pypnm-docsis" ]; then
+          log "WARN: --with-pypnm-docsis is deprecated. Use --with-pypnm-docsis-cmts."
+        fi
         WITH_PYPNM_DOCSIS=1
         ;;
       --development)
@@ -310,13 +318,10 @@ exec "${ROOT_DIR}/tools/cli/pypnm-cmts-webui.js" "\$@"
 EOF
   chmod +x "$shim_path"
   log "Installed CLI shim at ${shim_path}"
-
-  cat >"$legacy_shim_path" <<EOF
-#!/usr/bin/env bash
-exec "${ROOT_DIR}/tools/cli/pypnm-cmts-webui.js" "\$@"
-EOF
-  chmod +x "$legacy_shim_path"
-  log "Installed compatibility shim at ${legacy_shim_path}"
+  if [ -f "${legacy_shim_path}" ]; then
+    rm -f "${legacy_shim_path}"
+    log "Removed legacy compatibility shim at ${legacy_shim_path}"
+  fi
 
   case ":$PATH:" in
     *":${user_bin_dir}:"*)
@@ -362,7 +367,7 @@ ensure_git_clean_for_update() {
   local status
   status="$(git status --porcelain --untracked-files=normal)"
   if [ -n "$status" ]; then
-    fail "Working tree is not clean. Commit or stash tracked changes before --update-webui."
+    fail "Working tree is not clean. Commit or stash tracked changes before --update-cmts-webui."
   fi
 }
 
@@ -375,13 +380,13 @@ resolve_update_ref() {
   local latest_tag
   latest_tag="$(git tag --sort=-v:refname | head -n1)"
   if [ -z "$latest_tag" ]; then
-    fail "No git tags found. Provide one explicitly: ./install.sh --update-webui <tag>"
+    fail "No git tags found. Provide one explicitly: ./install.sh --update-cmts-webui <tag>"
   fi
   printf '%s' "$latest_tag"
 }
 
 run_update_checkout() {
-  ensure_command git "git is required for --update-webui."
+  ensure_command git "git is required for --update-cmts-webui."
   ensure_git_clean_for_update
 
   cd "$ROOT_DIR"
@@ -455,7 +460,7 @@ main() {
   fi
 
   if [ "${WITH_PYPNM_DOCSIS}" -eq 1 ]; then
-    ensure_command "${PYTHON_BIN}" "${PYTHON_BIN} is required for --with-pypnm-docsis. Install Python 3 and re-run."
+    ensure_command "${PYTHON_BIN}" "${PYTHON_BIN} is required for --with-pypnm-docsis-cmts. Install Python 3 and re-run."
     ensure_python_venv_support
     run_with_pypnm_docsis_helper
   fi

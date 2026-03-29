@@ -66,7 +66,7 @@ main() {
     backend_cli="${ROOT_DIR}/.pypnm-venv/bin/pypnm"
   fi
   if [ ! -x "${backend_cli}" ]; then
-    printf 'ERROR: backend CLI not found in .venv (legacy fallback: .pypnm-venv). Run ./install.sh --with-pypnm-docsis first.\n' >&2
+    printf 'ERROR: backend CLI not found in .venv (legacy fallback: .pypnm-venv). Run ./install.sh --with-pypnm-docsis-cmts first.\n' >&2
     exit 1
   fi
 
