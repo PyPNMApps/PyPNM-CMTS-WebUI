@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { SpectrumSelectionActions } from "@/components/common/SpectrumSelectionActions";
 import { LineAnalysisChart } from "@/features/analysis/components/LineAnalysisChart";
+import type { ChartSeries } from "@/features/analysis/types";
 import {
   normalizeServingGroupChannelEstCoeffResultsPayload,
   type ServingGroupChannelEstCoeffGroupVisual,
@@ -16,6 +17,28 @@ function formatCmCountLabel(count: number): string {
   return count === 1 ? "1 CM" : `${count} CMs`;
 }
 
+export function buildZoomedYDomain(series: ChartSeries | undefined, xDomain: [number, number] | null): [number, number] | undefined {
+  if (!series || !xDomain) {
+    return undefined;
+  }
+
+  const [minX, maxX] = xDomain[0] <= xDomain[1] ? xDomain : [xDomain[1], xDomain[0]];
+  const selectedYValues = series.points
+    .filter((point) => point.x >= minX && point.x <= maxX)
+    .map((point) => point.y)
+    .filter((value) => Number.isFinite(value));
+
+  if (!selectedYValues.length) {
+    return undefined;
+  }
+
+  const selectedMin = Math.min(...selectedYValues);
+  const selectedMax = Math.max(...selectedYValues);
+  const selectedSpan = selectedMax - selectedMin;
+  const padding = (selectedSpan || 1) * 0.15;
+  return [selectedMin - padding, selectedMax + padding];
+}
+
 function ChannelSection({
   groupId,
   channel,
@@ -27,6 +50,8 @@ function ChannelSection({
   const [combinedZoomDomain, setCombinedZoomDomain] = useState<[number, number] | null>(null);
   const [modemSelection, setModemSelection] = useState<Record<string, SpectrumSelectionRange | null>>({});
   const [modemZoomDomain, setModemZoomDomain] = useState<Record<string, [number, number] | null>>({});
+  const [groupDelaySelection, setGroupDelaySelection] = useState<Record<string, SpectrumSelectionRange | null>>({});
+  const [groupDelayZoomDomain, setGroupDelayZoomDomain] = useState<Record<string, [number, number] | null>>({});
 
   const modemGridClassName = channel.modems.length === 1
     ? "analysis-channels-grid analysis-channels-grid-single"
@@ -115,6 +140,29 @@ function ChannelSection({
                 yLabel="Group Delay"
                 showLegend={false}
                 series={[modem.groupDelaySeries]}
+                xDomain={groupDelayZoomDomain[modem.key] ?? undefined}
+                yDomain={buildZoomedYDomain(modem.groupDelaySeries, groupDelayZoomDomain[modem.key] ?? null)}
+                enableRangeSelection
+                selection={groupDelaySelection[modem.key] ?? null}
+                onSelectionChange={(nextSelection) => setGroupDelaySelection((current) => ({
+                  ...current,
+                  [modem.key]: nextSelection,
+                }))}
+                selectionActions={(
+                  <SpectrumSelectionActions
+                    selection={groupDelaySelection[modem.key] ?? null}
+                    hasZoomDomain={(groupDelayZoomDomain[modem.key] ?? null) !== null}
+                    showIntegratedPower={false}
+                    onApplyZoom={(domain) => setGroupDelayZoomDomain((current) => ({
+                      ...current,
+                      [modem.key]: domain,
+                    }))}
+                    onResetZoom={() => setGroupDelayZoomDomain((current) => ({
+                      ...current,
+                      [modem.key]: null,
+                    }))}
+                  />
+                )}
                 exportBaseName={buildExportBaseName(
                   modem.macAddress,
                   modem.captureTimeEpoch,
@@ -191,4 +239,3 @@ export function ServingGroupChannelEstCoeffResultsView({ payload }: ServingGroup
     </div>
   );
 }
-
