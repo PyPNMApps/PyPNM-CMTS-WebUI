@@ -1,12 +1,24 @@
 import { useTheme } from "@/app/useTheme";
 import { NavLink } from "react-router-dom";
 
+import { PRODUCT_PROFILE_PW, resolveProductProfileWithFallback } from "@/app/productProfile";
 import { InstanceSelector } from "@/components/layout/InstanceSelector";
 
-const links = [
+const pcwLinks = [
   ["/serving-group/rxmer", "Serving Group"],
   ["/single-capture/dashboard", "SingleCapture"],
   ["/spectrum-analyzer/friendly", "Spectrum Analyzer"],
+  ["/health", "Health"],
+  ["/settings", "Settings"],
+  ["/about", "About"],
+] as const;
+
+const pwLinks = [
+  ["/single-capture/rxmer", "Single Capture"],
+  ["/single-capture/spectrum-analyzer/friendly", "Spectrum Analyzer"],
+  ["/operations", "Operations"],
+  ["/advanced/rxmer", "Advanced"],
+  ["/files", "Files"],
   ["/health", "Health"],
   ["/settings", "Settings"],
   ["/about", "About"],
@@ -35,12 +47,16 @@ function MoonIcon() {
 
 export function AppTopNav() {
   const { theme, toggleTheme } = useTheme();
+  const profile = resolveProductProfileWithFallback();
+  const links = profile === PRODUCT_PROFILE_PW ? pwLinks : pcwLinks;
+  const homePath = profile === PRODUCT_PROFILE_PW ? "/single-capture/rxmer" : "/serving-group/rxmer";
+  const appTitle = profile === PRODUCT_PROFILE_PW ? "PyPNM WebUI" : "PyPNM CMTS WebUI";
 
   return (
     <header className="top-nav">
-      <NavLink to="/serving-group/rxmer" end className="top-nav-brand" aria-label="PyPNM CMTS WebUI home">
+      <NavLink to={homePath} end className="top-nav-brand" aria-label={`${appTitle} home`}>
         <PyPnmWebUiIcon />
-        <h1>PyPNM CMTS WebUI</h1>
+        <h1>{appTitle}</h1>
       </NavLink>
       <nav className="top-nav-links">
         {links.map(([to, label]) => (

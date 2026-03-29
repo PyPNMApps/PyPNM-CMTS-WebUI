@@ -155,7 +155,7 @@ export function useAdvancedOperationMachine<TStartResponse, TStatusResponse>({
       setLifecycleState("failed");
       setErrorMessage(error instanceof Error ? error.message : "Failed to stop operation.");
     }
-  }, [clearPollTimer, operationId, parseStatus, stopOperation]);
+  }, [clearPollTimer, clearStopEnableTimer, operationId, parseStatus, stopOperation]);
 
   const refreshStatus = useCallback(async () => {
     if (!operationId) return;

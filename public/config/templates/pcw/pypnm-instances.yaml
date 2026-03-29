@@ -1,0 +1,9 @@
+version: 1
+defaults:
+  selected_instance: default
+  poll_interval_ms: 5000
+  request_timeout_ms: 30000
+  health_path: /health
+  logging:
+    level: INFO
+instances: []

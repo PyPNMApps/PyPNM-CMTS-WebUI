@@ -18,6 +18,9 @@ This repository uses GitHub Actions for build quality and docs publishing.
   - `3.11`
   - `3.12`
   - `3.13`
+- Product profile:
+  - `pypnm-webui`
+  - `pypnm-cmts-webui`
 
 `ubuntu-pypnm-integration.yml` and `ubuntu-with-pypnm-docsis-install.yml`
 cover the Ubuntu/Python matrix combinations.
@@ -26,9 +29,12 @@ cover the Ubuntu/Python matrix combinations.
 
 Combined-install coverage verifies:
 
-- `./install.sh --with-pypnm-docsis-cmts`
+- `./install.sh --with-pypnm-webui --with-pypnm-docsis`
+- `./install.sh --with-pypnm-cmts-webui --with-pypnm-docsis-cmts`
+- profile/package guardrails (no mixed profile/backend package)
 - runtime config generation
 - local stack startup expectations
+- explicit guardrail failure checks for invalid mixed combinations
 
 ## Release script behavior
 

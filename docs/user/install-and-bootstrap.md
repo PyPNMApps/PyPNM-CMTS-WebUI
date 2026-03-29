@@ -5,14 +5,20 @@
 From the repo root:
 
 ```bash
-./install.sh
+./install.sh --with-pypnm-webui
+./install.sh --with-pypnm-cmts-webui
 ```
 
-Install WebUI plus same-machine backend:
+Install WebUI plus same-machine backend add-on (matching profile):
 
 ```bash
-./install.sh --with-pypnm-docsis-cmts
+./install.sh --with-pypnm-webui --with-pypnm-docsis
+./install.sh --with-pypnm-cmts-webui --with-pypnm-docsis-cmts
 ```
+
+Guardrail:
+
+- profile and backend package cannot be mixed (`pypnm-webui` with `pypnm-docsis-cmts`, or `pypnm-cmts-webui` with `pypnm-docsis`)
 
 Install docs/release development tooling:
 
@@ -39,7 +45,7 @@ test matrix.
 ## Dependencies
 
 `install.sh` can bootstrap missing Python venv tooling on Ubuntu/Debian when
-`--development` or `--with-pypnm-docsis-cmts` is used.
+`--development`, `--with-pypnm-docsis`, or `--with-pypnm-docsis-cmts` is used.
 
 Required for all installs:
 
@@ -47,7 +53,7 @@ Required for all installs:
 - `curl`
 - `node`/`npm` via `nvm` (Node 22)
 
-Required only for `--development` and/or `--with-pypnm-docsis-cmts`:
+Required only for `--development` and/or backend add-on install:
 
 - Python 3 (`python3` or `PYTHON_BIN`)
 - Python venv support (`python -m venv`)
@@ -73,6 +79,7 @@ Note:
 - runs `npm ci`
 - refreshes `public/config/pypnm-instances.local.yaml` from the version-controlled
   template while preserving local values
+- validates runtime YAML against the selected install profile
 
 When `--development` is used, it also:
 
@@ -80,22 +87,24 @@ When `--development` is used, it also:
 - installs Python tooling for release and docs workflows into `.venv`
 - installs Playwright Chromium used by `npm run docs:capture-ui-previews`
 
-When `--with-pypnm-docsis-cmts` is used, it also:
+When a backend add-on flag is used, it also:
 
 - uses the same `.venv` created by WebUI install
-- installs `pypnm-docsis-cmts` into that shared virtual environment
-- installs `~/.local/bin/pypnm-docsis-cmts` as a shim to that backend CLI
+- installs `pypnm-docsis` or `pypnm-docsis-cmts` into that shared virtual environment
+- installs matching backend shim command in `~/.local/bin`
 - chooses a local API host automatically or with one prompt
 - prompts for local API port in interactive installs unless overridden
 - configures `Local PyPNM-CMTS Agent` in `public/config/pypnm-instances.local.yaml`
 - sets `local-pypnm-agent` as the selected runtime instance
 - installs local-stack helper commands
+- re-validates runtime YAML after backend helper updates
 
 ## After install
 
-Start the UI with:
+Start the UI with the matching CLI:
 
 ```bash
+pypnm-webui serve
 pypnm-cmts-webui serve
 ```
 

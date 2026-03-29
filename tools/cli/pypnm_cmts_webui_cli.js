@@ -336,7 +336,7 @@ async function preflightLocalAgent(config) {
   const baseUrl = String(localAgent.base_url ?? "").trim();
   if (baseUrl === "") {
     process.stderr.write(
-      "WARN: local-pypnm-agent is selected but has no base_url. Re-run ./install.sh --with-pypnm-docsis-cmts --reconfigure-local-agent\n",
+      "WARN: local-pypnm-agent is selected but has no base_url. Re-run install with a matching profile/backend pair and --reconfigure-local-agent\n",
     );
     return;
   }
@@ -399,7 +399,7 @@ async function maybeStartLocalPyPnmDocsis(repoRoot, config, enabled) {
   const backendCli = resolveBackendCliPath(repoRoot);
   if (backendCli === "") {
     process.stderr.write(
-      "WARN: backend CLI not found in .venv or .pypnm-venv; run ./install.sh --with-pypnm-docsis-cmts\n",
+      "WARN: backend CLI not found in .venv or .pypnm-venv; run install with a matching profile/backend pair\n",
     );
     return { process: null };
   }

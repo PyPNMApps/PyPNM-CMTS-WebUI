@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 import { useInstanceConfig } from "@/app/useInstanceConfig";
 import { FoldablePanelTitle } from "@/components/common/FoldablePanelTitle";
@@ -79,7 +79,7 @@ export function CmtsSgConstellationDisplayWorkflowPage() {
   const normalizedOperationIdInput = operationIdInput.trim();
   const canLoadOperationId = Boolean(selectedInstance?.baseUrl && normalizedOperationIdInput.length > 0);
 
-  async function loadResults(operationId: string) {
+  const loadResults = useCallback(async (operationId: string) => {
     if (!selectedInstance?.baseUrl) {
       return;
     }
@@ -95,7 +95,7 @@ export function CmtsSgConstellationDisplayWorkflowPage() {
     } finally {
       setIsResultsLoading(false);
     }
-  }
+  }, [selectedInstance?.baseUrl]);
 
   useEffect(() => {
     const operationId = machine.operationId;
@@ -106,7 +106,7 @@ export function CmtsSgConstellationDisplayWorkflowPage() {
       return;
     }
     void loadResults(operationId);
-  }, [machine.lifecycleState, machine.operationId, resultsOperationId, resultsPayload, selectedInstance?.baseUrl]);
+  }, [loadResults, machine.lifecycleState, machine.operationId, resultsOperationId, resultsPayload]);
 
   useEffect(() => {
     if (!machine.operationId) {

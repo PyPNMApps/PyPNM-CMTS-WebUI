@@ -5,6 +5,10 @@
 
 ## Optional Variables
 - `VITE_REQUEST_TIMEOUT_MS`: HTTP timeout override in milliseconds.
+- `PRODUCT_PROFILE`: install/runtime profile selector (`pypnm-webui` or
+  `pypnm-cmts-webui`).
+- `VITE_PRODUCT_PROFILE`: client-visible profile selector; installer keeps this
+  aligned with `PRODUCT_PROFILE`.
 
 ## Runtime Instance Config
 - Path: `public/config/pypnm-instances.yaml`
@@ -40,8 +44,10 @@ pypnm-cmts-webui config-menu
 # then press: s
 ```
 
-For this repo, `request_defaults.cable_modem` is optional and not required in
-runtime config.
+`config-menu` enforces profile-specific defaults:
+
+- `pypnm-cmts-webui`: rejects `request_defaults.cable_modem`
+- `pypnm-webui`: allows `request_defaults.cable_modem`
 
 ## Example
 ```env

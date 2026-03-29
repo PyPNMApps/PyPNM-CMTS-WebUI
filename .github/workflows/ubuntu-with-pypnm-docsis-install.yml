@@ -15,8 +15,28 @@ permissions:
   contents: read
 
 jobs:
+  invalid-combo-guard:
+    name: Invalid Combo Guardrail
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout PyPNM-CMTS-WebUI
+        uses: actions/checkout@v4
+
+      - name: Verify mixed profile/package is rejected
+        run: |
+          set +e
+          output="$(./install.sh --with-pypnm-webui --with-pypnm-docsis-cmts 2>&1)"
+          status=$?
+          set -e
+          if [ "$status" -eq 0 ]; then
+            echo "Expected invalid combo to fail, but command succeeded."
+            exit 1
+          fi
+          echo "$output"
+          echo "$output" | grep -q "Invalid product/backend option combination."
+
   combined-install:
-    name: Ubuntu ${{ matrix.os }} · Python ${{ matrix.python-version }} · Combined Install
+    name: Ubuntu ${{ matrix.os }} · Python ${{ matrix.python-version }} · Profile ${{ matrix.profile }}
     runs-on: ${{ matrix.os }}
 
     strategy:
@@ -30,6 +50,18 @@ jobs:
           - "3.11"
           - "3.12"
           - "3.13"
+        profile:
+          - pypnm-webui
+          - pypnm-cmts-webui
+        include:
+          - profile: pypnm-webui
+            backend-repo: PyPNMApps/PyPNM
+            backend-dir: PyPNM
+            stack-log: /tmp/pypnm-webui-stack.log
+          - profile: pypnm-cmts-webui
+            backend-repo: PyPNMApps/PyPNM-CMTS
+            backend-dir: PyPNM-CMTS
+            stack-log: /tmp/pypnm-cmts-webui-stack.log
 
     steps:
       - name: Checkout PyPNM-CMTS-WebUI
@@ -37,11 +69,11 @@ jobs:
         with:
           path: PyPNM-CMTS-WebUI
 
-      - name: Checkout PyPNM-CMTS
+      - name: Checkout backend repo
         uses: actions/checkout@v4
         with:
-          repository: PyPNMApps/PyPNM-CMTS
-          path: PyPNM-CMTS
+          repository: ${{ matrix.backend-repo }}
+          path: ${{ matrix.backend-dir }}
 
       - name: Set Up Python
         uses: actions/setup-python@v5
@@ -58,9 +90,9 @@ jobs:
       - name: Verify Combined Install
         working-directory: PyPNM-CMTS-WebUI
         run: |
-          ./tools/install/ci-verify-with-pypnm-docsis.sh --pypnm-path ../PyPNM-CMTS
+          ./tools/install/ci-verify-with-pypnm-docsis.sh --profile ${{ matrix.profile }} --pypnm-path ../${{ matrix.backend-dir }}
 
       - name: Dump Combined Stack Logs On Failure
         if: failure()
         run: |
-          cat /tmp/pypnm-cmts-webui-stack.log || true
+          cat ${{ matrix.stack-log }} || true

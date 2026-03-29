@@ -4,24 +4,29 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 PYPNM_PATH=""
 STACK_PID=""
-WEBUI_PORT="${WEBUI_PORT:-4175}"
+WEBUI_PORT="${WEBUI_PORT:-}"
+PRODUCT_PROFILE="pypnm-cmts-webui"
+BACKEND_FLAG="--with-pypnm-docsis-cmts"
+LOCAL_AGENT_LABEL="Local PyPNM-CMTS Agent"
+LOG_PREFIX="with-pypnm-docsis-cmts"
 
 log() {
-  printf '[ci][with-pypnm-docsis-cmts] %s\n' "$1"
+  printf '[ci][%s] %s\n' "${LOG_PREFIX}" "$1"
 }
 
 fail() {
-  printf '[ci][with-pypnm-docsis-cmts][error] %s\n' "$1" >&2
+  printf '[ci][%s][error] %s\n' "${LOG_PREFIX}" "$1" >&2
   exit 1
 }
 
 print_help() {
   cat <<'EOF'
 Usage:
-  ./tools/install/ci-verify-with-pypnm-docsis.sh --pypnm-path <path>
+  ./tools/install/ci-verify-with-pypnm-docsis.sh --pypnm-path <path> [options]
 
 Options:
   --pypnm-path <path>   Local PyPNM checkout to install from.
+  --profile <name>      Product profile: pypnm-webui or pypnm-cmts-webui.
   -h, --help            Show this help.
 EOF
 }
@@ -32,6 +37,10 @@ parse_args() {
       --pypnm-path)
         shift
         PYPNM_PATH="${1:-}"
+        ;;
+      --profile)
+        shift
+        PRODUCT_PROFILE="${1:-}"
         ;;
       -h|--help)
         print_help
@@ -62,7 +71,7 @@ wait_for_url() {
 
 verify_runtime_config() {
   log "Verifying generated runtime config"
-  node --input-type=module <<'EOF'
+  LOCAL_AGENT_LABEL="${LOCAL_AGENT_LABEL}" node --input-type=module <<'EOF'
 import fs from "node:fs";
 import { parse } from "yaml";
 
@@ -78,11 +87,11 @@ if (selected !== "local-pypnm-agent") {
 }
 
 if (!instance) {
-  throw new Error("Expected Local PyPNM-CMTS Agent instance to exist.");
+  throw new Error(`Expected ${process.env.LOCAL_AGENT_LABEL ?? "Local PyPNM Agent"} instance to exist.`);
 }
 
 if (instance.base_url !== "http://127.0.0.1:8000") {
-  throw new Error(`Expected Local PyPNM-CMTS Agent base_url to be http://127.0.0.1:8000, received ${instance.base_url ?? "undefined"}`);
+  throw new Error(`Expected local agent base_url to be http://127.0.0.1:8000, received ${instance.base_url ?? "undefined"}`);
 }
 EOF
 }
@@ -92,6 +101,27 @@ main() {
 
   [ -n "${PYPNM_PATH}" ] || fail "--pypnm-path is required."
   [ -f "${PYPNM_PATH}/pyproject.toml" ] || fail "Invalid PyPNM path: ${PYPNM_PATH}"
+  case "${PRODUCT_PROFILE}" in
+    pypnm-webui)
+      BACKEND_FLAG="--with-pypnm-docsis"
+      LOCAL_AGENT_LABEL="Local PyPNM Agent"
+      LOG_PREFIX="with-pypnm-docsis"
+      if [ -z "${WEBUI_PORT:-}" ]; then
+        WEBUI_PORT="4173"
+      fi
+      ;;
+    pypnm-cmts-webui)
+      BACKEND_FLAG="--with-pypnm-docsis-cmts"
+      LOCAL_AGENT_LABEL="Local PyPNM-CMTS Agent"
+      LOG_PREFIX="with-pypnm-docsis-cmts"
+      if [ -z "${WEBUI_PORT:-}" ]; then
+        WEBUI_PORT="4175"
+      fi
+      ;;
+    *)
+      fail "Unsupported --profile value: ${PRODUCT_PROFILE}"
+      ;;
+  esac
 
   local detected_python_bin=""
   if command -v python >/dev/null 2>&1; then
@@ -107,7 +137,8 @@ main() {
 
   log "Running combined install"
   PYTHON_BIN="${detected_python_bin}" ./install.sh \
-    --with-pypnm-docsis-cmts \
+    --with-"${PRODUCT_PROFILE}" \
+    "${BACKEND_FLAG}" \
     --pypnm-docsis-path "${PYPNM_PATH}" \
     --local-api-host 127.0.0.1
 
@@ -117,7 +148,7 @@ main() {
   verify_runtime_config
 
   log "Starting combined local stack"
-  ./tools/install/start-local-stack.sh --api-host 127.0.0.1 > /tmp/pypnm-cmts-webui-stack.log 2>&1 &
+  ./tools/install/start-local-stack.sh --api-host 127.0.0.1 > "/tmp/${PRODUCT_PROFILE}-stack.log" 2>&1 &
   STACK_PID="$!"
 
   cleanup() {
@@ -130,7 +161,7 @@ main() {
   trap cleanup EXIT INT TERM
 
   wait_for_url "http://127.0.0.1:8000/health" "PyPNM health endpoint"
-  wait_for_url "http://127.0.0.1:${WEBUI_PORT}" "PyPNM-CMTS-WebUI dev server"
+  wait_for_url "http://127.0.0.1:${WEBUI_PORT}" "${PRODUCT_PROFILE} dev server"
 
   log "Running live WebUI health integration test against installed stack"
   RUN_LIVE_PYPNM_HEALTH=1 \

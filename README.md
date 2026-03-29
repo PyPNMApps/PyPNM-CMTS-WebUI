@@ -26,6 +26,7 @@ Frontend-only web client for CMTS-facing REST APIs.
 - `src/pw`: PW-derived shared explorer/analysis/capture modules
 - `src/components/common`: shared UI primitives
 - `src/services`: shared infra services (HTTP, health, files, etc.)
+- `public/config/templates/{pw,pcw}`: profile-specific runtime YAML templates
 
 ## Requirements
 
@@ -53,14 +54,18 @@ cd PyPNM-CMTS-WebUI
 
 ## Install
 
+Select product profile on install:
+
 ```bash
-./install.sh
+./install.sh --with-pypnm-webui
+./install.sh --with-pypnm-cmts-webui
 ```
 
-Same-machine WebUI + `pypnm-docsis` install:
+Install same-machine backend add-on (must match selected profile):
 
 ```bash
-./install.sh --with-pypnm-docsis
+./install.sh --with-pypnm-webui --with-pypnm-docsis
+./install.sh --with-pypnm-cmts-webui --with-pypnm-docsis-cmts
 ```
 
 Install Python development tooling (docs/release helpers) into `.venv`:
@@ -70,7 +75,8 @@ Install Python development tooling (docs/release helpers) into `.venv`:
 ```
 
 On Ubuntu/Debian, `install.sh` may prompt for sudo to install missing Python
-venv packages required by `--development` or `--with-pypnm-docsis`.
+venv packages required by `--development`, `--with-pypnm-docsis`, or
+`--with-pypnm-docsis-cmts`.
 
 Reset local install artifacts for a clean reinstall:
 
@@ -79,6 +85,14 @@ Reset local install artifacts for a clean reinstall:
 ```
 
 ## Run locally
+
+If installed with `--with-pypnm-webui`:
+
+```bash
+pypnm-webui serve
+```
+
+If installed with `--with-pypnm-cmts-webui`:
 
 ```bash
 pypnm-cmts-webui serve

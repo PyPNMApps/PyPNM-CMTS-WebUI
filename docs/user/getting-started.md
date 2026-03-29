@@ -5,7 +5,8 @@
 From the repo root:
 
 ```bash
-./install.sh
+./install.sh --with-pypnm-webui
+./install.sh --with-pypnm-cmts-webui
 ```
 
 If you also want docs/release tooling in `.venv`:
@@ -17,12 +18,14 @@ If you also want docs/release tooling in `.venv`:
 If WebUI and local backend are on the same machine:
 
 ```bash
-./install.sh --with-pypnm-docsis-cmts
+./install.sh --with-pypnm-webui --with-pypnm-docsis
+./install.sh --with-pypnm-cmts-webui --with-pypnm-docsis-cmts
 ```
 
 ## 2. Start the WebUI
 
 ```bash
+pypnm-webui serve
 pypnm-cmts-webui serve
 ```
 

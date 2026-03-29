@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { PageHeader } from "@/components/common/PageHeader";
 import { Panel } from "@/components/common/Panel";
 import { ThinkingIndicator } from "@/components/common/ThinkingIndicator";
+import { env } from "@/lib/env";
 import { REPO_URL, fetchCurrentLocalVersion, fetchLatestGitHubTag } from "@/services/repoMetadataService";
 
 const DOCS_URL = "https://pypnmapps.github.io/PyPNM-CMTS-WebUI/";
@@ -50,6 +51,10 @@ export function AboutPage() {
             <div className="settings-definition-row">
               <div className="settings-definition-key">License</div>
               <div><VersionValue value={__APP_LICENSE__} /></div>
+            </div>
+            <div className="settings-definition-row">
+              <div className="settings-definition-key">Product Profile</div>
+              <div><VersionValue value={env.productProfile} /></div>
             </div>
             <div className="settings-definition-row">
               <div className="settings-definition-key">Current Local Version</div>

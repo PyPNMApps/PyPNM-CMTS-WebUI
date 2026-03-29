@@ -16,6 +16,7 @@ export function SettingsPage() {
 
       <Panel title="Runtime Overview">
         <div className="settings-chip-grid">
+          <span className="analysis-chip"><b>Profile</b> {env.productProfileLabel}</span>
           <span className="analysis-chip"><b>Selected</b> {selectedInstance?.label ?? "n/a"}</span>
           <span className="analysis-chip"><b>Instances</b> {instances.length}</span>
           <span className="analysis-chip"><b>Health Path</b> {config?.defaults.healthPath ?? "n/a"}</span>

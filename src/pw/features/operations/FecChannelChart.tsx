@@ -122,7 +122,10 @@ export function FecChannelChart({ title, profiles, exportBaseName }: FecChannelC
   const [selection, setSelection] = useState<[number, number] | null>(null);
   const [dragStartX, setDragStartX] = useState<number | null>(null);
   const visibleProfiles = profiles.filter((profile) => visibleProfileKeys.includes(String(profile.profile)));
-  const timestamps = visibleProfiles[0]?.codewords.timestamps ?? profiles[0]?.codewords.timestamps ?? [];
+  const timestamps = useMemo(
+    () => visibleProfiles[0]?.codewords.timestamps ?? profiles[0]?.codewords.timestamps ?? [],
+    [profiles, visibleProfiles],
+  );
   const width = 980;
   const height = 320;
   const left = 52;

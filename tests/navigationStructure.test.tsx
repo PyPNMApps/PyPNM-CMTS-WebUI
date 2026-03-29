@@ -2,7 +2,7 @@
 
 import { render, screen, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { ThemeProvider } from "@/app/ThemeProvider";
 import { AppTopNav } from "@/components/layout/AppTopNav";
@@ -16,6 +16,11 @@ vi.mock("@/components/layout/InstanceSelector", () => ({
 }));
 
 describe("navigation structure", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+    vi.unstubAllEnvs();
+  });
+
   it("renders Serving Group, SingleCapture, Spectrum Analyzer, Health, Settings, and About as top-level nav links", () => {
     render(
       <ThemeProvider>
@@ -79,4 +84,5 @@ describe("navigation structure", () => {
       operationsMenuNavigationItems.some((item) => item.routePath.includes("spectrum-analyzer")),
     ).toBe(false);
   });
+
 });
