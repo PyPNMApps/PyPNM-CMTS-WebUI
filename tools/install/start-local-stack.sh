@@ -4,7 +4,11 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 API_HOST="0.0.0.0"
 API_PORT="8000"
-WEBUI_PORT="4175"
+PRODUCT_PROFILE=""
+PROFILE_PW="pypnm-webui"
+PROFILE_PCW="pypnm-cmts-webui"
+WEBUI_CLI_SCRIPT=""
+WEBUI_PORT=""
 API_RELOAD=0
 
 print_help() {
@@ -57,8 +61,44 @@ parse_args() {
   done
 }
 
+read_env_value() {
+  local key="$1"
+  local env_path="${ROOT_DIR}/.env"
+  if [ ! -f "${env_path}" ]; then
+    return
+  fi
+  sed -n "s/^${key}=//p" "${env_path}" | tail -n1
+}
+
+resolve_profile_defaults() {
+  PRODUCT_PROFILE="${PRODUCT_PROFILE:-$(read_env_value "PRODUCT_PROFILE" || true)}"
+  if [ -z "${PRODUCT_PROFILE}" ]; then
+    PRODUCT_PROFILE="${PROFILE_PCW}"
+  fi
+
+  case "${PRODUCT_PROFILE}" in
+    "${PROFILE_PW}")
+      WEBUI_CLI_SCRIPT="${ROOT_DIR}/tools/cli/pypnm-webui.js"
+      if [ -z "${WEBUI_PORT}" ]; then
+        WEBUI_PORT="4173"
+      fi
+      ;;
+    "${PROFILE_PCW}")
+      WEBUI_CLI_SCRIPT="${ROOT_DIR}/tools/cli/pypnm-cmts-webui.js"
+      if [ -z "${WEBUI_PORT}" ]; then
+        WEBUI_PORT="4175"
+      fi
+      ;;
+    *)
+      printf 'ERROR: Unsupported PRODUCT_PROFILE value in .env: %s\n' "${PRODUCT_PROFILE}" >&2
+      exit 2
+      ;;
+  esac
+}
+
 main() {
   parse_args "$@"
+  resolve_profile_defaults
 
   local backend_cli="${ROOT_DIR}/.venv/bin/pypnm"
   if [ ! -x "${backend_cli}" ] && [ -x "${ROOT_DIR}/.pypnm-venv/bin/pypnm" ]; then
@@ -88,7 +128,7 @@ main() {
 
   trap cleanup EXIT INT TERM
 
-  exec "${ROOT_DIR}/tools/cli/pypnm-cmts-webui.js" serve --host "${API_HOST}" --port "${WEBUI_PORT}"
+  exec "${WEBUI_CLI_SCRIPT}" serve --host "${API_HOST}" --port "${WEBUI_PORT}"
 }
 
 main "$@"

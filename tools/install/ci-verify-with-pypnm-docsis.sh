@@ -148,7 +148,7 @@ main() {
   verify_runtime_config
 
   log "Starting combined local stack"
-  ./tools/install/start-local-stack.sh --api-host 127.0.0.1 > "/tmp/${PRODUCT_PROFILE}-stack.log" 2>&1 &
+  ./tools/install/start-local-stack.sh --api-host 127.0.0.1 --webui-port "${WEBUI_PORT}" > "/tmp/${PRODUCT_PROFILE}-stack.log" 2>&1 &
   STACK_PID="$!"
 
   cleanup() {
