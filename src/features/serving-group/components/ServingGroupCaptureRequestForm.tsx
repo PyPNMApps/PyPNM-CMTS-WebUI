@@ -1,4 +1,10 @@
 import { SecretTextInput } from "@/components/common/SecretTextInput";
+import {
+  DEFAULT_SPECTRUM_ANALYZER_RETRIEVAL_TYPE,
+  DEFAULT_SPECTRUM_ANALYZER_WINDOW_FUNCTION,
+  SPECTRUM_ANALYZER_RETRIEVAL_TYPE_OPTIONS,
+  SPECTRUM_ANALYZER_WINDOW_FUNCTION_OPTIONS,
+} from "@/lib/spectrumAnalyzerEnumLookup";
 import { validateAndNormalizeChannelIds } from "@/lib/channelIds";
 import { requestWithBaseUrl } from "@/services/http";
 import { useEffect, useMemo, useState } from "react";
@@ -38,6 +44,14 @@ export interface ServingGroupCaptureRequestPayload {
     modulation_order_offset?: number;
     number_sample_symbol?: number;
     sample_duration?: number;
+    inactivity_timeout?: number;
+    first_segment_center_freq?: number;
+    last_segment_center_freq?: number;
+    resolution_bw?: number;
+    noise_bw?: number;
+    window_function?: number;
+    num_averages?: number;
+    spectrum_retrieval_type?: number;
   };
 }
 
@@ -52,7 +66,7 @@ interface ServingGroupCaptureRequestFormProps {
   initialSnmpCommunity?: string;
   initialTftpIpv4?: string;
   initialTftpIpv6?: string;
-  captureSettingsMode?: "none" | "fec-summary" | "constellation-display" | "histogram";
+  captureSettingsMode?: "none" | "fec-summary" | "constellation-display" | "histogram" | "spectrum-friendly";
   onPayloadChange?: (payload: ServingGroupCaptureRequestPayload | null) => void;
 }
 
@@ -206,6 +220,14 @@ export function ServingGroupCaptureRequestForm({
   const [modulationOrderOffset, setModulationOrderOffset] = useState("0");
   const [numberSampleSymbol, setNumberSampleSymbol] = useState("8192");
   const [sampleDuration, setSampleDuration] = useState("10");
+  const [inactivityTimeout, setInactivityTimeout] = useState("60");
+  const [firstSegmentCenterFreq, setFirstSegmentCenterFreq] = useState("300000000");
+  const [lastSegmentCenterFreq, setLastSegmentCenterFreq] = useState("900000000");
+  const [resolutionBw, setResolutionBw] = useState("30000");
+  const [noiseBw, setNoiseBw] = useState("150");
+  const [windowFunction, setWindowFunction] = useState(String(DEFAULT_SPECTRUM_ANALYZER_WINDOW_FUNCTION));
+  const [numAverages, setNumAverages] = useState("1");
+  const [spectrumRetrievalType, setSpectrumRetrievalType] = useState(String(DEFAULT_SPECTRUM_ANALYZER_RETRIEVAL_TYPE));
   const [cableModemRows, setCableModemRows] = useState<CableModemRow[]>([]);
   const [selectedCableModems, setSelectedCableModems] = useState<string[]>([]);
   const [loadingCableModems, setLoadingCableModems] = useState(false);
@@ -392,6 +414,18 @@ export function ServingGroupCaptureRequestForm({
         sample_duration: parsePositiveInteger(sampleDuration, 10),
       };
     }
+    if (captureSettingsMode === "spectrum-friendly") {
+      payload.capture_settings = {
+        inactivity_timeout: parsePositiveInteger(inactivityTimeout, 60),
+        first_segment_center_freq: parsePositiveInteger(firstSegmentCenterFreq, 300000000),
+        last_segment_center_freq: parsePositiveInteger(lastSegmentCenterFreq, 900000000),
+        resolution_bw: parsePositiveInteger(resolutionBw, 30000),
+        noise_bw: parseNonNegativeInteger(noiseBw, 150),
+        window_function: parseNonNegativeInteger(windowFunction, DEFAULT_SPECTRUM_ANALYZER_WINDOW_FUNCTION),
+        num_averages: parsePositiveInteger(numAverages, 1),
+        spectrum_retrieval_type: parseNonNegativeInteger(spectrumRetrievalType, DEFAULT_SPECTRUM_ANALYZER_RETRIEVAL_TYPE),
+      };
+    }
     return payload;
   }, [
     availableServingGroupIds,
@@ -412,6 +446,14 @@ export function ServingGroupCaptureRequestForm({
     modulationOrderOffset,
     numberSampleSymbol,
     sampleDuration,
+    inactivityTimeout,
+    firstSegmentCenterFreq,
+    lastSegmentCenterFreq,
+    resolutionBw,
+    noiseBw,
+    windowFunction,
+    numAverages,
+    spectrumRetrievalType,
   ]);
 
   const sortedCableModemRows = useMemo(() => {
@@ -651,6 +693,136 @@ export function ServingGroupCaptureRequestForm({
                     onChange={(event) => setSampleDuration(event.target.value)}
                     placeholder="10"
                   />
+                </div>
+              </div>
+            ) : null}
+            {captureSettingsMode === "spectrum-friendly" ? (
+              <div className="capture-request-mode-grid">
+                <div className="field capture-request-compact-input">
+                  <FieldLabelWithHint
+                    htmlFor={`${idPrefix}-inactivity-timeout`}
+                    label="Inactivity Timeout"
+                    hint="Maximum inactivity timeout in seconds before spectrum capture stops."
+                  />
+                  <input
+                    id={`${idPrefix}-inactivity-timeout`}
+                    type="number"
+                    min={1}
+                    value={inactivityTimeout}
+                    onChange={(event) => setInactivityTimeout(event.target.value)}
+                    placeholder="60"
+                  />
+                </div>
+                <div className="field capture-request-compact-input">
+                  <FieldLabelWithHint
+                    htmlFor={`${idPrefix}-first-segment-center-freq`}
+                    label="First Segment Center Freq"
+                    hint="First segment center frequency in Hz."
+                  />
+                  <input
+                    id={`${idPrefix}-first-segment-center-freq`}
+                    type="number"
+                    min={1}
+                    value={firstSegmentCenterFreq}
+                    onChange={(event) => setFirstSegmentCenterFreq(event.target.value)}
+                    placeholder="300000000"
+                  />
+                </div>
+                <div className="field capture-request-compact-input">
+                  <FieldLabelWithHint
+                    htmlFor={`${idPrefix}-last-segment-center-freq`}
+                    label="Last Segment Center Freq"
+                    hint="Last segment center frequency in Hz."
+                  />
+                  <input
+                    id={`${idPrefix}-last-segment-center-freq`}
+                    type="number"
+                    min={1}
+                    value={lastSegmentCenterFreq}
+                    onChange={(event) => setLastSegmentCenterFreq(event.target.value)}
+                    placeholder="900000000"
+                  />
+                </div>
+                <div className="field capture-request-compact-input">
+                  <FieldLabelWithHint
+                    htmlFor={`${idPrefix}-resolution-bw`}
+                    label="Resolution BW"
+                    hint="Spectrum analyzer resolution bandwidth in Hz."
+                  />
+                  <input
+                    id={`${idPrefix}-resolution-bw`}
+                    type="number"
+                    min={1}
+                    value={resolutionBw}
+                    onChange={(event) => setResolutionBw(event.target.value)}
+                    placeholder="30000"
+                  />
+                </div>
+                <div className="field capture-request-compact-input">
+                  <FieldLabelWithHint
+                    htmlFor={`${idPrefix}-noise-bw`}
+                    label="Noise BW"
+                    hint="Equivalent noise bandwidth in kHz."
+                  />
+                  <input
+                    id={`${idPrefix}-noise-bw`}
+                    type="number"
+                    min={0}
+                    value={noiseBw}
+                    onChange={(event) => setNoiseBw(event.target.value)}
+                    placeholder="150"
+                  />
+                </div>
+                <div className="field capture-request-compact-input">
+                  <FieldLabelWithHint
+                    htmlFor={`${idPrefix}-window-function`}
+                    label="Window Function"
+                    hint="FFT window function enum lookup used by the CMTS backend."
+                  />
+                  <select
+                    id={`${idPrefix}-window-function`}
+                    value={windowFunction}
+                    onChange={(event) => setWindowFunction(event.target.value)}
+                  >
+                    {SPECTRUM_ANALYZER_WINDOW_FUNCTION_OPTIONS.map((option) => (
+                      <option key={option.value} value={String(option.value)}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="field capture-request-compact-input">
+                  <FieldLabelWithHint
+                    htmlFor={`${idPrefix}-num-averages`}
+                    label="Num Averages"
+                    hint="Number of averages used during spectrum capture."
+                  />
+                  <input
+                    id={`${idPrefix}-num-averages`}
+                    type="number"
+                    min={1}
+                    value={numAverages}
+                    onChange={(event) => setNumAverages(event.target.value)}
+                    placeholder="1"
+                  />
+                </div>
+                <div className="field capture-request-compact-input">
+                  <FieldLabelWithHint
+                    htmlFor={`${idPrefix}-spectrum-retrieval-type`}
+                    label="Spectrum Retrieval Type"
+                    hint="Spectrum retrieval type enum lookup used by the backend."
+                  />
+                  <select
+                    id={`${idPrefix}-spectrum-retrieval-type`}
+                    value={spectrumRetrievalType}
+                    onChange={(event) => setSpectrumRetrievalType(event.target.value)}
+                  >
+                    {SPECTRUM_ANALYZER_RETRIEVAL_TYPE_OPTIONS.map((option) => (
+                      <option key={option.value} value={String(option.value)}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
             ) : null}

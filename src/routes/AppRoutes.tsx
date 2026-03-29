@@ -24,6 +24,9 @@ const CmtsSgModulationProfileWorkflowPage = lazy(() =>
 const CmtsSgHistogramWorkflowPage = lazy(() =>
   import("@/pages/CmtsSgHistogramWorkflowPage").then((module) => ({ default: module.CmtsSgHistogramWorkflowPage })),
 );
+const CmtsSpectrumFriendlyWorkflowPage = lazy(() =>
+  import("@/pages/CmtsSpectrumFriendlyWorkflowPage").then((module) => ({ default: module.CmtsSpectrumFriendlyWorkflowPage })),
+);
 const AnalysisViewerPage = lazy(() =>
   import("@/pages/AnalysisViewerPage").then((module) => ({ default: module.AnalysisViewerPage })),
 );
@@ -78,7 +81,10 @@ export function AppRoutes() {
           <Route path="/single-capture" element={<Navigate to="/single-capture/rxmer" replace />} />
           <Route path="/single-capture/:operationId" element={<EndpointExplorerPage />} />
           <Route path="/spectrum-analyzer" element={<Navigate to="/spectrum-analyzer/friendly" replace />} />
-          <Route path="/spectrum-analyzer/:operationId" element={<EndpointExplorerPage />} />
+          <Route path="/spectrum-analyzer/friendly" element={<CmtsSpectrumFriendlyWorkflowPage />} />
+          <Route path="/spectrum-analyzer/full-band" element={<Navigate to="/spectrum-analyzer/friendly" replace />} />
+          <Route path="/spectrum-analyzer/ofdm" element={<Navigate to="/spectrum-analyzer/friendly" replace />} />
+          <Route path="/spectrum-analyzer/scqam" element={<Navigate to="/spectrum-analyzer/friendly" replace />} />
           <Route path="/endpoints" element={<Navigate to="/operations" replace />} />
           <Route path="/operations" element={<Navigate to="/operations/cmts-sg-ds-ofdm-rxmer" replace />} />
           <Route path="/operations/cmts-sg-ds-ofdm-rxmer" element={<CmtsSgRxMerWorkflowPage />} />
@@ -88,11 +94,12 @@ export function AppRoutes() {
           <Route path="/operations/cmts-sg-ds-ofdm-modulation-profile" element={<CmtsSgModulationProfileWorkflowPage />} />
           <Route path="/operations/cmts-sg-ds-histogram" element={<CmtsSgHistogramWorkflowPage />} />
           <Route path="/operations/cmts-sg-ds-ofdm-histogram" element={<CmtsSgHistogramWorkflowPage />} />
+          <Route path="/operations/cmts-spectrum-friendly" element={<CmtsSpectrumFriendlyWorkflowPage />} />
           <Route path="/operations/:operationId" element={<EndpointExplorerPage />} />
           <Route path="/operations/spectrum-analyzer" element={<Navigate to="/spectrum-analyzer/friendly" replace />} />
-          <Route path="/operations/spectrum-analyzer-full-band" element={<Navigate to="/spectrum-analyzer/full-band" replace />} />
-          <Route path="/operations/spectrum-analyzer-ofdm" element={<Navigate to="/spectrum-analyzer/ofdm" replace />} />
-          <Route path="/operations/spectrum-analyzer-scqam" element={<Navigate to="/spectrum-analyzer/scqam" replace />} />
+          <Route path="/operations/spectrum-analyzer-full-band" element={<Navigate to="/spectrum-analyzer/friendly" replace />} />
+          <Route path="/operations/spectrum-analyzer-ofdm" element={<Navigate to="/spectrum-analyzer/friendly" replace />} />
+          <Route path="/operations/spectrum-analyzer-scqam" element={<Navigate to="/spectrum-analyzer/friendly" replace />} />
           <Route path="/measurements" element={<MeasurementRequestPage />} />
           <Route path="/results" element={<ResultsPage />} />
           <Route path="/files" element={<FileListPage />} />

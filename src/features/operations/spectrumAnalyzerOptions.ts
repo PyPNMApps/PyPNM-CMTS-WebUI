@@ -1,23 +1,16 @@
-export interface SpectrumAnalyzerOption {
-  value: number;
-  label: string;
-}
+import {
+  DEFAULT_SPECTRUM_ANALYZER_RETRIEVAL_TYPE,
+  DEFAULT_SPECTRUM_ANALYZER_WINDOW_FUNCTION,
+  SPECTRUM_ANALYZER_RETRIEVAL_TYPE_OPTIONS,
+  SPECTRUM_ANALYZER_WINDOW_FUNCTION_OPTIONS,
+  type SpectrumAnalyzerOption,
+} from "@/lib/spectrumAnalyzerEnumLookup";
 
-export const spectrumAnalyzerWindowFunctionOptions: SpectrumAnalyzerOption[] = [
-  { value: 0, label: "Other" },
-  { value: 1, label: "Hann" },
-  { value: 2, label: "Blackman Harris" },
-  { value: 3, label: "Rectangular" },
-  { value: 4, label: "Hamming" },
-  { value: 5, label: "Flat Top" },
-  { value: 6, label: "Gaussian" },
-  { value: 7, label: "Chebyshev" },
-];
+export type { SpectrumAnalyzerOption };
 
-export const spectrumAnalyzerRetrievalTypeOptions: SpectrumAnalyzerOption[] = [
-  { value: 1, label: "PNM File" },
-  { value: 2, label: "SNMP" },
-];
+export const spectrumAnalyzerWindowFunctionOptions = SPECTRUM_ANALYZER_WINDOW_FUNCTION_OPTIONS;
+
+export const spectrumAnalyzerRetrievalTypeOptions = SPECTRUM_ANALYZER_RETRIEVAL_TYPE_OPTIONS;
 
 export const spectrumAnalyzerDirectionOptions = [
   { value: "downstream", label: "Downstream" },
@@ -32,7 +25,7 @@ export const DEFAULT_SPECTRUM_ANALYZER_FRIENDLY_RESOLUTION_BW_HZ = 30_000;
 export const DEFAULT_SPECTRUM_ANALYZER_FULL_BAND_RESOLUTION_BW_HZ = 300_000;
 export const DEFAULT_SPECTRUM_ANALYZER_OFDM_RESOLUTION_BANDWIDTH_HZ = 25_000;
 export const DEFAULT_SPECTRUM_ANALYZER_NOISE_BW_HZ = 150;
-export const defaultSpectrumAnalyzerWindowFunction = 1;
-export const defaultSpectrumAnalyzerRetrievalType = 2;
+export const defaultSpectrumAnalyzerWindowFunction = DEFAULT_SPECTRUM_ANALYZER_WINDOW_FUNCTION;
+export const defaultSpectrumAnalyzerRetrievalType = DEFAULT_SPECTRUM_ANALYZER_RETRIEVAL_TYPE;
 export const defaultSpectrumAnalyzerDirection = "downstream";
 export const defaultSpectrumAnalyzerNumberOfAverages = 1;

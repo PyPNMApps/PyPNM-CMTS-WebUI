@@ -97,6 +97,13 @@ const histogramSeriesDefinition: OperationSeriesDefinition = {
   descriptionPrefix: "serving-group downstream Histogram",
 };
 
+const spectrumFriendlySeriesDefinition: OperationSeriesDefinition = {
+  idPrefix: "cmts-spectrum-friendly",
+  endpointBase: "/cmts/pnm/sg/spectrumAnalyzer",
+  categoryPath: ["CMTS", "PNM", "Spectrum Analyzer", "Friendly"],
+  descriptionPrefix: "serving-group spectrum analyzer friendly",
+};
+
 export const operationRegistry: OperationNode[] = [
   ...buildStartStatusResultsSeries(rxMerSeriesDefinition),
   ...buildStartStatusResultsSeries(channelEstCoeffSeriesDefinition),
@@ -104,6 +111,7 @@ export const operationRegistry: OperationNode[] = [
   ...buildStartStatusResultsSeries(constellationDisplaySeriesDefinition),
   ...buildStartStatusResultsSeries(modulationProfileSeriesDefinition),
   ...buildStartStatusResultsSeries(histogramSeriesDefinition),
+  ...buildStartStatusResultsSeries(spectrumFriendlySeriesDefinition),
 ];
 
 export function getOperationById(operationId: string): OperationNode | undefined {
@@ -140,6 +148,11 @@ export const operationFolderGroups: OperationFolderGroup[] = [
     id: "cmts-sg-histogram-workflow",
     label: "CMTS / PNM / Serving Group / Downstream Histogram",
     operations: operationRegistry.filter((operation) => operation.id.startsWith("cmts-sg-ds-histogram")),
+  },
+  {
+    id: "cmts-spectrum-friendly-workflow",
+    label: "CMTS / PNM / Spectrum Analyzer / Friendly",
+    operations: operationRegistry.filter((operation) => operation.id.startsWith("cmts-spectrum-friendly")),
   },
 ];
 
