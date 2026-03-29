@@ -94,6 +94,16 @@ resolve_profile_defaults() {
       exit 2
       ;;
   esac
+
+  if [ ! -x "${WEBUI_CLI_SCRIPT}" ]; then
+    local fallback_cli="${ROOT_DIR}/tools/cli/pypnm-cmts-webui.js"
+    if [ -x "${fallback_cli}" ]; then
+      WEBUI_CLI_SCRIPT="${fallback_cli}"
+    else
+      printf 'ERROR: WebUI CLI script not found: %s\n' "${WEBUI_CLI_SCRIPT}" >&2
+      exit 1
+    fi
+  fi
 }
 
 main() {
