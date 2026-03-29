@@ -184,6 +184,9 @@
 - In SG cable-modem tables (filters and per-channel rows), keep identification
   columns present and ordered as `MAC Address`, `Model`, `Vendor`, `Version`
   so operators can scan rows consistently across operations.
+- In cable-modem dashboard tables, center column labels within each header
+  cell so table scanning remains visually balanced across light and dark
+  themes.
 - All docs surfaces and all UI visuals must support both light mode and dark
   mode under explicit user selection.
 - Do not ship docs themes, charts, panels, or visual encodings that only work

@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import type { ReactNode } from "react";
 import { useForm } from "react-hook-form";
 
@@ -41,6 +41,7 @@ interface SpectrumOfdmCaptureRequestFormProps {
   onConnectivityInputsChange?: (inputs: CaptureConnectivityInputs) => void;
   errorMessage?: string;
   extraActions?: ReactNode;
+  requestDefaultsOverride?: Partial<SpectrumOfdmFormValues>;
 }
 
 export function SpectrumOfdmCaptureRequestForm({
@@ -51,8 +52,16 @@ export function SpectrumOfdmCaptureRequestForm({
   onConnectivityInputsChange,
   errorMessage,
   extraActions,
+  requestDefaultsOverride,
 }: SpectrumOfdmCaptureRequestFormProps) {
-  const requestDefaults = useCommonRequestFormDefaults();
+  const baseRequestDefaults = useCommonRequestFormDefaults();
+  const requestDefaults = useMemo(
+    () => ({
+      ...baseRequestDefaults,
+      ...requestDefaultsOverride,
+    }),
+    [baseRequestDefaults, requestDefaultsOverride],
+  );
   const { register, handleSubmit, reset, watch } = useForm<SpectrumOfdmFormValues>({
     defaultValues: {
       macAddress: requestDefaults.macAddress,

@@ -30,6 +30,9 @@ const CmtsSpectrumFriendlyWorkflowPage = lazy(() =>
 const CmtsSingleCaptureDashboardPage = lazy(() =>
   import("@/pages/CmtsSingleCaptureDashboardPage").then((module) => ({ default: module.CmtsSingleCaptureDashboardPage })),
 );
+const AdvancedPage = lazy(() =>
+  import("@/pages/AdvancedPage").then((module) => ({ default: module.AdvancedPage })),
+);
 const AnalysisViewerPage = lazy(() =>
   import("@/pages/AnalysisViewerPage").then((module) => ({ default: module.AnalysisViewerPage })),
 );
@@ -77,10 +80,10 @@ export function AppRoutes() {
           <Route path="/serving-group/constellation-display" element={<CmtsSgConstellationDisplayWorkflowPage />} />
           <Route path="/serving-group/modulation-profile" element={<CmtsSgModulationProfileWorkflowPage />} />
           <Route path="/serving-group/histogram" element={<CmtsSgHistogramWorkflowPage />} />
-          <Route path="/advanced" element={<Navigate to="/serving-group/rxmer" replace />} />
-          <Route path="/advanced/rxmer" element={<Navigate to="/serving-group/rxmer" replace />} />
-          <Route path="/advanced/channel-estimation" element={<Navigate to="/serving-group/rxmer" replace />} />
-          <Route path="/advanced/ofdma-pre-eq" element={<Navigate to="/serving-group/rxmer" replace />} />
+          <Route path="/advanced" element={<Navigate to="/advanced/rxmer" replace />} />
+          <Route path="/advanced/rxmer" element={<AdvancedPage />} />
+          <Route path="/advanced/channel-estimation" element={<AdvancedPage />} />
+          <Route path="/advanced/ofdma-pre-eq" element={<AdvancedPage />} />
           <Route path="/single-capture" element={<Navigate to="/single-capture/dashboard" replace />} />
           <Route path="/single-capture/dashboard" element={<CmtsSingleCaptureDashboardPage />} />
           <Route path="/single-capture/rxmer" element={<EndpointExplorerPage />} />

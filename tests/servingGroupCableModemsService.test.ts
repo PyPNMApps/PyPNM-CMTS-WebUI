@@ -58,6 +58,8 @@ describe("servingGroupCableModemsService", () => {
     expect(rows).toHaveLength(1);
     expect(rows[0]?.macAddress).toBe("aa:bb:cc:dd:ee:ff");
     expect(rows[0]?.ipAddress).toBe("10.1.0.10");
+    expect(rows[0]?.dsChannelIds).toEqual([193, 194]);
+    expect(rows[0]?.usChannelIds).toEqual([12]);
     expect(rows[0]?.channelIds).toEqual([12, 193, 194]);
   });
 });

@@ -20,6 +20,7 @@ import {
 } from "@/features/operations/captureConnectivity";
 import { requestFieldHints } from "@/features/operations/requestFieldHints";
 import { useCommonRequestFormDefaults } from "@/features/operations/useRequestFormDefaults";
+import type { CommonRequestFormDefaults } from "@/features/operations/useRequestFormDefaults";
 import { useAdvancedOperationMachine } from "@/features/advanced/useAdvancedOperationMachine";
 import { AdvancedRxMerMinAvgMaxView } from "@/features/advanced/AdvancedRxMerMinAvgMaxView";
 import { AdvancedRxMerEchoDetectionView } from "@/features/advanced/AdvancedRxMerEchoDetectionView";
@@ -75,6 +76,7 @@ import type {
   AdvancedMultiUsOfdmaPreEqStatusResponse,
 } from "@/types/api";
 import { DeviceInfoTable } from "@/components/common/DeviceInfoTable";
+import { readSelectedModemContext } from "@/features/single-capture/lib/selectedModemContext";
 
 const advancedRoutes = [
   { to: "/advanced/rxmer", label: "RxMER" },
@@ -118,6 +120,21 @@ interface AdvancedRxMerFormValues {
   measurementDuration: number;
   sampleInterval: number;
   measureMode: number;
+}
+
+function withSelectedModemDefaults(requestDefaults: CommonRequestFormDefaults): CommonRequestFormDefaults {
+  const selectedModem = readSelectedModemContext();
+  if (!selectedModem) {
+    return requestDefaults;
+  }
+
+  return {
+    ...requestDefaults,
+    macAddress: selectedModem.macAddress,
+    ipAddress: selectedModem.ipAddress === "n/a" ? "" : selectedModem.ipAddress,
+    community: selectedModem.snmpCommunity,
+    channelIds: "",
+  };
 }
 
 interface AdvancedAnalysisFormValues {
@@ -336,7 +353,11 @@ function AdvancedRxMerAnalysisView({
 
 function AdvancedRxMerWorkbench() {
   const { selectedInstance } = useInstanceConfig();
-  const requestDefaults = useCommonRequestFormDefaults();
+  const requestDefaultsBase = useCommonRequestFormDefaults();
+  const requestDefaults = useMemo(
+    () => withSelectedModemDefaults(requestDefaultsBase),
+    [requestDefaultsBase],
+  );
   const requestForm = useForm<AdvancedRxMerFormValues>({
     defaultValues: {
       macAddress: requestDefaults.macAddress,
@@ -748,7 +769,11 @@ export function AdvancedChannelEstimationAnalysisView({
 
 function AdvancedChannelEstimationWorkbench() {
   const { selectedInstance } = useInstanceConfig();
-  const requestDefaults = useCommonRequestFormDefaults();
+  const requestDefaultsBase = useCommonRequestFormDefaults();
+  const requestDefaults = useMemo(
+    () => withSelectedModemDefaults(requestDefaultsBase),
+    [requestDefaultsBase],
+  );
   const requestForm = useForm<AdvancedChannelEstimationFormValues>({
     defaultValues: {
       macAddress: requestDefaults.macAddress,
@@ -1139,7 +1164,11 @@ function AdvancedOfdmaPreEqAnalysisView({
 
 function AdvancedOfdmaPreEqWorkbench() {
   const { selectedInstance } = useInstanceConfig();
-  const requestDefaults = useCommonRequestFormDefaults();
+  const requestDefaultsBase = useCommonRequestFormDefaults();
+  const requestDefaults = useMemo(
+    () => withSelectedModemDefaults(requestDefaultsBase),
+    [requestDefaultsBase],
+  );
   const requestForm = useForm<AdvancedOfdmaPreEqFormValues>({
     defaultValues: {
       macAddress: requestDefaults.macAddress,

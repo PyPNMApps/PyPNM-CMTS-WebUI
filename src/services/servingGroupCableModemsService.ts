@@ -36,6 +36,8 @@ export interface ServingGroupCableModemRow {
   sgId: number;
   macAddress: string;
   ipAddress: string;
+  dsChannelIds: number[];
+  usChannelIds: number[];
   channelIds: number[];
   registrationStatusCode: number | null;
   registrationStatusText: string;
@@ -69,9 +71,11 @@ function normalizeCableModemRows(response: ServingGroupCableModemResponse): Serv
       const dsChannelIds = asNumberArray(item.ds_channel_ids);
       const usChannelIds = asNumberArray(item.us_channel_ids);
       const legacyChannelIds = asNumberArray(item.channel_ids);
+      const normalizedDsChannelIds = dedupeNumbers(dsChannelIds);
+      const normalizedUsChannelIds = dedupeNumbers(usChannelIds);
       const channelIds = dedupeNumbers([
-        ...dsChannelIds,
-        ...usChannelIds,
+        ...normalizedDsChannelIds,
+        ...normalizedUsChannelIds,
         ...legacyChannelIds,
       ]);
       const normalizedIpAddress = String(
@@ -86,6 +90,8 @@ function normalizeCableModemRows(response: ServingGroupCableModemResponse): Serv
         sgId,
         macAddress,
         ipAddress: normalizedIpAddress || "n/a",
+        dsChannelIds: normalizedDsChannelIds,
+        usChannelIds: normalizedUsChannelIds,
         channelIds,
         registrationStatusCode: typeof item.registration_status?.status === "number" ? item.registration_status.status : null,
         registrationStatusText: String(item.registration_status?.text ?? "").trim() || "n/a",

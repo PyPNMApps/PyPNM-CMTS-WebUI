@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useForm } from "react-hook-form";
 
 import { FieldLabel } from "@/components/common/FieldLabel";
@@ -23,6 +23,7 @@ interface DeviceConnectRequestFormProps {
   onSubmit: (payload: DeviceConnectRequest) => void;
   onConnectivityInputsChange?: (inputs: CaptureConnectivityInputs) => void;
   errorMessage?: string;
+  requestDefaultsOverride?: Partial<DeviceConnectFormValues>;
 }
 
 export function DeviceConnectRequestForm({
@@ -32,8 +33,16 @@ export function DeviceConnectRequestForm({
   onSubmit,
   onConnectivityInputsChange,
   errorMessage,
+  requestDefaultsOverride,
 }: DeviceConnectRequestFormProps) {
-  const requestDefaults = useDeviceConnectFormDefaults();
+  const baseRequestDefaults = useDeviceConnectFormDefaults();
+  const requestDefaults = useMemo(
+    () => ({
+      ...baseRequestDefaults,
+      ...requestDefaultsOverride,
+    }),
+    [baseRequestDefaults, requestDefaultsOverride],
+  );
   const { register, handleSubmit, reset, watch } = useForm<DeviceConnectFormValues>({
     defaultValues: requestDefaults,
   });

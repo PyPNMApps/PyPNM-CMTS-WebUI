@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import type { ReactNode } from "react";
 import { useForm } from "react-hook-form";
 
@@ -49,6 +49,7 @@ interface SpectrumFullBandCaptureRequestFormProps {
   onConnectivityInputsChange?: (inputs: CaptureConnectivityInputs) => void;
   errorMessage?: string;
   extraActions?: ReactNode;
+  requestDefaultsOverride?: Partial<SpectrumFullBandFormValues>;
 }
 
 export function SpectrumFullBandCaptureRequestForm({
@@ -59,8 +60,16 @@ export function SpectrumFullBandCaptureRequestForm({
   onConnectivityInputsChange,
   errorMessage,
   extraActions,
+  requestDefaultsOverride,
 }: SpectrumFullBandCaptureRequestFormProps) {
-  const requestDefaults = useCommonRequestFormDefaults();
+  const baseRequestDefaults = useCommonRequestFormDefaults();
+  const requestDefaults = useMemo(
+    () => ({
+      ...baseRequestDefaults,
+      ...requestDefaultsOverride,
+    }),
+    [baseRequestDefaults, requestDefaultsOverride],
+  );
   const { register, handleSubmit, reset, watch } = useForm<SpectrumFullBandFormValues>({
     defaultValues: {
       macAddress: requestDefaults.macAddress,

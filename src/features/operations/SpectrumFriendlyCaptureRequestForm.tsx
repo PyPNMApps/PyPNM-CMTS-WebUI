@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import type { ReactNode } from "react";
 import { useForm } from "react-hook-form";
 
@@ -50,6 +50,7 @@ interface SpectrumFriendlyCaptureRequestFormProps {
   onConnectivityInputsChange?: (inputs: CaptureConnectivityInputs) => void;
   errorMessage?: string;
   extraActions?: ReactNode;
+  requestDefaultsOverride?: Partial<SpectrumFriendlyFormValues>;
 }
 
 export function SpectrumFriendlyCaptureRequestForm({
@@ -60,8 +61,16 @@ export function SpectrumFriendlyCaptureRequestForm({
   onConnectivityInputsChange,
   errorMessage,
   extraActions,
+  requestDefaultsOverride,
 }: SpectrumFriendlyCaptureRequestFormProps) {
-  const requestDefaults = useCommonRequestFormDefaults();
+  const baseRequestDefaults = useCommonRequestFormDefaults();
+  const requestDefaults = useMemo(
+    () => ({
+      ...baseRequestDefaults,
+      ...requestDefaultsOverride,
+    }),
+    [baseRequestDefaults, requestDefaultsOverride],
+  );
   const { register, handleSubmit, reset, watch } = useForm<SpectrumFriendlyFormValues>({
     defaultValues: {
       macAddress: requestDefaults.macAddress,

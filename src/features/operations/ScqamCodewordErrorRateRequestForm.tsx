@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useForm } from "react-hook-form";
 
 import { FieldLabel } from "@/components/common/FieldLabel";
@@ -25,6 +25,7 @@ interface ScqamCodewordErrorRateRequestFormProps {
   onSubmit: (payload: DsScqamCodewordErrorRateRequest) => void;
   onConnectivityInputsChange?: (inputs: CaptureConnectivityInputs) => void;
   errorMessage?: string;
+  requestDefaultsOverride?: Partial<ScqamCodewordErrorRateFormValues>;
 }
 
 export function ScqamCodewordErrorRateRequestForm({
@@ -34,8 +35,16 @@ export function ScqamCodewordErrorRateRequestForm({
   onSubmit,
   onConnectivityInputsChange,
   errorMessage,
+  requestDefaultsOverride,
 }: ScqamCodewordErrorRateRequestFormProps) {
-  const requestDefaults = useDeviceConnectFormDefaults();
+  const baseRequestDefaults = useDeviceConnectFormDefaults();
+  const requestDefaults = useMemo(
+    () => ({
+      ...baseRequestDefaults,
+      ...requestDefaultsOverride,
+    }),
+    [baseRequestDefaults, requestDefaultsOverride],
+  );
   const { register, handleSubmit, reset, watch } = useForm<ScqamCodewordErrorRateFormValues>({
     defaultValues: {
       ...requestDefaults,

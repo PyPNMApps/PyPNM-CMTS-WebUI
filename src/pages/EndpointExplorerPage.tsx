@@ -114,6 +114,7 @@ export function EndpointExplorerPage() {
   const location = useLocation();
   const { selectedInstance } = useInstanceConfig();
   const isSingleCaptureRoute = location.pathname.startsWith("/single-capture");
+  const isOperationExplorerRoute = location.pathname.startsWith("/operations/");
   const isSpectrumAnalyzerRoute = location.pathname.startsWith("/spectrum-analyzer");
   const [captureConnectivityInputs, setCaptureConnectivityInputs] = useState<CaptureConnectivityInputs | null>(null);
   const [captureConnectivityStatus, setCaptureConnectivityStatus] = useState<CaptureConnectivityStatus>("unknown");
@@ -146,7 +147,7 @@ export function EndpointExplorerPage() {
   const [spectrumScqamResponse, setSpectrumScqamResponse] = useState<SingleSpectrumScqamCaptureResponse | null>(null);
   const selectedOperation = getOperationByRoutePath(location.pathname);
   const { requestDefaultsOverride: singleCaptureRequestDefaultsOverride, preferredConnectivityInputs } = useSingleCaptureRequestContext(
-    isSingleCaptureRoute,
+    isSingleCaptureRoute || isOperationExplorerRoute,
     location.pathname,
     selectedInstance,
   );
@@ -481,6 +482,7 @@ export function EndpointExplorerPage() {
       submitLabel={`Run ${selectedOperation.label}`}
       errorMessage={mutation.isError ? (mutation.error as Error).message : undefined}
       onConnectivityInputsChange={setCaptureConnectivityInputs}
+      requestDefaultsOverride={singleCaptureRequestDefaultsOverride}
       onSubmit={(payload) => {
         mutation.mutate({ endpointPath: selectedOperation.endpointPath, payload });
       }}
@@ -492,6 +494,7 @@ export function EndpointExplorerPage() {
       submitLabel={`Run ${selectedOperation.label}`}
       errorMessage={mutation.isError ? (mutation.error as Error).message : undefined}
       onConnectivityInputsChange={setCaptureConnectivityInputs}
+      requestDefaultsOverride={singleCaptureRequestDefaultsOverride}
       onSubmit={(payload) => {
         mutation.mutate({ endpointPath: selectedOperation.endpointPath, payload });
       }}
@@ -517,6 +520,7 @@ export function EndpointExplorerPage() {
       errorMessage={mutation.isError ? (mutation.error as Error).message : undefined}
       extraActions={requestJsonAction}
       onConnectivityInputsChange={setCaptureConnectivityInputs}
+      requestDefaultsOverride={singleCaptureRequestDefaultsOverride}
       onSubmit={(payload) => {
         mutation.mutate({ endpointPath: selectedOperation.endpointPath, payload });
       }}
@@ -529,6 +533,7 @@ export function EndpointExplorerPage() {
       errorMessage={mutation.isError ? (mutation.error as Error).message : undefined}
       extraActions={requestJsonAction}
       onConnectivityInputsChange={setCaptureConnectivityInputs}
+      requestDefaultsOverride={singleCaptureRequestDefaultsOverride}
       onSubmit={(payload) => {
         mutation.mutate({ endpointPath: selectedOperation.endpointPath, payload });
       }}
@@ -541,6 +546,7 @@ export function EndpointExplorerPage() {
       errorMessage={mutation.isError ? (mutation.error as Error).message : undefined}
       extraActions={requestJsonAction}
       onConnectivityInputsChange={setCaptureConnectivityInputs}
+      requestDefaultsOverride={singleCaptureRequestDefaultsOverride}
       onSubmit={(payload) => {
         mutation.mutate({ endpointPath: selectedOperation.endpointPath, payload });
       }}

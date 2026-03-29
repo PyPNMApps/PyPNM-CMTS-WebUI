@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useInstanceConfig } from "@/app/useInstanceConfig";
+import { CableModemDetailsModal } from "@/components/common/CableModemDetailsModal";
 import {
   getServingGroupCableModems,
   type ServingGroupCableModemRow,
@@ -10,6 +11,7 @@ import { saveSelectedModemContext } from "@/features/single-capture/lib/selected
 type SortKey = "sgId" | "registrationStatus" | "vendor" | "model";
 type SortDirection = "asc" | "desc";
 type FilterMode = "all" | "operational";
+type RowAction = "single-capture" | "advanced" | "operation";
 
 function toRegistrationStatusTone(statusText: string, statusCode: number | null): "operational" | "non_operational" {
   if (statusCode === 8 || statusText.trim().toLowerCase() === "operational") {
@@ -43,7 +45,6 @@ function sortRows(rows: ServingGroupCableModemRow[], key: SortKey, direction: So
 
 const singleCaptureRoutes = [
   { to: "/single-capture/dashboard", label: "Dashboard" },
-  { to: "/single-capture/rxmer", label: "RxMER" },
 ] as const;
 
 
@@ -61,6 +62,8 @@ export function CmtsSingleCaptureDashboardPage() {
   const [lastRefreshEpochMs, setLastRefreshEpochMs] = useState<number | null>(null);
   const [lastRefreshMode, setLastRefreshMode] = useState<"light" | "heavy">("light");
   const [heavyPollingEnabled, setHeavyPollingEnabled] = useState(false);
+  const [detailsRow, setDetailsRow] = useState<ServingGroupCableModemRow | null>(null);
+  const [rowActionByKey, setRowActionByKey] = useState<Record<string, RowAction>>({});
 
   async function refreshCableModems(mode: "light" | "heavy") {
     if (!selectedInstance?.baseUrl) {
@@ -137,6 +140,43 @@ export function CmtsSingleCaptureDashboardPage() {
     navigate("/single-capture/rxmer");
   }
 
+  function openAdvancedOperation(row: ServingGroupCableModemRow) {
+    saveSelectedModemContext({
+      sgId: row.sgId,
+      macAddress: row.macAddress,
+      ipAddress: row.ipAddress,
+      snmpCommunity: selectedInstance?.requestDefaults?.snmpRwCommunity ?? "private",
+      channelIds: row.channelIds,
+      selectedAtEpochMs: Date.now(),
+    });
+    navigate("/advanced/rxmer");
+  }
+
+  function openOperationsRoute(row: ServingGroupCableModemRow) {
+    saveSelectedModemContext({
+      sgId: row.sgId,
+      macAddress: row.macAddress,
+      ipAddress: row.ipAddress,
+      snmpCommunity: selectedInstance?.requestDefaults?.snmpRwCommunity ?? "private",
+      channelIds: row.channelIds,
+      selectedAtEpochMs: Date.now(),
+    });
+    navigate("/operations/if31-docsis-base-capability");
+  }
+
+  function openSelectedRowAction(row: ServingGroupCableModemRow) {
+    const selectedAction = rowActionByKey[row.key] ?? "single-capture";
+    if (selectedAction === "advanced") {
+      openAdvancedOperation(row);
+      return;
+    }
+    if (selectedAction === "operation") {
+      openOperationsRoute(row);
+      return;
+    }
+    openSingleCaptureOperation(row);
+  }
+
   return (
     <>
       <nav className="advanced-subnav">
@@ -173,35 +213,38 @@ export function CmtsSingleCaptureDashboardPage() {
             >
               Operational Only
             </button>
-            <button
-              type="button"
-              className="analysis-chip-button"
-              disabled={isLoading}
-              onClick={() => {
-                void refreshCableModems("light");
-              }}
-            >
-              Refresh (Light)
-            </button>
-            <button
-              type="button"
-              className={heavyPollingEnabled ? "analysis-chip-button active" : "analysis-chip-button"}
-              disabled={isLoading}
-              onClick={() => {
-                setHeavyPollingEnabled((current) => !current);
-                void refreshCableModems("heavy");
-              }}
-            >
-              {heavyPollingEnabled ? "Heavy Polling On" : "Heavy Poll"}
-            </button>
+            <div className="single-capture-poll-group" role="group" aria-label="Polling controls">
+              <button
+                type="button"
+                className="single-capture-poll-button"
+                disabled={isLoading}
+                onClick={() => {
+                  void refreshCableModems("light");
+                }}
+              >
+                Light Poll
+              </button>
+              <button
+                type="button"
+                className={heavyPollingEnabled ? "single-capture-poll-button active" : "single-capture-poll-button"}
+                disabled={isLoading}
+                onClick={() => {
+                  setHeavyPollingEnabled((current) => !current);
+                  void refreshCableModems("heavy");
+                }}
+              >
+                {heavyPollingEnabled ? "Heavy Polling On" : "Heavy Poll"}
+              </button>
+            </div>
           </div>
         </div>
         <div className="status-chip-row operation-status-chip-row">
           <span className="analysis-chip"><b>Total</b> {rows.length}</span>
           <span className="analysis-chip"><b>Visible</b> {visibleRows.length}</span>
           <span className="analysis-chip"><b>Operational</b> {rows.filter((row) => isOperational(row)).length}</span>
-          <span className="analysis-chip"><b>Last Mode</b> {lastRefreshMode}</span>
-          <span className="analysis-chip"><b>Last Refresh</b> {lastRefreshEpochMs ? new Date(lastRefreshEpochMs).toLocaleTimeString() : "n/a"}</span>
+          <span className="analysis-chip">
+            <b>Poll Mode</b> {lastRefreshMode} · <b>Last Refresh</b> {lastRefreshEpochMs ? new Date(lastRefreshEpochMs).toLocaleTimeString() : "n/a"}
+          </span>
         </div>
         {isLoading ? <p className="panel-copy">Loading cable modems...</p> : null}
         {errorMessage ? <p className="advanced-error-text">{errorMessage}</p> : null}
@@ -235,8 +278,7 @@ export function CmtsSingleCaptureDashboardPage() {
                   </button>
                 </th>
                 <th>Version</th>
-                <th>Channel IDs</th>
-                <th>Action</th>
+                <th className="single-capture-action-header">Action</th>
               </tr>
             </thead>
             <tbody>
@@ -245,25 +287,44 @@ export function CmtsSingleCaptureDashboardPage() {
                   <td>{row.sgId}</td>
                   <td className="mono">{row.macAddress}</td>
                   <td className="mono">{row.ipAddress}</td>
-                  <td>
+                  <td className="single-capture-status-cell">
                     <span className={isOperational(row) ? "analysis-chip status-operational" : "analysis-chip status-non-operational"}>
-                      {row.registrationStatusText}
+                      {row.registrationStatusText.toUpperCase()}
                     </span>
                   </td>
                   <td>{row.vendor}</td>
                   <td>{row.model}</td>
                   <td>{row.softwareVersion}</td>
-                  <td>{row.channelIds.length ? row.channelIds.join(", ") : "all"}</td>
-                  <td>
-                    <button type="button" className="operations-json-download" onClick={() => openSingleCaptureOperation(row)}>
-                      SingleCapture
-                    </button>
+                  <td className="single-capture-action-cell">
+                    <div className="single-capture-row-actions">
+                      <button type="button" className="operations-json-download" onClick={() => setDetailsRow(row)}>
+                        Details
+                      </button>
+                      <select
+                        className="single-capture-row-action-select"
+                        value={rowActionByKey[row.key] ?? "single-capture"}
+                        onChange={(event) => {
+                          const nextAction = event.target.value as RowAction;
+                          setRowActionByKey((current) => ({
+                            ...current,
+                            [row.key]: nextAction,
+                          }));
+                        }}
+                      >
+                        <option value="single-capture">SingleCapture</option>
+                        <option value="advanced">Advanced</option>
+                        <option value="operation">Operation</option>
+                      </select>
+                      <button type="button" className="operations-json-download" onClick={() => openSelectedRowAction(row)}>
+                        Go
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
               {!visibleRows.length && !isLoading ? (
                 <tr>
-                  <td colSpan={9}>
+                  <td colSpan={8}>
                     <p className="panel-copy">No cable modems match the current filters.</p>
                   </td>
                 </tr>
@@ -272,6 +333,7 @@ export function CmtsSingleCaptureDashboardPage() {
           </table>
         </div>
       </article>
+      <CableModemDetailsModal details={detailsRow} onClose={() => setDetailsRow(null)} />
     </>
   );
 }

@@ -258,6 +258,23 @@ a {
   font-family: "IBM Plex Mono", "Consolas", monospace;
 }
 
+.operations-menu-trigger-inline {
+  font: inherit;
+}
+
+.single-capture-operation-menu .operations-menu-popover {
+  left: auto;
+  right: 0;
+  z-index: 40;
+}
+
+.operation-picker-link-button {
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  font: inherit;
+}
+
 .top-nav-instance {
   min-width: 0;
   display: flex;
@@ -936,6 +953,18 @@ button[aria-disabled="true"]:focus-visible,
 
 .analysis-chip.ok {
   background: rgba(91, 211, 159, 0.16);
+}
+
+.analysis-chip.status-operational {
+  border-color: rgba(91, 211, 159, 0.48);
+  background: rgba(91, 211, 159, 0.2);
+  color: #daf8eb;
+}
+
+.analysis-chip.status-non-operational {
+  border-color: rgba(220, 70, 70, 0.5);
+  background: rgba(220, 70, 70, 0.2);
+  color: #ffe3e3;
 }
 
 .analysis-swatch {
@@ -2017,6 +2046,71 @@ pre {
   align-items: center;
   justify-content: flex-end;
   gap: 10px;
+}
+
+.single-capture-row-actions {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.single-capture-row-action-select {
+  min-height: 38px;
+  min-width: 148px;
+  padding: 0 10px;
+  border-radius: 10px;
+  border: 1px solid var(--line-strong);
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+}
+
+.single-capture-poll-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.single-capture-poll-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: 10px;
+  border: 1px solid var(--line-strong);
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  cursor: pointer;
+}
+
+.single-capture-poll-button:hover,
+.single-capture-poll-button:focus-visible {
+  border-color: rgba(121, 169, 255, 0.42);
+  background: rgba(121, 169, 255, 0.08);
+}
+
+.single-capture-poll-button.active {
+  border-color: rgba(121, 169, 255, 0.45);
+  background: rgba(121, 169, 255, 0.18);
+}
+
+.single-capture-status-cell {
+  text-align: center;
+}
+
+.single-capture-action-header,
+.single-capture-action-cell {
+  text-align: center;
+}
+
+.single-capture-action-cell .single-capture-row-actions {
+  justify-content: center;
+}
+
+.capture-request-table-wrap thead th {
+  text-align: center;
 }
 
 .analysis-chip-button {
