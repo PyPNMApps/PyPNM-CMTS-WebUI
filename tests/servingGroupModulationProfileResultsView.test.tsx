@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 import { ServingGroupModulationProfileResultsView } from "../src/features/serving-group/components/ServingGroupModulationProfileResultsView";
 
 describe("ServingGroupModulationProfileResultsView", () => {
-  it("renders table-first modem previews and expands a zoomable chart row", () => {
+  it("renders SG combined graph filter controls and expands a zoomable chart row", () => {
     const payload = {
       results: {
         serving_groups: [
@@ -49,15 +49,19 @@ describe("ServingGroupModulationProfileResultsView", () => {
     };
 
     render(<ServingGroupModulationProfileResultsView payload={payload} />);
-    expect(screen.getByText("Vendor")).toBeTruthy();
-    expect(screen.getByText("Version")).toBeTruthy();
+    expect(screen.getByText("Service Group 1 Combined by Frequency")).toBeTruthy();
+    fireEvent.click(screen.getByText("Cable Modem Filter"));
+    expect(screen.getByRole("button", { name: "Select All" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Unselect All" })).toBeTruthy();
+    expect(screen.getAllByText("Vendor").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Version").length).toBeGreaterThan(0);
 
     const toggleButton = screen.getByRole("button", {
       name: "Toggle modulation profile details for aa:bb:cc:dd:ee:ff",
     });
     fireEvent.click(toggleButton);
 
-    expect(screen.getByRole("button", { name: "Zoom" })).toBeTruthy();
-    expect(screen.getByRole("button", { name: "Reset Zoom" })).toBeTruthy();
+    expect(screen.getAllByRole("button", { name: "Zoom" }).length).toBeGreaterThan(0);
+    expect(screen.getAllByRole("button", { name: "Reset Zoom" }).length).toBeGreaterThan(0);
   });
 });

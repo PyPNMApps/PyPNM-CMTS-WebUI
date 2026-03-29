@@ -170,6 +170,14 @@
   metadata; do not crowd primary buttons directly against chip rows.
 - Prefer explicit download labels such as `Download JSON` over short labels
   like `JSON` when the action meaning is not already obvious from placement.
+- For SG operation result surfaces, include a combined-by-frequency graph at
+  the service-group level and provide a foldable cable-modem filter table
+  directly below it with per-MAC selection plus `Select All` and `Unselect All`
+  actions. This combined graph/filter pattern is required for each operation
+  unless the user explicitly approves an exception.
+- In SG cable-modem tables (filters and per-channel rows), keep identification
+  columns present and ordered as `MAC Address`, `Model`, `Vendor`, `Version`
+  so operators can scan rows consistently across operations.
 - All docs surfaces and all UI visuals must support both light mode and dark
   mode under explicit user selection.
 - Do not ship docs themes, charts, panels, or visual encodings that only work

@@ -13,6 +13,60 @@ interface ServingGroupModulationProfileResultsViewProps {
   payload: unknown;
 }
 
+function buildServiceGroupCombinedSeries(
+  group: ServingGroupModulationProfileGroupVisual,
+  selectedMacs: Set<string>,
+  selectedProfileByMac: Record<string, string>,
+): ChartSeries[] {
+  return group.channels.flatMap((channel) =>
+    channel.modems
+      .filter((modem) => selectedMacs.has(modem.macAddress))
+      .flatMap((modem) => {
+        const selectedProfile = selectedProfileByMac[modem.macAddress] ?? "__all__";
+        return modem.profileSeries
+          .filter((series) => selectedProfile === "__all__" || series.label === selectedProfile)
+          .map((series) => ({
+            ...series,
+            label: `${modem.macAddress} · Ch ${channel.channelId} · ${series.label}`,
+          }));
+      }),
+  );
+}
+
+function listUniqueModems(group: ServingGroupModulationProfileGroupVisual) {
+  const byMac = new Map<string, {
+    macAddress: string;
+    vendor: string;
+    model: string;
+    softwareVersion: string;
+    profileOptions: string[];
+  }>();
+
+  for (const channel of group.channels) {
+    for (const modem of channel.modems) {
+      if (!byMac.has(modem.macAddress)) {
+        byMac.set(modem.macAddress, {
+          macAddress: modem.macAddress,
+          vendor: modem.vendor,
+          model: modem.model,
+          softwareVersion: modem.softwareVersion,
+          profileOptions: [],
+        });
+      }
+      const entry = byMac.get(modem.macAddress);
+      if (entry) {
+        const options = new Set(entry.profileOptions);
+        for (const profile of modem.profileSeries) {
+          options.add(profile.label);
+        }
+        entry.profileOptions = [...options].sort((left, right) => left.localeCompare(right));
+      }
+    }
+  }
+
+  return [...byMac.values()].sort((left, right) => left.macAddress.localeCompare(right.macAddress));
+}
+
 function asPreviewSeries(series: ChartSeries[]) {
   if (series.length > 0) {
     return series;
@@ -103,8 +157,8 @@ function ChannelModemTable({
         <thead>
           <tr>
             <th>MAC Address</th>
-            <th>Vendor</th>
             <th>Model</th>
+            <th>Vendor</th>
             <th>Version</th>
             <th>Profiles</th>
             <th>Capture Time (UTC)</th>
@@ -119,8 +173,8 @@ function ChannelModemTable({
               <Fragment key={modem.key}>
                 <tr>
                   <td className="mono">{modem.macAddress}</td>
-                  <td>{modem.vendor}</td>
                   <td>{modem.model}</td>
+                  <td>{modem.vendor}</td>
                   <td>{modem.softwareVersion}</td>
                   <td>{modem.profileSeries.length}</td>
                   <td>{modem.captureTimeLabel}</td>
@@ -192,6 +246,151 @@ function ChannelModemTable({
   );
 }
 
+function ServiceGroupSection({ group }: { group: ServingGroupModulationProfileGroupVisual }) {
+  const uniqueModems = useMemo(() => listUniqueModems(group), [group]);
+  const [selectedMacs, setSelectedMacs] = useState<string[]>(uniqueModems.map((modem) => modem.macAddress));
+  const [selectedProfileByMac, setSelectedProfileByMac] = useState<Record<string, string>>(() =>
+    uniqueModems.reduce<Record<string, string>>((acc, modem) => {
+      acc[modem.macAddress] = "__all__";
+      return acc;
+    }, {}),
+  );
+  const [combinedSelection, setCombinedSelection] = useState<SpectrumSelectionRange | null>(null);
+  const [combinedZoomDomain, setCombinedZoomDomain] = useState<[number, number] | null>(null);
+  const selectedMacSet = useMemo(() => new Set(selectedMacs), [selectedMacs]);
+  const combinedSeries = useMemo(
+    () => buildServiceGroupCombinedSeries(group, selectedMacSet, selectedProfileByMac),
+    [group, selectedMacSet, selectedProfileByMac],
+  );
+
+  return (
+    <div className="operations-visual-stack">
+      <article className="analysis-channel-card">
+        <div className="analysis-channel-top">
+          <h3 className="analysis-channel-title">Service Group {group.serviceGroupId} Combined by Frequency</h3>
+          <div className="analysis-channel-meta-line">
+            <span>Selected Modems: {selectedMacs.length} of {uniqueModems.length}</span>
+            <span>Series: {combinedSeries.length}</span>
+          </div>
+        </div>
+        <div className="analysis-channel-body">
+          <LineAnalysisChart
+            title={`Service Group ${group.serviceGroupId} · Combined Modulation Profiles`}
+            subtitle=""
+            yLabel="Shannon Min MER (dB)"
+            showLegend={false}
+            series={combinedSeries}
+            xDomain={combinedZoomDomain ?? undefined}
+            enableRangeSelection
+            selection={combinedSelection}
+            onSelectionChange={setCombinedSelection}
+            selectionActions={(
+              <SpectrumSelectionActions
+                selection={combinedSelection}
+                hasZoomDomain={combinedZoomDomain !== null}
+                showIntegratedPower={false}
+                onApplyZoom={(domain) => setCombinedZoomDomain(domain)}
+                onResetZoom={() => setCombinedZoomDomain(null)}
+              />
+            )}
+            exportBaseName={`sg-modulation-profile-sg-${group.serviceGroupId}-combined`}
+          />
+          <details className="capture-request-dropdown">
+            <summary className="capture-request-dropdown-summary">
+              <span>Cable Modem Filter</span>
+              <span className="capture-request-group-meta">Select MACs included in combined graph</span>
+            </summary>
+            <div className="status-chip-row">
+              <button
+                type="button"
+                className="analysis-chip-button"
+                disabled={uniqueModems.length === 0}
+                onClick={() => setSelectedMacs(uniqueModems.map((modem) => modem.macAddress))}
+              >
+                Select All
+              </button>
+              <button
+                type="button"
+                className="analysis-chip-button"
+                disabled={selectedMacs.length === 0}
+                onClick={() => setSelectedMacs([])}
+              >
+                Unselect All
+              </button>
+            </div>
+            <div className="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Select</th>
+                    <th>MAC Address</th>
+                    <th>Model</th>
+                    <th>Vendor</th>
+                    <th>Version</th>
+                    <th>Profile</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {uniqueModems.map((modem) => (
+                    <tr key={`filter-${group.serviceGroupId}-${modem.macAddress}`}>
+                      <td>
+                        <input
+                          type="checkbox"
+                          checked={selectedMacSet.has(modem.macAddress)}
+                          onChange={() => {
+                            setSelectedMacs((current) => (
+                              current.includes(modem.macAddress)
+                                ? current.filter((entry) => entry !== modem.macAddress)
+                                : [...current, modem.macAddress].sort((left, right) => left.localeCompare(right))
+                            ));
+                          }}
+                          aria-label={`Toggle ${modem.macAddress} in combined graph`}
+                        />
+                      </td>
+                      <td className="mono">{modem.macAddress}</td>
+                      <td>{modem.model}</td>
+                      <td>{modem.vendor}</td>
+                      <td>{modem.softwareVersion}</td>
+                      <td>
+                        <select
+                          value={selectedProfileByMac[modem.macAddress] ?? "__all__"}
+                          onChange={(event) => {
+                            const value = event.currentTarget.value;
+                            setSelectedProfileByMac((current) => ({
+                              ...current,
+                              [modem.macAddress]: value,
+                            }));
+                          }}
+                          aria-label={`Select profile for ${modem.macAddress}`}
+                        >
+                          <option value="__all__">All Profiles</option>
+                          {modem.profileOptions.map((profile) => (
+                            <option key={`${modem.macAddress}-${profile}`} value={profile}>
+                              {profile}
+                            </option>
+                          ))}
+                        </select>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </details>
+        </div>
+      </article>
+      {group.channels.map((channel) => (
+        <details key={channel.key} className="analysis-channel-card capture-request-dropdown">
+          <summary className="capture-request-dropdown-summary">
+            <span>Channel {channel.channelId} · {channel.rangeLabel} · {channel.modems.length} modem(s)</span>
+          </summary>
+          <ChannelModemTable groupId={group.serviceGroupId} channel={channel} />
+        </details>
+      ))}
+    </div>
+  );
+}
+
 export function ServingGroupModulationProfileResultsView({ payload }: ServingGroupModulationProfileResultsViewProps) {
   const normalized = normalizeServingGroupModulationProfileResultsPayload(payload);
 
@@ -206,16 +405,7 @@ export function ServingGroupModulationProfileResultsView({ payload }: ServingGro
           <summary className="capture-request-dropdown-summary">
             <span>Service Group {group.serviceGroupId}</span>
           </summary>
-          <div className="operations-visual-stack">
-            {group.channels.map((channel) => (
-              <details key={channel.key} className="analysis-channel-card capture-request-dropdown">
-                <summary className="capture-request-dropdown-summary">
-                  <span>Channel {channel.channelId} · {channel.rangeLabel} · {channel.modems.length} modem(s)</span>
-                </summary>
-                <ChannelModemTable groupId={group.serviceGroupId} channel={channel} />
-              </details>
-            ))}
-          </div>
+          <ServiceGroupSection group={group} />
         </details>
       ))}
       {normalized.missingModems.length > 0 ? (
