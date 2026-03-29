@@ -180,7 +180,25 @@ function parseAdvancedOperationId(outputs, statusIdPrefix) {
 
 function loadCaptureMocks() {
   if (!existsSync(LIVE_CAPTURE_SUMMARY_PATH)) {
-    fail(`Missing ${LIVE_CAPTURE_SUMMARY_PATH}. Run docs:capture-live-endpoint-examples first.`);
+    log(`Missing ${LIVE_CAPTURE_SUMMARY_PATH}; continuing with UI-only screenshots (no mocked capture payloads).`);
+    return {
+      endpointPayloads: new Map(),
+      advanced: {
+        rxmer: {
+          operationId: "",
+          analysisPayloads: new Map(),
+        },
+        channelEstimation: {
+          operationId: "",
+          analysisPayloads: new Map(),
+        },
+        ofdmaPreEq: {
+          operationId: "",
+          analysisPayloads: new Map(),
+        },
+      },
+      hasLiveSummary: false,
+    };
   }
 
   const summary = JSON.parse(readFileSync(LIVE_CAPTURE_SUMMARY_PATH, "utf-8"));
@@ -253,6 +271,7 @@ function loadCaptureMocks() {
         analysisPayloads: advancedAnalysisPayloads.ofdmaPreEq,
       },
     },
+    hasLiveSummary: true,
   };
 }
 
@@ -337,6 +356,7 @@ async function main() {
   mkdirSync(DOC_PREVIEW_DIR, { recursive: true });
 
   const mocks = loadCaptureMocks();
+  const canRunCaptureFlows = Boolean(mocks.hasLiveSummary && mocks.endpointPayloads.size > 0);
   const preview = startPreviewServer();
   let browser;
   try {
@@ -407,7 +427,7 @@ async function main() {
       const targetUrl = `${PREVIEW_BASE_URL}${route.path}`;
       log(`Capturing ${targetUrl}`);
       await page.goto(targetUrl, { waitUntil: "networkidle", timeout: 60_000 });
-      if (shouldRunCaptureBeforeScreenshot(route)) {
+      if (canRunCaptureFlows && shouldRunCaptureBeforeScreenshot(route)) {
         await runStandardCapture(page, route);
         await runAdvancedCapture(page, route, mocks);
       }
