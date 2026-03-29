@@ -10,18 +10,18 @@ import {
   ServingGroupCaptureRequestForm,
   type ServingGroupCaptureRequestPayload,
 } from "@/features/serving-group/components/ServingGroupCaptureRequestForm";
-import { ServingGroupModulationProfileResultsView } from "@/features/serving-group/components/ServingGroupModulationProfileResultsView";
+import { ServingGroupHistogramResultsView } from "@/features/serving-group/components/ServingGroupHistogramResultsView";
 import {
   formatOperationEpoch,
   parseServingGroupOperationStartResponse,
   parseServingGroupOperationStatusResponse,
 } from "@/features/serving-group/lib/operationStatus";
 import {
-  cancelServingGroupModulationProfileCapture,
-  getServingGroupModulationProfileCaptureStatus,
-  getServingGroupModulationProfileResults,
-  startServingGroupModulationProfileCapture,
-} from "@/services/servingGroupModulationProfileService";
+  cancelServingGroupHistogramCapture,
+  getServingGroupHistogramCaptureStatus,
+  getServingGroupHistogramResults,
+  startServingGroupHistogramCapture,
+} from "@/services/servingGroupHistogramService";
 
 const servingGroupRoutes = [
   { to: "/serving-group/rxmer", label: "RxMER" },
@@ -32,7 +32,7 @@ const servingGroupRoutes = [
   { to: "/serving-group/histogram", label: "Histogram" },
 ] as const;
 
-export function CmtsSgModulationProfileWorkflowPage() {
+export function CmtsSgHistogramWorkflowPage() {
   const { selectedInstance } = useInstanceConfig();
   const [requestPayload, setRequestPayload] = useState<ServingGroupCaptureRequestPayload | null>(null);
   const [isJsonModalOpen, setIsJsonModalOpen] = useState(false);
@@ -54,13 +54,13 @@ export function CmtsSgModulationProfileWorkflowPage() {
       if (!selectedInstance?.baseUrl || !requestPayload) {
         throw new Error("Capture request payload is not ready.");
       }
-      return startServingGroupModulationProfileCapture(selectedInstance.baseUrl, requestPayload);
+      return startServingGroupHistogramCapture(selectedInstance.baseUrl, requestPayload);
     },
     getStatus: async (operationId: string) => {
       if (!selectedInstance?.baseUrl) {
         throw new Error("No instance selected.");
       }
-      const response = await getServingGroupModulationProfileCaptureStatus(selectedInstance.baseUrl, operationId);
+      const response = await getServingGroupHistogramCaptureStatus(selectedInstance.baseUrl, operationId);
       setLatestStatusResponsePayload(response);
       return response;
     },
@@ -68,7 +68,7 @@ export function CmtsSgModulationProfileWorkflowPage() {
       if (!selectedInstance?.baseUrl) {
         throw new Error("No instance selected.");
       }
-      const response = await cancelServingGroupModulationProfileCapture(selectedInstance.baseUrl, operationId);
+      const response = await cancelServingGroupHistogramCapture(selectedInstance.baseUrl, operationId);
       setLatestStatusResponsePayload(response);
       return response;
     },
@@ -86,12 +86,12 @@ export function CmtsSgModulationProfileWorkflowPage() {
     setIsResultsLoading(true);
     setResultsError("");
     try {
-      const response = await getServingGroupModulationProfileResults(selectedInstance.baseUrl, operationId);
+      const response = await getServingGroupHistogramResults(selectedInstance.baseUrl, operationId);
       setResultsPayload(response);
       setResultsOperationId(operationId);
       setIsCaptureResultsCollapsed(false);
     } catch (error) {
-      setResultsError(error instanceof Error ? error.message : "Failed to load SG Modulation Profile results.");
+      setResultsError(error instanceof Error ? error.message : "Failed to load SG Histogram results.");
     } finally {
       setIsResultsLoading(false);
     }
@@ -128,7 +128,7 @@ export function CmtsSgModulationProfileWorkflowPage() {
         title={(
           <div className="capture-request-title-layout">
             <FoldablePanelTitle
-              id="cmts-sg-modulation-profile-capture-request-body"
+              id="cmts-sg-histogram-capture-request-body"
               label="Capture Request"
               isCollapsed={isCaptureRequestCollapsed}
               onToggle={() => setIsCaptureRequestCollapsed((current) => !current)}
@@ -173,13 +173,14 @@ export function CmtsSgModulationProfileWorkflowPage() {
           </div>
         )}
       >
-        <div id="cmts-sg-modulation-profile-capture-request-body" hidden={isCaptureRequestCollapsed}>
+        <div id="cmts-sg-histogram-capture-request-body" hidden={isCaptureRequestCollapsed}>
           <ServingGroupCaptureRequestForm
             baseUrl={selectedInstance?.baseUrl}
-            idPrefix="cmts-sg-modulation-profile"
+            idPrefix="cmts-sg-histogram"
             initialSnmpCommunity={selectedInstance?.requestDefaults?.snmpRwCommunity ?? ""}
             initialTftpIpv4={selectedInstance?.requestDefaults?.tftpIpv4 ?? ""}
             initialTftpIpv6={selectedInstance?.requestDefaults?.tftpIpv6 ?? ""}
+            captureSettingsMode="histogram"
             onPayloadChange={setRequestPayload}
           />
         </div>
@@ -188,7 +189,7 @@ export function CmtsSgModulationProfileWorkflowPage() {
         title={(
           <div className="capture-status-title-layout">
             <FoldablePanelTitle
-              id="cmts-sg-modulation-profile-capture-status-body"
+              id="cmts-sg-histogram-capture-status-body"
               label="Capture Status"
               isCollapsed={isCaptureStatusCollapsed}
               onToggle={() => setIsCaptureStatusCollapsed((current) => !current)}
@@ -204,13 +205,13 @@ export function CmtsSgModulationProfileWorkflowPage() {
           </div>
         )}
       >
-        <div id="cmts-sg-modulation-profile-capture-status-body" className="operation-status-stack" hidden={isCaptureStatusCollapsed}>
+        <div id="cmts-sg-histogram-capture-status-body" className="operation-status-stack" hidden={isCaptureStatusCollapsed}>
           <div className="operation-status-id-row">
             <label className="field">
               <span>Operation ID</span>
               <input
-                id="cmts-sg-modulation-profile-operation-id-input"
-                name="cmtsSgModulationProfileOperationId"
+                id="cmts-sg-histogram-operation-id-input"
+                name="cmtsSgHistogramOperationId"
                 type="text"
                 value={operationIdInput}
                 placeholder="Paste pnm_capture_operation_id"
@@ -279,7 +280,7 @@ export function CmtsSgModulationProfileWorkflowPage() {
             </div>
           </details>
           {machine.lifecycleState === "starting" || machine.lifecycleState === "running" ? (
-            <ThinkingIndicator label="Running SG Modulation Profile capture and polling status..." />
+            <ThinkingIndicator label="Running SG Histogram capture and polling status..." />
           ) : null}
           {machine.statusSummary?.message ? <p className="panel-copy">{machine.statusSummary.message}</p> : null}
           {machine.errorMessage ? <p className="advanced-error-text">{machine.errorMessage}</p> : null}
@@ -289,7 +290,7 @@ export function CmtsSgModulationProfileWorkflowPage() {
         title={(
           <div className="capture-status-title-layout">
             <FoldablePanelTitle
-              id="cmts-sg-modulation-profile-capture-results-body"
+              id="cmts-sg-histogram-results-body"
               label="Capture Results"
               isCollapsed={isCaptureResultsCollapsed}
               onToggle={() => setIsCaptureResultsCollapsed((current) => !current)}
@@ -310,29 +311,29 @@ export function CmtsSgModulationProfileWorkflowPage() {
           </div>
         )}
       >
-        <div id="cmts-sg-modulation-profile-capture-results-body" hidden={isCaptureResultsCollapsed}>
-          {isResultsLoading ? <ThinkingIndicator label="Loading SG Modulation Profile results..." /> : null}
+        <div id="cmts-sg-histogram-results-body" hidden={isCaptureResultsCollapsed}>
+          {isResultsLoading ? <ThinkingIndicator label="Loading SG Histogram results..." /> : null}
           {resultsError ? <p className="advanced-error-text">{resultsError}</p> : null}
-          {!isResultsLoading && !resultsError && resultsPayload ? (
-            <ServingGroupModulationProfileResultsView payload={resultsPayload} />
+          {!resultsError && !isResultsLoading && resultsPayload ? (
+            <ServingGroupHistogramResultsView payload={resultsPayload} />
           ) : null}
-          {!isResultsLoading && !resultsError && !resultsPayload ? (
-            <p className="panel-copy">Run capture to completion or click Get Results to load SG Modulation Profile visuals.</p>
+          {!resultsError && !isResultsLoading && !resultsPayload ? (
+            <p className="panel-copy">Run capture to completion or click Get Results to load SG Histogram visuals.</p>
           ) : null}
         </div>
       </Panel>
       <JsonPayloadModal
-        id="cmts-sg-modulation-profile-request-json-modal"
+        id="cmts-sg-histogram-request-json-modal"
+        isOpen={isJsonModalOpen}
         title="Capture Request JSON"
         payload={requestPayload}
-        isOpen={isJsonModalOpen}
         onClose={() => setIsJsonModalOpen(false)}
       />
       <JsonPayloadModal
-        id="cmts-sg-modulation-profile-response-json-modal"
+        id="cmts-sg-histogram-response-json-modal"
+        isOpen={isResponseJsonModalOpen}
         title="Capture Status Response JSON"
         payload={latestStatusResponsePayload}
-        isOpen={isResponseJsonModalOpen}
         onClose={() => setIsResponseJsonModalOpen(false)}
       />
     </>

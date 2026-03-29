@@ -37,6 +37,7 @@ export interface ServingGroupCaptureRequestPayload {
     fec_summary_type?: number;
     modulation_order_offset?: number;
     number_sample_symbol?: number;
+    sample_duration?: number;
   };
 }
 
@@ -51,7 +52,7 @@ interface ServingGroupCaptureRequestFormProps {
   initialSnmpCommunity?: string;
   initialTftpIpv4?: string;
   initialTftpIpv6?: string;
-  captureSettingsMode?: "none" | "fec-summary" | "constellation-display";
+  captureSettingsMode?: "none" | "fec-summary" | "constellation-display" | "histogram";
   onPayloadChange?: (payload: ServingGroupCaptureRequestPayload | null) => void;
 }
 
@@ -204,6 +205,7 @@ export function ServingGroupCaptureRequestForm({
   const [fecSummaryType, setFecSummaryType] = useState<number>(2);
   const [modulationOrderOffset, setModulationOrderOffset] = useState("0");
   const [numberSampleSymbol, setNumberSampleSymbol] = useState("8192");
+  const [sampleDuration, setSampleDuration] = useState("10");
   const [cableModemRows, setCableModemRows] = useState<CableModemRow[]>([]);
   const [selectedCableModems, setSelectedCableModems] = useState<string[]>([]);
   const [loadingCableModems, setLoadingCableModems] = useState(false);
@@ -385,6 +387,11 @@ export function ServingGroupCaptureRequestForm({
         number_sample_symbol: parsePositiveInteger(numberSampleSymbol, 8192),
       };
     }
+    if (captureSettingsMode === "histogram") {
+      payload.capture_settings = {
+        sample_duration: parsePositiveInteger(sampleDuration, 10),
+      };
+    }
     return payload;
   }, [
     availableServingGroupIds,
@@ -404,6 +411,7 @@ export function ServingGroupCaptureRequestForm({
     fecSummaryType,
     modulationOrderOffset,
     numberSampleSymbol,
+    sampleDuration,
   ]);
 
   const sortedCableModemRows = useMemo(() => {
@@ -623,6 +631,25 @@ export function ServingGroupCaptureRequestForm({
                     value={numberSampleSymbol}
                     onChange={(event) => setNumberSampleSymbol(event.target.value)}
                     placeholder="8192"
+                  />
+                </div>
+              </div>
+            ) : null}
+            {captureSettingsMode === "histogram" ? (
+              <div className="capture-request-mode-grid">
+                <div className="field capture-request-compact-input">
+                  <FieldLabelWithHint
+                    htmlFor={`${idPrefix}-sample-duration`}
+                    label="Sample Duration"
+                    hint="Histogram sample duration in seconds for each modem capture."
+                  />
+                  <input
+                    id={`${idPrefix}-sample-duration`}
+                    type="number"
+                    min={1}
+                    value={sampleDuration}
+                    onChange={(event) => setSampleDuration(event.target.value)}
+                    placeholder="10"
                   />
                 </div>
               </div>

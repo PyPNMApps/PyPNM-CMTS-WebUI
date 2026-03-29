@@ -175,6 +175,9 @@
   directly below it with per-MAC selection plus `Select All` and `Unselect All`
   actions. This combined graph/filter pattern is required for each operation
   unless the user explicitly approves an exception.
+- For SG Histogram results, use a flat combined preview (no nested SG cards),
+  with per-modem rows and a foldable cable-modem filter table supporting
+  `Select All` and `Unselect All`.
 - In SG cable-modem tables (filters and per-channel rows), keep identification
   columns present and ordered as `MAC Address`, `Model`, `Vendor`, `Version`
   so operators can scan rows consistently across operations.

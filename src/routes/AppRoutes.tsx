@@ -21,6 +21,9 @@ const CmtsSgConstellationDisplayWorkflowPage = lazy(() =>
 const CmtsSgModulationProfileWorkflowPage = lazy(() =>
   import("@/pages/CmtsSgModulationProfileWorkflowPage").then((module) => ({ default: module.CmtsSgModulationProfileWorkflowPage })),
 );
+const CmtsSgHistogramWorkflowPage = lazy(() =>
+  import("@/pages/CmtsSgHistogramWorkflowPage").then((module) => ({ default: module.CmtsSgHistogramWorkflowPage })),
+);
 const AnalysisViewerPage = lazy(() =>
   import("@/pages/AnalysisViewerPage").then((module) => ({ default: module.AnalysisViewerPage })),
 );
@@ -67,6 +70,7 @@ export function AppRoutes() {
           <Route path="/serving-group/fec-summary" element={<CmtsSgFecSummaryWorkflowPage />} />
           <Route path="/serving-group/constellation-display" element={<CmtsSgConstellationDisplayWorkflowPage />} />
           <Route path="/serving-group/modulation-profile" element={<CmtsSgModulationProfileWorkflowPage />} />
+          <Route path="/serving-group/histogram" element={<CmtsSgHistogramWorkflowPage />} />
           <Route path="/advanced" element={<Navigate to="/serving-group/rxmer" replace />} />
           <Route path="/advanced/rxmer" element={<Navigate to="/serving-group/rxmer" replace />} />
           <Route path="/advanced/channel-estimation" element={<Navigate to="/serving-group/rxmer" replace />} />
@@ -82,6 +86,8 @@ export function AppRoutes() {
           <Route path="/operations/cmts-sg-ds-ofdm-fec-summary" element={<CmtsSgFecSummaryWorkflowPage />} />
           <Route path="/operations/cmts-sg-ds-ofdm-constellation-display" element={<CmtsSgConstellationDisplayWorkflowPage />} />
           <Route path="/operations/cmts-sg-ds-ofdm-modulation-profile" element={<CmtsSgModulationProfileWorkflowPage />} />
+          <Route path="/operations/cmts-sg-ds-histogram" element={<CmtsSgHistogramWorkflowPage />} />
+          <Route path="/operations/cmts-sg-ds-ofdm-histogram" element={<CmtsSgHistogramWorkflowPage />} />
           <Route path="/operations/:operationId" element={<EndpointExplorerPage />} />
           <Route path="/operations/spectrum-analyzer" element={<Navigate to="/spectrum-analyzer/friendly" replace />} />
           <Route path="/operations/spectrum-analyzer-full-band" element={<Navigate to="/spectrum-analyzer/full-band" replace />} />
