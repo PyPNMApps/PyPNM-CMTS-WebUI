@@ -402,6 +402,12 @@ a {
   gap: 6px;
 }
 
+.field-label-with-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
 .field-hint {
   display: inline-flex;
   align-items: center;
@@ -2218,14 +2224,22 @@ pre {
   max-width: 460px;
 }
 
-.capture-request-params-grid {
+.capture-request-common-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
   align-items: start;
 }
 
-.capture-request-params-grid .capture-request-compact-input {
+.capture-request-mode-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  align-items: start;
+}
+
+.capture-request-common-grid .capture-request-compact-input,
+.capture-request-mode-grid .capture-request-compact-input {
   max-width: none;
 }
 
@@ -2238,7 +2252,8 @@ pre {
     max-width: none;
   }
 
-  .capture-request-params-grid {
+  .capture-request-common-grid,
+  .capture-request-mode-grid {
     grid-template-columns: 1fr;
   }
 }

@@ -20,6 +20,24 @@
 - Centralize reusable request-form hover text in a shared hint registry instead of hardcoding inline helper copy in individual forms.
 - Keep diffs minimal and focused; avoid formatting churn.
 
+## Common Coding Practices (Required)
+
+- `Shared-First`: treat reusable form behavior as common-code first. Shared
+  labels, hover hints, masking, and spacing belong in shared modules/styles,
+  not endpoint-local one-offs.
+- `Form Layout`: keep common capture request fields (`SNMP`, `TFTP IPv4`,
+  `TFTP IPv6`) in one shared horizontal row layout. Keep mode-specific capture
+  settings (for example constellation fields) in a separate shared row layout.
+- `Hint Placement`: use a shared field-label-with-hint pattern for hover tips
+  so help icons and label spacing render consistently across forms.
+- `Spacing Discipline`: use shared CSS utility classes for field alignment and
+  spacing; avoid inline or per-page spacing tweaks that drift over time.
+- `Common Before Specific`: when a behavior appears in more than one endpoint
+  workflow, extract to common-code first and only keep endpoint-local
+  behavior when technically required.
+- `Document Reuse`: when adding a reusable UI/coding pattern, update this CA
+  in the same change set so future work follows the same standard.
+
 ## Typing And API Contracts (Required)
 
 - Use strict TypeScript typing.

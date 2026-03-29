@@ -34,7 +34,9 @@ export interface ServingGroupCaptureRequestPayload {
     overall_timeout_seconds: number;
   };
   capture_settings?: {
-    fec_summary_type: number;
+    fec_summary_type?: number;
+    modulation_order_offset?: number;
+    number_sample_symbol?: number;
   };
 }
 
@@ -49,7 +51,7 @@ interface ServingGroupCaptureRequestFormProps {
   initialSnmpCommunity?: string;
   initialTftpIpv4?: string;
   initialTftpIpv6?: string;
-  captureSettingsMode?: "none" | "fec-summary";
+  captureSettingsMode?: "none" | "fec-summary" | "constellation-display";
   onPayloadChange?: (payload: ServingGroupCaptureRequestPayload | null) => void;
 }
 
@@ -72,6 +74,12 @@ interface CableModemListGroup {
 
 interface CableModemListResponse {
   groups?: CableModemListGroup[];
+}
+
+interface FieldLabelWithHintProps {
+  htmlFor: string;
+  label: string;
+  hint: string;
 }
 
 interface CableModemRow {
@@ -161,6 +169,15 @@ function toRegistrationStatusTone(statusText: string, statusCode: number | null)
   return "non_operational";
 }
 
+function FieldLabelWithHint({ htmlFor, label, hint }: FieldLabelWithHintProps) {
+  return (
+    <label htmlFor={htmlFor} className="field-label field-label-with-hint">
+      <span>{label}</span>
+      <span className="field-hint" title={hint} aria-label={`${label} help`}>?</span>
+    </label>
+  );
+}
+
 export function ServingGroupCaptureRequestForm({
   baseUrl,
   idPrefix = "serving-group-capture-request",
@@ -185,6 +202,8 @@ export function ServingGroupCaptureRequestForm({
   const [executionPerModemTimeoutSeconds, setExecutionPerModemTimeoutSeconds] = useState("30");
   const [executionOverallTimeoutSeconds, setExecutionOverallTimeoutSeconds] = useState("120");
   const [fecSummaryType, setFecSummaryType] = useState<number>(2);
+  const [modulationOrderOffset, setModulationOrderOffset] = useState("0");
+  const [numberSampleSymbol, setNumberSampleSymbol] = useState("8192");
   const [cableModemRows, setCableModemRows] = useState<CableModemRow[]>([]);
   const [selectedCableModems, setSelectedCableModems] = useState<string[]>([]);
   const [loadingCableModems, setLoadingCableModems] = useState(false);
@@ -360,6 +379,12 @@ export function ServingGroupCaptureRequestForm({
         fec_summary_type: fecSummaryType,
       };
     }
+    if (captureSettingsMode === "constellation-display") {
+      payload.capture_settings = {
+        modulation_order_offset: parseNonNegativeInteger(modulationOrderOffset, 0),
+        number_sample_symbol: parsePositiveInteger(numberSampleSymbol, 8192),
+      };
+    }
     return payload;
   }, [
     availableServingGroupIds,
@@ -377,6 +402,8 @@ export function ServingGroupCaptureRequestForm({
     executionOverallTimeoutSeconds,
     captureSettingsMode,
     fecSummaryType,
+    modulationOrderOffset,
+    numberSampleSymbol,
   ]);
 
   const sortedCableModemRows = useMemo(() => {
@@ -508,16 +535,6 @@ export function ServingGroupCaptureRequestForm({
             <summary className="capture-request-dropdown-summary">
               <span>Capture Parameters</span>
             </summary>
-            <div className="field capture-request-compact-input">
-              <label htmlFor={`${idPrefix}-community`}>SNMP v2c Community</label>
-              <SecretTextInput
-                id={`${idPrefix}-community`}
-                value={community}
-                onChange={(event) => setCommunity(event.target.value)}
-                placeholder="private"
-                autoComplete="off"
-              />
-            </div>
             <div className="field">
               <label htmlFor={`${idPrefix}-channel-ids`}>Capture Channel IDs</label>
               <input
@@ -530,7 +547,17 @@ export function ServingGroupCaptureRequestForm({
                 <p className="advanced-error-text">{channelIdValidation.error}</p>
               ) : null}
             </div>
-            <div className="capture-request-params-grid">
+            <div className="capture-request-common-grid">
+              <div className="field capture-request-compact-input">
+                <label htmlFor={`${idPrefix}-community`}>SNMP v2c Community</label>
+                <SecretTextInput
+                  id={`${idPrefix}-community`}
+                  value={community}
+                  onChange={(event) => setCommunity(event.target.value)}
+                  placeholder="private"
+                  autoComplete="off"
+                />
+              </div>
               <div className="field capture-request-compact-input">
                 <label htmlFor={`${idPrefix}-tftp-ipv4`}>TFTP IPv4</label>
                 <input
@@ -549,7 +576,9 @@ export function ServingGroupCaptureRequestForm({
                   placeholder="::"
                 />
               </div>
-              {captureSettingsMode === "fec-summary" ? (
+            </div>
+            {captureSettingsMode === "fec-summary" ? (
+              <div className="capture-request-mode-grid">
                 <div className="field capture-request-compact-input">
                   <label htmlFor={`${idPrefix}-fec-summary-type`}>FEC Summary Type</label>
                   <select
@@ -562,8 +591,42 @@ export function ServingGroupCaptureRequestForm({
                     ))}
                   </select>
                 </div>
-              ) : null}
-            </div>
+              </div>
+            ) : null}
+            {captureSettingsMode === "constellation-display" ? (
+              <div className="capture-request-mode-grid">
+                <div className="field capture-request-compact-input">
+                  <FieldLabelWithHint
+                    htmlFor={`${idPrefix}-modulation-order-offset`}
+                    label="Modulation Order Offset"
+                    hint="Offset applied to the requested constellation modulation order index. Use 0 for the baseline capture mode."
+                  />
+                  <input
+                    id={`${idPrefix}-modulation-order-offset`}
+                    type="number"
+                    min={0}
+                    value={modulationOrderOffset}
+                    onChange={(event) => setModulationOrderOffset(event.target.value)}
+                    placeholder="0"
+                  />
+                </div>
+                <div className="field capture-request-compact-input">
+                  <FieldLabelWithHint
+                    htmlFor={`${idPrefix}-number-sample-symbol`}
+                    label="Number Sample Symbol"
+                    hint="Number of constellation symbols to collect per modem during capture. Higher values increase sample density and payload size."
+                  />
+                  <input
+                    id={`${idPrefix}-number-sample-symbol`}
+                    type="number"
+                    min={1}
+                    value={numberSampleSymbol}
+                    onChange={(event) => setNumberSampleSymbol(event.target.value)}
+                    placeholder="8192"
+                  />
+                </div>
+              </div>
+            ) : null}
             <details className="capture-request-dropdown">
               <summary className="capture-request-dropdown-summary">
                 <span>Execution</span>
