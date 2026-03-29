@@ -234,4 +234,16 @@ export function ensureLocalRuntimeConfig(
   generated: boolean;
 };
 
+export function validateConfigForProfile(
+  config: unknown,
+  profileContext?: {
+    productProfile: "pypnm-webui" | "pypnm-cmts-webui";
+    productLabel: string;
+    agentBrand: string;
+    agentLabelSingular: string;
+    agentLabelPlural: string;
+    includeCableModemDefaults: boolean;
+  },
+): string | null;
+
 export function runConfigMenu(metaUrl: string): Promise<number>;

@@ -518,6 +518,42 @@ mergeRuntimeConfigFiles({
 EOF
 }
 
+validate_runtime_config_for_profile() {
+  log "Validating runtime config for profile ${PRODUCT_PROFILE}"
+  node --input-type=module <<EOF
+import fs from "node:fs";
+import { parse } from "yaml";
+import {
+  normalizeConfig,
+  resolveProfileContext,
+  validateConfigForProfile,
+} from "./tools/config-menu/config_menu.js";
+
+const profileContext = resolveProfileContext("${ROOT_DIR}");
+
+const files = [
+  { path: "${RUNTIME_TEMPLATE_PATH}", label: "runtime template" },
+  { path: "${RUNTIME_LOCAL_PATH}", label: "local runtime override" },
+];
+
+for (const entry of files) {
+  if (!fs.existsSync(entry.path)) {
+    continue;
+  }
+  const rawConfig = parse(fs.readFileSync(entry.path, "utf8")) ?? {};
+  const normalizedConfig = normalizeConfig(rawConfig, profileContext);
+  const validationError = validateConfigForProfile(normalizedConfig, profileContext);
+  if (validationError) {
+    console.error(
+      \`[install][error] Invalid \${entry.label} for profile \${profileContext.productProfile}: \${entry.path}\\n\`
+      + \`[install][error] \${validationError}\`,
+    );
+    process.exit(1);
+  }
+}
+EOF
+}
+
 ensure_git_clean_for_update() {
   local status
   status="$(git status --porcelain --untracked-files=normal)"
@@ -616,6 +652,7 @@ main() {
   ensure_cli_shim
 
   merge_runtime_config_override
+  validate_runtime_config_for_profile
 
   if [ "${DEVELOPMENT_MODE}" -eq 1 ]; then
     ensure_command "${PYTHON_BIN}" "${PYTHON_BIN} is required for --development. Install Python 3 and re-run."
@@ -628,6 +665,7 @@ main() {
     ensure_command "${PYTHON_BIN}" "${PYTHON_BIN} is required for backend add-on install. Install Python 3 and re-run."
     ensure_python_venv_support
     run_with_pypnm_docsis_helper
+    validate_runtime_config_for_profile
   fi
 
   log "Install complete"

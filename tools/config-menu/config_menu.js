@@ -410,6 +410,10 @@ function validateConfig(config, profileContext = DEFAULT_PROFILE_CONTEXT) {
   return null;
 }
 
+export function validateConfigForProfile(config, profileContext = DEFAULT_PROFILE_CONTEXT) {
+  return validateConfig(config, profileContext);
+}
+
 function loadConfig(configPath, fallbackPath, profileContext = DEFAULT_PROFILE_CONTEXT) {
   if (!fs.existsSync(configPath)) {
     if (fallbackPath && fs.existsSync(fallbackPath)) {

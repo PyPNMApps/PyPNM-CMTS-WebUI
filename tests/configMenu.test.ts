@@ -18,6 +18,7 @@ import {
   resolveProductProfileFromEnv,
   saveConfig,
   tryNormalizeBaseUrl,
+  validateConfigForProfile,
 } from "../tools/config-menu/config_menu.js";
 
 describe("config_menu normalization", () => {
@@ -386,5 +387,36 @@ describe("config_menu normalization", () => {
   it("falls back to cmts profile when env profile is unavailable", () => {
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "pypnm-webui-profile-env-"));
     expect(resolveProductProfileFromEnv(tempDir)).toBe("pypnm-cmts-webui");
+  });
+
+  it("validates config objects against profile context", () => {
+    const profileContext = {
+      ...resolveProfileContext(),
+      productProfile: "pypnm-cmts-webui" as const,
+      includeCableModemDefaults: false,
+    };
+    const config = normalizeConfig({
+      defaults: { selected_instance: "pcw-local" },
+      instances: [
+        {
+          id: "pcw-local",
+          label: "PCW Local",
+          base_url: "http://127.0.0.1:8080",
+          request_defaults: {
+            cable_modem: {
+              mac_address: "aa:bb:cc:dd:ee:ff",
+              ip_address: "10.0.0.3",
+            },
+          },
+        },
+      ],
+    }, {
+      ...profileContext,
+      includeCableModemDefaults: true,
+    });
+
+    expect(validateConfigForProfile(config, profileContext)).toBe(
+      "request_defaults.cable_modem is not supported for profile pypnm-cmts-webui.",
+    );
   });
 });

@@ -79,6 +79,7 @@ Note:
 - runs `npm ci`
 - refreshes `public/config/pypnm-instances.local.yaml` from the version-controlled
   template while preserving local values
+- validates runtime YAML against the selected install profile
 
 When `--development` is used, it also:
 
@@ -96,6 +97,7 @@ When a backend add-on flag is used, it also:
 - configures `Local PyPNM-CMTS Agent` in `public/config/pypnm-instances.local.yaml`
 - sets `local-pypnm-agent` as the selected runtime instance
 - installs local-stack helper commands
+- re-validates runtime YAML after backend helper updates
 
 ## After install
 
