@@ -18,8 +18,9 @@ describe("servingGroupCableModemsService", () => {
             items: [
               {
                 mac_address: "AA:BB:CC:DD:EE:FF",
-                ip_address: "10.1.0.10",
-                channel_ids: [193, 194],
+                ipv4: "10.1.0.10",
+                ds_channel_ids: [193, 194],
+                us_channel_ids: [12],
                 sysdescr: {
                   VENDOR: "LANCity",
                   MODEL: "LCPET-3",
@@ -56,7 +57,7 @@ describe("servingGroupCableModemsService", () => {
     });
     expect(rows).toHaveLength(1);
     expect(rows[0]?.macAddress).toBe("aa:bb:cc:dd:ee:ff");
-    expect(rows[0]?.channelIds).toEqual([193, 194]);
+    expect(rows[0]?.ipAddress).toBe("10.1.0.10");
+    expect(rows[0]?.channelIds).toEqual([12, 193, 194]);
   });
 });
-

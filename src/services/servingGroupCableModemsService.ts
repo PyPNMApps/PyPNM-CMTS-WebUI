@@ -5,7 +5,12 @@ export type ServingGroupCableModemRefreshMode = "light" | "heavy";
 interface ServingGroupCableModemItem {
   mac_address?: string;
   ip_address?: string;
+  ipAddress?: string;
+  ipv4?: string;
+  ipv6?: string;
   channel_ids?: unknown;
+  ds_channel_ids?: unknown;
+  us_channel_ids?: unknown;
   sysdescr?: {
     VENDOR?: string;
     MODEL?: string;
@@ -48,6 +53,10 @@ function asNumberArray(value: unknown): number[] {
     .filter((item) => Number.isInteger(item) && item >= 0);
 }
 
+function dedupeNumbers(values: number[]): number[] {
+  return Array.from(new Set(values)).sort((left, right) => left - right);
+}
+
 function normalizeCableModemRows(response: ServingGroupCableModemResponse): ServingGroupCableModemRow[] {
   const rows: ServingGroupCableModemRow[] = [];
   for (const group of response.groups ?? []) {
@@ -57,12 +66,27 @@ function normalizeCableModemRows(response: ServingGroupCableModemResponse): Serv
       if (!macAddress) {
         continue;
       }
+      const dsChannelIds = asNumberArray(item.ds_channel_ids);
+      const usChannelIds = asNumberArray(item.us_channel_ids);
+      const legacyChannelIds = asNumberArray(item.channel_ids);
+      const channelIds = dedupeNumbers([
+        ...dsChannelIds,
+        ...usChannelIds,
+        ...legacyChannelIds,
+      ]);
+      const normalizedIpAddress = String(
+        item.ip_address
+        ?? item.ipAddress
+        ?? item.ipv4
+        ?? item.ipv6
+        ?? "",
+      ).trim();
       rows.push({
         key: `${sgId}-${macAddress}`,
         sgId,
         macAddress,
-        ipAddress: String(item.ip_address ?? "").trim() || "n/a",
-        channelIds: asNumberArray(item.channel_ids),
+        ipAddress: normalizedIpAddress || "n/a",
+        channelIds,
         registrationStatusCode: typeof item.registration_status?.status === "number" ? item.registration_status.status : null,
         registrationStatusText: String(item.registration_status?.text ?? "").trim() || "n/a",
         vendor: String(item.sysdescr?.VENDOR ?? "").trim() || "n/a",
@@ -103,4 +127,3 @@ export async function getServingGroupCableModems(
   });
   return normalizeCableModemRows(response.data);
 }
-
