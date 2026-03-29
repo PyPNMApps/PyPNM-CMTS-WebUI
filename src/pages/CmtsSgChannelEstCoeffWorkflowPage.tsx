@@ -1,34 +1,34 @@
+import { useEffect, useState } from "react";
+import { NavLink } from "react-router-dom";
 import { useInstanceConfig } from "@/app/useInstanceConfig";
 import { FoldablePanelTitle } from "@/components/common/FoldablePanelTitle";
-import { Panel } from "@/components/common/Panel";
 import { JsonPayloadModal } from "@/components/common/JsonPayloadModal";
+import { Panel } from "@/components/common/Panel";
 import { ThinkingIndicator } from "@/components/common/ThinkingIndicator";
 import { useAdvancedOperationMachine } from "@/features/advanced/useAdvancedOperationMachine";
 import {
   ServingGroupCaptureRequestForm,
   type ServingGroupCaptureRequestPayload,
 } from "@/features/serving-group/components/ServingGroupCaptureRequestForm";
-import { ServingGroupRxMerResultsView } from "@/features/serving-group/components/ServingGroupRxMerResultsView";
+import { ServingGroupChannelEstCoeffResultsView } from "@/features/serving-group/components/ServingGroupChannelEstCoeffResultsView";
 import {
   formatOperationEpoch,
   parseServingGroupOperationStartResponse,
   parseServingGroupOperationStatusResponse,
 } from "@/features/serving-group/lib/operationStatus";
-import { useEffect, useState } from "react";
-import { NavLink } from "react-router-dom";
 import {
-  cancelServingGroupRxMerCapture,
-  getServingGroupRxMerCaptureStatus,
-  getServingGroupRxMerResults,
-  startServingGroupRxMerCapture,
-} from "@/services/servingGroupRxMerService";
+  cancelServingGroupChannelEstCoeffCapture,
+  getServingGroupChannelEstCoeffCaptureStatus,
+  getServingGroupChannelEstCoeffResults,
+  startServingGroupChannelEstCoeffCapture,
+} from "@/services/servingGroupChannelEstCoeffService";
 
 const servingGroupRoutes = [
   { to: "/serving-group/rxmer", label: "RxMER" },
   { to: "/serving-group/channel-est-coeff", label: "Channel Estimation" },
 ] as const;
 
-export function CmtsSgRxMerWorkflowPage() {
+export function CmtsSgChannelEstCoeffWorkflowPage() {
   const { selectedInstance } = useInstanceConfig();
   const [requestPayload, setRequestPayload] = useState<ServingGroupCaptureRequestPayload | null>(null);
   const [isJsonModalOpen, setIsJsonModalOpen] = useState(false);
@@ -49,13 +49,13 @@ export function CmtsSgRxMerWorkflowPage() {
       if (!selectedInstance?.baseUrl || !requestPayload) {
         throw new Error("Capture request payload is not ready.");
       }
-      return startServingGroupRxMerCapture(selectedInstance.baseUrl, requestPayload);
+      return startServingGroupChannelEstCoeffCapture(selectedInstance.baseUrl, requestPayload);
     },
     getStatus: async (operationId: string) => {
       if (!selectedInstance?.baseUrl) {
         throw new Error("No instance selected.");
       }
-      const response = await getServingGroupRxMerCaptureStatus(selectedInstance.baseUrl, operationId);
+      const response = await getServingGroupChannelEstCoeffCaptureStatus(selectedInstance.baseUrl, operationId);
       setLatestStatusResponsePayload(response);
       return response;
     },
@@ -63,16 +63,13 @@ export function CmtsSgRxMerWorkflowPage() {
       if (!selectedInstance?.baseUrl) {
         throw new Error("No instance selected.");
       }
-      const response = await cancelServingGroupRxMerCapture(selectedInstance.baseUrl, operationId);
+      const response = await cancelServingGroupChannelEstCoeffCapture(selectedInstance.baseUrl, operationId);
       setLatestStatusResponsePayload(response);
       return response;
     },
   });
-  const canStartCapture = Boolean(
-    requestPayload
-    && selectedInstance?.baseUrl
-    && machine.canStart
-  );
+
+  const canStartCapture = Boolean(requestPayload && selectedInstance?.baseUrl && machine.canStart);
   const canCancelCapture = machine.canStop;
   const normalizedOperationIdInput = operationIdInput.trim();
   const canLoadOperationId = Boolean(selectedInstance?.baseUrl && normalizedOperationIdInput.length > 0);
@@ -84,12 +81,12 @@ export function CmtsSgRxMerWorkflowPage() {
     setIsResultsLoading(true);
     setResultsError("");
     try {
-      const response = await getServingGroupRxMerResults(selectedInstance.baseUrl, operationId);
+      const response = await getServingGroupChannelEstCoeffResults(selectedInstance.baseUrl, operationId);
       setResultsPayload(response);
       setResultsOperationId(operationId);
       setIsCaptureResultsCollapsed(false);
     } catch (error) {
-      setResultsError(error instanceof Error ? error.message : "Failed to load SG RxMER results.");
+      setResultsError(error instanceof Error ? error.message : "Failed to load SG Channel Estimation results.");
     } finally {
       setIsResultsLoading(false);
     }
@@ -126,7 +123,7 @@ export function CmtsSgRxMerWorkflowPage() {
         title={(
           <div className="capture-request-title-layout">
             <FoldablePanelTitle
-              id="cmts-sg-rxmer-capture-request-body"
+              id="cmts-sg-channel-est-coeff-capture-request-body"
               label="Capture Request"
               isCollapsed={isCaptureRequestCollapsed}
               onToggle={() => setIsCaptureRequestCollapsed((current) => !current)}
@@ -171,10 +168,10 @@ export function CmtsSgRxMerWorkflowPage() {
           </div>
         )}
       >
-        <div id="cmts-sg-rxmer-capture-request-body" hidden={isCaptureRequestCollapsed}>
+        <div id="cmts-sg-channel-est-coeff-capture-request-body" hidden={isCaptureRequestCollapsed}>
           <ServingGroupCaptureRequestForm
             baseUrl={selectedInstance?.baseUrl}
-            idPrefix="cmts-sg-rxmer"
+            idPrefix="cmts-sg-channel-est-coeff"
             initialSnmpCommunity={selectedInstance?.requestDefaults?.snmpRwCommunity ?? ""}
             initialTftpIpv4={selectedInstance?.requestDefaults?.tftpIpv4 ?? ""}
             initialTftpIpv6={selectedInstance?.requestDefaults?.tftpIpv6 ?? ""}
@@ -186,7 +183,7 @@ export function CmtsSgRxMerWorkflowPage() {
         title={(
           <div className="capture-status-title-layout">
             <FoldablePanelTitle
-              id="cmts-sg-rxmer-capture-status-body"
+              id="cmts-sg-channel-est-coeff-capture-status-body"
               label="Capture Status"
               isCollapsed={isCaptureStatusCollapsed}
               onToggle={() => setIsCaptureStatusCollapsed((current) => !current)}
@@ -202,13 +199,13 @@ export function CmtsSgRxMerWorkflowPage() {
           </div>
         )}
       >
-        <div id="cmts-sg-rxmer-capture-status-body" className="operation-status-stack" hidden={isCaptureStatusCollapsed}>
+        <div id="cmts-sg-channel-est-coeff-capture-status-body" className="operation-status-stack" hidden={isCaptureStatusCollapsed}>
           <div className="operation-status-id-row">
             <label className="field">
               <span>Operation ID</span>
               <input
-                id="cmts-sg-rxmer-operation-id-input"
-                name="cmtsSgRxMerOperationId"
+                id="cmts-sg-channel-est-coeff-operation-id-input"
+                name="cmtsSgChannelEstCoeffOperationId"
                 type="text"
                 value={operationIdInput}
                 placeholder="Paste pnm_capture_operation_id"
@@ -277,7 +274,7 @@ export function CmtsSgRxMerWorkflowPage() {
             </div>
           </details>
           {machine.lifecycleState === "starting" || machine.lifecycleState === "running" ? (
-            <ThinkingIndicator label="Running SG RxMER capture and polling status..." />
+            <ThinkingIndicator label="Running SG Channel Estimation capture and polling status..." />
           ) : null}
           {machine.statusSummary?.message ? <p className="panel-copy">{machine.statusSummary.message}</p> : null}
           {machine.errorMessage ? <p className="advanced-error-text">{machine.errorMessage}</p> : null}
@@ -287,7 +284,7 @@ export function CmtsSgRxMerWorkflowPage() {
         title={(
           <div className="capture-status-title-layout">
             <FoldablePanelTitle
-              id="cmts-sg-rxmer-capture-results-body"
+              id="cmts-sg-channel-est-coeff-capture-results-body"
               label="Capture Results"
               isCollapsed={isCaptureResultsCollapsed}
               onToggle={() => setIsCaptureResultsCollapsed((current) => !current)}
@@ -308,26 +305,26 @@ export function CmtsSgRxMerWorkflowPage() {
           </div>
         )}
       >
-        <div id="cmts-sg-rxmer-capture-results-body" hidden={isCaptureResultsCollapsed}>
-          {isResultsLoading ? <ThinkingIndicator label="Loading SG RxMER results..." /> : null}
+        <div id="cmts-sg-channel-est-coeff-capture-results-body" hidden={isCaptureResultsCollapsed}>
+          {isResultsLoading ? <ThinkingIndicator label="Loading SG Channel Estimation results..." /> : null}
           {resultsError ? <p className="advanced-error-text">{resultsError}</p> : null}
           {!isResultsLoading && !resultsError && resultsPayload ? (
-            <ServingGroupRxMerResultsView payload={resultsPayload} />
+            <ServingGroupChannelEstCoeffResultsView payload={resultsPayload} />
           ) : null}
           {!isResultsLoading && !resultsError && !resultsPayload ? (
-            <p className="panel-copy">Run capture to completion or click Get Results to load SG RxMER visuals.</p>
+            <p className="panel-copy">Run capture to completion or click Get Results to load SG Channel Estimation visuals.</p>
           ) : null}
         </div>
       </Panel>
       <JsonPayloadModal
-        id="cmts-sg-rxmer-request-json-modal"
+        id="cmts-sg-channel-est-coeff-request-json-modal"
         title="Capture Request JSON"
         payload={requestPayload}
         isOpen={isJsonModalOpen}
         onClose={() => setIsJsonModalOpen(false)}
       />
       <JsonPayloadModal
-        id="cmts-sg-rxmer-response-json-modal"
+        id="cmts-sg-channel-est-coeff-response-json-modal"
         title="Capture Status Response JSON"
         payload={latestStatusResponsePayload}
         isOpen={isResponseJsonModalOpen}
@@ -336,3 +333,4 @@ export function CmtsSgRxMerWorkflowPage() {
     </>
   );
 }
+

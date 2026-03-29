@@ -62,7 +62,17 @@ const rxMerSeriesDefinition: OperationSeriesDefinition = {
   descriptionPrefix: "serving-group downstream OFDM RxMER",
 };
 
-export const operationRegistry: OperationNode[] = buildStartStatusResultsSeries(rxMerSeriesDefinition);
+const channelEstCoeffSeriesDefinition: OperationSeriesDefinition = {
+  idPrefix: "cmts-sg-ds-ofdm-channel-est-coeff",
+  endpointBase: "/cmts/pnm/sg/ds/ofdm/channelEstCoeff",
+  categoryPath: ["CMTS", "PNM", "Serving Group", "Downstream OFDM Channel Estimation"],
+  descriptionPrefix: "serving-group downstream OFDM Channel Estimation",
+};
+
+export const operationRegistry: OperationNode[] = [
+  ...buildStartStatusResultsSeries(rxMerSeriesDefinition),
+  ...buildStartStatusResultsSeries(channelEstCoeffSeriesDefinition),
+];
 
 export function getOperationById(operationId: string): OperationNode | undefined {
   return operationRegistry.find((operation) => operation.id === operationId);
@@ -72,7 +82,12 @@ export const operationFolderGroups: OperationFolderGroup[] = [
   {
     id: "cmts-sg-rxmer-workflow",
     label: "CMTS / PNM / Serving Group / Downstream OFDM RxMER",
-    operations: operationRegistry,
+    operations: operationRegistry.filter((operation) => operation.id.startsWith("cmts-sg-ds-ofdm-rxmer")),
+  },
+  {
+    id: "cmts-sg-channel-est-coeff-workflow",
+    label: "CMTS / PNM / Serving Group / Downstream OFDM Channel Estimation",
+    operations: operationRegistry.filter((operation) => operation.id.startsWith("cmts-sg-ds-ofdm-channel-est-coeff")),
   },
 ];
 
