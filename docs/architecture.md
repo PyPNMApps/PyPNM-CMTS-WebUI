@@ -25,14 +25,51 @@
 - `src/types`: request/response contracts
 - `src/lib`: pure shared helpers
 
-### Namespaced split
+### Source tree
 
-- `src/pcw/pages`: CMTS workflow pages (`Cmts*`)
-- `src/pcw/features`: CMTS feature modules (`serving-group`, `spectrum-analyzer`)
-- `src/pcw/services`: CMTS endpoint services (`servingGroup*`)
-- `src/pw/pages`: PW-style explorer/analysis pages
-- `src/pw/features`: PW-derived features (`operations`, `advanced`, `analysis`, `single-capture`)
-- `src/pw/services`: PW-style capture and advanced services
+```text
+src/
+├── pcw/
+│   ├── pages/                      # CMTS-specific route pages
+│   │   ├── CmtsSingleCaptureDashboardPage.tsx
+│   │   ├── CmtsSg*WorkflowPage.tsx
+│   │   └── CmtsSpectrumFriendlyWorkflowPage.tsx
+│   ├── features/
+│   │   ├── serving-group/          # SG request forms, status, and result models
+│   │   └── spectrum-analyzer/      # CMTS SA result components
+│   └── services/
+│       └── servingGroup*Service.ts # CMTS /cmts/... API clients
+├── pw/
+│   ├── pages/
+│   │   ├── EndpointExplorerPage.tsx
+│   │   ├── AdvancedPage.tsx
+│   │   └── AnalysisViewerPage.tsx
+│   ├── features/
+│   │   ├── operations/             # Shared operation request forms + visuals
+│   │   ├── advanced/               # Shared advanced analysis workflows
+│   │   ├── analysis/               # Shared chart/analysis components
+│   │   └── single-capture/         # Selected modem context + request context
+│   └── services/
+│       ├── advanced/
+│       ├── captureConnectivityService.ts
+│       └── singleCaptureService.ts
+├── components/common/              # Reusable UI primitives
+├── services/                       # Shared infra services (http, health, files)
+├── types/                          # Typed request/response contracts
+└── lib/                            # Shared pure utilities
+```
+
+### Responsibility breakdown
+
+- `src/pcw/pages`: own CMTS workflow routing and page-level orchestration.
+- `src/pcw/features`: own CMTS operation-specific UI and result shaping.
+- `src/pcw/services`: own CMTS-specific endpoint calls under `/cmts/...`.
+- `src/pw/pages`: own shared PW-style operation browsing and rendering shells.
+- `src/pw/features`: own shared forms/charts/view logic reused across workflows.
+- `src/pw/services`: own shared capture/connectivity calls used by PW-style flows.
+- `src/services`: own app-wide infrastructure concerns independent of PW/PCW split.
+- `src/components/common`: own reusable visual primitives and interaction widgets.
+- `src/lib` and `src/types`: own shared utilities and contracts used across both trees.
 
 ## Serving Group RxMER architecture
 

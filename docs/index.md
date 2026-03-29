@@ -18,5 +18,6 @@ This docs set is organized for the current MVP scope of `PyPNM-CMTS-WebUI`.
 ## Reference
 
 - [Architecture](architecture.md)
+- [Acronyms](acronyms.md)
 - [API Integration](api-integration.md)
 - [Environment](env.md)
