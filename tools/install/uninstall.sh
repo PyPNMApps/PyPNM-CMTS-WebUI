@@ -79,6 +79,21 @@ remove_file_if_present() {
   fi
 }
 
+remove_global_npm_link_if_present() {
+  local package_name="$1"
+  if ! command -v npm >/dev/null 2>&1; then
+    log "Skipped npm unlink; npm not found in PATH"
+    return
+  fi
+
+  if npm ls -g --depth=0 "${package_name}" >/dev/null 2>&1; then
+    npm unlink -g "${package_name}" >/dev/null 2>&1 || true
+    log "Removed global npm link: ${package_name}"
+  else
+    log "Skipped global npm link; not found: ${package_name}"
+  fi
+}
+
 confirm_uninstall() {
   if [ "${ASSUME_YES}" -eq 1 ]; then
     return
@@ -93,7 +108,9 @@ confirm_uninstall() {
   printf '  - .venv and .pypnm-venv\n' >&2
   printf '  - dist, release-reports, logs\n' >&2
   printf '  - public/config/pypnm-instances.local.yaml and backups\n' >&2
-  printf '  - ~/.local/bin shims for pypnm-cmts-webui / pypnm-docsis-cmts / pypnm-cmts-webui-local-stack\n' >&2
+  printf '  - ~/.local/bin shims for pypnm-webui / pypnm-cmts-webui / pypnm-docsis / pypnm-docsis-cmts\n' >&2
+  printf '  - ~/.local/bin helpers pypnm-webui-local-stack / pypnm-cmts-webui-local-stack\n' >&2
+  printf '  - global npm link for package pypnm-cmts-webui\n' >&2
   if [ "${REMOVE_ENV}" -eq 1 ]; then
     printf '  - .env\n' >&2
   fi
@@ -141,12 +158,13 @@ main() {
     remove_path_if_present "${ROOT_DIR}/.data" "capture data"
   fi
 
-  remove_file_if_present "${HOME}/.local/bin/pypnm-cmts-webui" "CLI shim"
-  remove_file_if_present "${HOME}/.local/bin/pypnm-docsis-cmts" "backend CLI shim"
-  remove_file_if_present "${HOME}/.local/bin/pypnm-cmts-webui-local-stack" "local stack helper shim"
-  remove_file_if_present "${HOME}/.local/bin/pypnm-webui" "legacy CLI compatibility shim"
-  remove_file_if_present "${HOME}/.local/bin/pypnm-docsis" "legacy backend compatibility shim"
-  remove_file_if_present "${HOME}/.local/bin/pypnm-webui-local-stack" "legacy local stack compatibility shim"
+  remove_file_if_present "${HOME}/.local/bin/pypnm-cmts-webui" "CMTS CLI shim"
+  remove_file_if_present "${HOME}/.local/bin/pypnm-webui" "PW CLI shim"
+  remove_file_if_present "${HOME}/.local/bin/pypnm-docsis-cmts" "CMTS backend CLI shim"
+  remove_file_if_present "${HOME}/.local/bin/pypnm-docsis" "PW backend CLI shim"
+  remove_file_if_present "${HOME}/.local/bin/pypnm-cmts-webui-local-stack" "CMTS local stack helper shim"
+  remove_file_if_present "${HOME}/.local/bin/pypnm-webui-local-stack" "PW local stack helper shim"
+  remove_global_npm_link_if_present "pypnm-cmts-webui"
 
   log "Uninstall complete"
   log "Reinstall with: ./install.sh"

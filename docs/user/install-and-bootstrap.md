@@ -139,6 +139,10 @@ Remove local install artifacts:
 ./uninstall.sh
 ```
 
+This removes both unified profile CLI shims (`pypnm-webui` and
+`pypnm-cmts-webui`), backend helper shims, and the global `npm link`
+registration for this repo package.
+
 Non-interactive uninstall:
 
 ```bash
