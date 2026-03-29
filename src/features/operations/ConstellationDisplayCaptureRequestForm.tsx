@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import type { ReactNode } from "react";
 import { useForm } from "react-hook-form";
 
@@ -37,6 +37,7 @@ interface ConstellationDisplayCaptureRequestFormProps {
   onConnectivityInputsChange?: (inputs: CaptureConnectivityInputs) => void;
   errorMessage?: string;
   extraActions?: ReactNode;
+  requestDefaultsOverride?: Partial<ConstellationDisplayFormValues>;
 }
 
 export function ConstellationDisplayCaptureRequestForm({
@@ -47,8 +48,16 @@ export function ConstellationDisplayCaptureRequestForm({
   onConnectivityInputsChange,
   errorMessage,
   extraActions,
+  requestDefaultsOverride,
 }: ConstellationDisplayCaptureRequestFormProps) {
-  const requestDefaults = useCommonRequestFormDefaults();
+  const baseRequestDefaults = useCommonRequestFormDefaults();
+  const requestDefaults = useMemo(
+    () => ({
+      ...baseRequestDefaults,
+      ...requestDefaultsOverride,
+    }),
+    [baseRequestDefaults, requestDefaultsOverride],
+  );
   const { register, handleSubmit, reset, watch } = useForm<ConstellationDisplayFormValues>({
     defaultValues: {
       ...requestDefaults,

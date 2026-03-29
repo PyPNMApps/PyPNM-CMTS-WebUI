@@ -169,4 +169,39 @@ describe("EndpointExplorerPage", () => {
     expect((document.getElementById("channelIds") as HTMLInputElement | null)?.value).toBe("");
     expect((document.getElementById("community") as HTMLInputElement | null)?.value).toBe("private");
   });
+
+  it("prefills constellation-display single-capture inputs from selected modem context", () => {
+    window.localStorage.setItem("pcw:selected-modem-context", JSON.stringify({
+      sgId: 1,
+      macAddress: "AA:BB:CC:DD:EE:FF",
+      ipAddress: "10.1.0.25",
+      snmpCommunity: "private",
+      channelIds: [193, 194],
+      selectedAtEpochMs: 1774739979000,
+    }));
+
+    const queryClient = new QueryClient({
+      defaultOptions: {
+        queries: {
+          retry: false,
+        },
+      },
+    });
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <InstanceConfigContext.Provider value={createContextValue()}>
+          <MemoryRouter initialEntries={["/single-capture/constellation-display"]}>
+            <Routes>
+              <Route path="/single-capture/constellation-display" element={<EndpointExplorerPage />} />
+            </Routes>
+          </MemoryRouter>
+        </InstanceConfigContext.Provider>
+      </QueryClientProvider>,
+    );
+
+    expect((document.getElementById("constMacAddress") as HTMLInputElement | null)?.value).toBe("aa:bb:cc:dd:ee:ff");
+    expect((document.getElementById("constIpAddress") as HTMLInputElement | null)?.value).toBe("10.1.0.25");
+    expect((document.getElementById("constCommunity") as HTMLInputElement | null)?.value).toBe("private");
+  });
 });

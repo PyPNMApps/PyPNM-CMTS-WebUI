@@ -604,6 +604,7 @@ export function EndpointExplorerPage() {
             errorMessage={mutation.isError ? (mutation.error as Error).message : undefined}
             extraActions={requestJsonAction}
             onConnectivityInputsChange={setCaptureConnectivityInputs}
+            requestDefaultsOverride={selectedModemDefaults}
             onSubmit={(payload) => {
               mutation.mutate({ endpointPath: selectedOperation.endpointPath, payload });
             }}
