@@ -2,7 +2,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import {
   buildRuntimeConfigSchemaExample,
@@ -386,7 +386,25 @@ describe("config_menu normalization", () => {
 
   it("falls back to cmts profile when env profile is unavailable", () => {
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "pypnm-webui-profile-env-"));
-    expect(resolveProductProfileFromEnv(tempDir)).toBe("pypnm-cmts-webui");
+    const priorProductProfile = process.env.PRODUCT_PROFILE;
+    const priorViteProductProfile = process.env.VITE_PRODUCT_PROFILE;
+    vi.stubEnv("PRODUCT_PROFILE", "");
+    vi.stubEnv("VITE_PRODUCT_PROFILE", "");
+    try {
+      expect(resolveProductProfileFromEnv(tempDir)).toBe("pypnm-cmts-webui");
+    } finally {
+      if (priorProductProfile === undefined) {
+        delete process.env.PRODUCT_PROFILE;
+      } else {
+        process.env.PRODUCT_PROFILE = priorProductProfile;
+      }
+      if (priorViteProductProfile === undefined) {
+        delete process.env.VITE_PRODUCT_PROFILE;
+      } else {
+        process.env.VITE_PRODUCT_PROFILE = priorViteProductProfile;
+      }
+      vi.unstubAllEnvs();
+    }
   });
 
   it("validates config objects against profile context", () => {

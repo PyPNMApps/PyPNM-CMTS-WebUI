@@ -5,6 +5,7 @@ import { MemoryRouter } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { ThemeProvider } from "@/app/ThemeProvider";
+import { PRODUCT_PROFILE_PW, resolveProductProfileWithFallback } from "@/app/productProfile";
 import { AppTopNav } from "@/components/layout/AppTopNav";
 import {
   operationsMenuNavigationItems,
@@ -21,7 +22,7 @@ describe("navigation structure", () => {
     vi.unstubAllEnvs();
   });
 
-  it("renders Serving Group, SingleCapture, Spectrum Analyzer, Health, Settings, and About as top-level nav links", () => {
+  it("renders the expected top-level nav links for the active profile", () => {
     render(
       <ThemeProvider>
         <MemoryRouter>
@@ -40,10 +41,14 @@ describe("navigation structure", () => {
         return interactive?.textContent?.trim() ?? element.textContent?.trim() ?? null;
       })
       .filter(Boolean);
-    expect(navLabels).toEqual(["Serving Group", "SingleCapture", "Spectrum Analyzer", "Health", "Settings", "About"]);
+    const profile = resolveProductProfileWithFallback();
+    const expectedLabels = profile === PRODUCT_PROFILE_PW
+      ? ["Single Capture", "Spectrum Analyzer", "Operations", "Advanced", "Files", "Health", "Settings", "About"]
+      : ["Serving Group", "SingleCapture", "Spectrum Analyzer", "Health", "Settings", "About"];
+    expect(navLabels).toEqual(expectedLabels);
   });
 
-  it("removes legacy top-level sections while keeping serving-group shell", () => {
+  it("keeps profile-specific top-level sections without cross-profile leakage", () => {
     render(
       <ThemeProvider>
         <MemoryRouter>
@@ -62,14 +67,26 @@ describe("navigation structure", () => {
         return interactive?.textContent?.trim() ?? element.textContent?.trim() ?? null;
       })
       .filter(Boolean);
-    expect(navLabels).toContain("Serving Group");
-    expect(navLabels).toContain("SingleCapture");
-    expect(navLabels).toContain("Health");
-    expect(navLabels).not.toContain("Advanced");
-    expect(navLabels).not.toContain("Operations");
-    expect(navLabels).not.toContain("Files");
+    const profile = resolveProductProfileWithFallback();
     expect(navLabels).toContain("Spectrum Analyzer");
-    expect(navLabels).not.toContain("Single Capture");
+    expect(navLabels).toContain("Health");
+    expect(navLabels).toContain("Settings");
+    expect(navLabels).toContain("About");
+    if (profile === PRODUCT_PROFILE_PW) {
+      expect(navLabels).toContain("Single Capture");
+      expect(navLabels).toContain("Operations");
+      expect(navLabels).toContain("Advanced");
+      expect(navLabels).toContain("Files");
+      expect(navLabels).not.toContain("Serving Group");
+      expect(navLabels).not.toContain("SingleCapture");
+    } else {
+      expect(navLabels).toContain("Serving Group");
+      expect(navLabels).toContain("SingleCapture");
+      expect(navLabels).not.toContain("Single Capture");
+      expect(navLabels).not.toContain("Operations");
+      expect(navLabels).not.toContain("Advanced");
+      expect(navLabels).not.toContain("Files");
+    }
   });
 
   it("keeps Spectrum Analyzer routes out of the Operations menu data set", () => {

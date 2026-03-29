@@ -41,7 +41,14 @@ fail() {
 }
 
 print_banner() {
-  local banner_path="${ROOT_DIR}/tools/banner.txt"
+  local banner_path=""
+  if [ "${PRODUCT_PROFILE}" = "${PROFILE_PW}" ]; then
+    banner_path="${ROOT_DIR}/tools/banner-pypnm-webui.txt"
+  elif [ "${PRODUCT_PROFILE}" = "${PROFILE_PCW}" ]; then
+    banner_path="${ROOT_DIR}/tools/banner-pypnm-cmts-webui.txt"
+  else
+    banner_path="${ROOT_DIR}/tools/banner.txt"
+  fi
   printf '\n'
   if [ -f "${banner_path}" ]; then
     cat "${banner_path}"
