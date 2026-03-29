@@ -153,7 +153,7 @@ export function EndpointExplorerPage() {
     return getOperationByRoutePath(location.pathname) ?? null;
   }, [isOperationExplorerRoute, location.pathname, operationId]);
   const { requestDefaultsOverride: singleCaptureRequestDefaultsOverride, preferredConnectivityInputs } = useSingleCaptureRequestContext(
-    isSingleCaptureRoute || isOperationExplorerRoute,
+    isSingleCaptureRoute || isOperationExplorerRoute || isSpectrumAnalyzerRoute,
     location.pathname,
     selectedInstance,
   );
