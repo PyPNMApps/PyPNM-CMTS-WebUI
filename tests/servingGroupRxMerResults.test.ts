@@ -14,6 +14,7 @@ describe("normalizeServingGroupRxMerResultsPayload", () => {
                 cable_modems: [
                   {
                     mac_address: "aa:bb:cc:dd:ee:ff",
+                    ip_address: "10.77.1.25",
                     system_description: {
                       MODEL: "CPE-1",
                       SW_REV: "1.2.3",
@@ -54,6 +55,7 @@ describe("normalizeServingGroupRxMerResultsPayload", () => {
     expect(normalized.serviceGroups[0].channels[0].combinedSeries).toHaveLength(1);
     expect(normalized.serviceGroups[0].channels[0].modems[0].rxMerSeries).toHaveLength(2);
     expect(normalized.serviceGroups[0].channels[0].modems[0].modulationCounts).toEqual({ qam_1024: 12 });
+    expect(normalized.serviceGroups[0].channels[0].modems[0].ipAddress).toBe("10.77.1.25");
     expect(normalized.serviceGroups[0].channels[0].modems[0].avgMerDb).toBeCloseTo(45.85, 2);
     expect(normalized.serviceGroups[0].channels[0].modems[0].calculatedSupportedQam).toBe("QAM-4096");
     expect(normalized.serviceGroups[0].channels[0].modems[0].errorFreeQam).toBe("QAM-4096");
@@ -153,5 +155,42 @@ describe("normalizeServingGroupRxMerResultsPayload", () => {
     const normalized = normalizeServingGroupRxMerResultsPayload(payload);
     expect(normalized.serviceGroups).toHaveLength(1);
     expect(normalized.serviceGroups[0].channels.map((channel) => channel.channelId)).toEqual(["193", "194"]);
+  });
+
+  it("extracts modem ip address from nested rxmer payload fields", () => {
+    const payload = {
+      results: {
+        serving_groups: [
+          {
+            service_group_id: 3,
+            channels: [
+              {
+                channel_id: 193,
+                cable_modems: [
+                  {
+                    mac_address: "aa:bb:cc:dd:ee:00",
+                    rxmer_data: {
+                      analysis: {
+                        cable_modem: {
+                          ipv4: "10.44.5.77",
+                        },
+                        subcarrier_spacing: 50000,
+                        carrier_values: {
+                          frequency: [774000000, 774050000],
+                          magnitude: [45.1, 45.2],
+                        },
+                      },
+                    },
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    };
+
+    const normalized = normalizeServingGroupRxMerResultsPayload(payload);
+    expect(normalized.serviceGroups[0].channels[0].modems[0].ipAddress).toBe("10.44.5.77");
   });
 });

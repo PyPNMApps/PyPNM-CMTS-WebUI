@@ -1,8 +1,7 @@
 import { ADVANCED_OPERATION_START_TIMEOUT_MS, ADVANCED_OPERATION_STATUS_TIMEOUT_MS } from "@/lib/constants";
 import { requestWithBaseUrl } from "@/services/http";
 import type { ServingGroupRxMerStartCaptureRequest } from "@/pcw/services/servingGroupRxMerService";
-
-const SERVING_GROUP_FEC_SUMMARY_BASE = "/cmts/pnm/sg/ds/ofdm/fecSummary";
+import { buildOperationActionPath, CMTS_SERVING_GROUP_FEC_SUMMARY_BASE_PATH } from "@/pcw/services/apiPaths";
 
 export async function startServingGroupFecSummaryCapture(
   baseUrl: string,
@@ -10,7 +9,7 @@ export async function startServingGroupFecSummaryCapture(
 ): Promise<unknown> {
   const response = await requestWithBaseUrl<unknown>(baseUrl, {
     method: "POST",
-    url: `${SERVING_GROUP_FEC_SUMMARY_BASE}/startCapture`,
+    url: buildOperationActionPath(CMTS_SERVING_GROUP_FEC_SUMMARY_BASE_PATH, "startCapture"),
     data: payload,
     timeout: ADVANCED_OPERATION_START_TIMEOUT_MS,
   });
@@ -20,7 +19,7 @@ export async function startServingGroupFecSummaryCapture(
 export async function getServingGroupFecSummaryCaptureStatus(baseUrl: string, operationId: string): Promise<unknown> {
   const response = await requestWithBaseUrl<unknown>(baseUrl, {
     method: "POST",
-    url: `${SERVING_GROUP_FEC_SUMMARY_BASE}/status`,
+    url: buildOperationActionPath(CMTS_SERVING_GROUP_FEC_SUMMARY_BASE_PATH, "status"),
     data: {
       pnm_capture_operation_id: operationId,
     },
@@ -32,7 +31,7 @@ export async function getServingGroupFecSummaryCaptureStatus(baseUrl: string, op
 export async function cancelServingGroupFecSummaryCapture(baseUrl: string, operationId: string): Promise<unknown> {
   const response = await requestWithBaseUrl<unknown>(baseUrl, {
     method: "POST",
-    url: `${SERVING_GROUP_FEC_SUMMARY_BASE}/cancel`,
+    url: buildOperationActionPath(CMTS_SERVING_GROUP_FEC_SUMMARY_BASE_PATH, "cancel"),
     data: {
       pnm_capture_operation_id: operationId,
     },
@@ -44,7 +43,7 @@ export async function cancelServingGroupFecSummaryCapture(baseUrl: string, opera
 export async function getServingGroupFecSummaryResults(baseUrl: string, operationId: string): Promise<unknown> {
   const response = await requestWithBaseUrl<unknown>(baseUrl, {
     method: "POST",
-    url: `${SERVING_GROUP_FEC_SUMMARY_BASE}/results`,
+    url: buildOperationActionPath(CMTS_SERVING_GROUP_FEC_SUMMARY_BASE_PATH, "results"),
     data: {
       pnm_capture_operation_id: operationId,
     },

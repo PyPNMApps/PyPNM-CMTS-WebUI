@@ -1,5 +1,6 @@
 import { ADVANCED_OPERATION_START_TIMEOUT_MS, ADVANCED_OPERATION_STATUS_TIMEOUT_MS } from "@/lib/constants";
 import { requestWithBaseUrl } from "@/services/http";
+import { buildOperationActionPath, CMTS_SERVING_GROUP_RXMER_BASE_PATH } from "@/pcw/services/apiPaths";
 
 export interface ServingGroupRxMerStartCaptureRequest {
   cmts: {
@@ -33,12 +34,10 @@ export interface ServingGroupRxMerStartCaptureRequest {
   };
 }
 
-const SERVING_GROUP_RXMER_BASE = "/cmts/pnm/sg/ds/ofdm/rxmer";
-
 export async function startServingGroupRxMerCapture(baseUrl: string, payload: ServingGroupRxMerStartCaptureRequest): Promise<unknown> {
   const response = await requestWithBaseUrl<unknown>(baseUrl, {
     method: "POST",
-    url: `${SERVING_GROUP_RXMER_BASE}/startCapture`,
+    url: buildOperationActionPath(CMTS_SERVING_GROUP_RXMER_BASE_PATH, "startCapture"),
     data: payload,
     timeout: ADVANCED_OPERATION_START_TIMEOUT_MS,
   });
@@ -48,7 +47,7 @@ export async function startServingGroupRxMerCapture(baseUrl: string, payload: Se
 export async function getServingGroupRxMerCaptureStatus(baseUrl: string, operationId: string): Promise<unknown> {
   const response = await requestWithBaseUrl<unknown>(baseUrl, {
     method: "POST",
-    url: `${SERVING_GROUP_RXMER_BASE}/status`,
+    url: buildOperationActionPath(CMTS_SERVING_GROUP_RXMER_BASE_PATH, "status"),
     data: {
       pnm_capture_operation_id: operationId,
     },
@@ -60,7 +59,7 @@ export async function getServingGroupRxMerCaptureStatus(baseUrl: string, operati
 export async function cancelServingGroupRxMerCapture(baseUrl: string, operationId: string): Promise<unknown> {
   const response = await requestWithBaseUrl<unknown>(baseUrl, {
     method: "POST",
-    url: `${SERVING_GROUP_RXMER_BASE}/cancel`,
+    url: buildOperationActionPath(CMTS_SERVING_GROUP_RXMER_BASE_PATH, "cancel"),
     data: {
       pnm_capture_operation_id: operationId,
     },
@@ -72,7 +71,7 @@ export async function cancelServingGroupRxMerCapture(baseUrl: string, operationI
 export async function getServingGroupRxMerResults(baseUrl: string, operationId: string): Promise<unknown> {
   const response = await requestWithBaseUrl<unknown>(baseUrl, {
     method: "POST",
-    url: `${SERVING_GROUP_RXMER_BASE}/results`,
+    url: buildOperationActionPath(CMTS_SERVING_GROUP_RXMER_BASE_PATH, "results"),
     data: {
       pnm_capture_operation_id: operationId,
     },

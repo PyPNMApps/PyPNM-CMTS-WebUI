@@ -1,4 +1,5 @@
 import { Fragment, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import { SpectrumSelectionActions } from "@/components/common/SpectrumSelectionActions";
 import { LineAnalysisChart } from "@/pw/features/analysis/components/LineAnalysisChart";
 import { ModulationCountsChart } from "@/pw/features/operations/ModulationCountsChart";
@@ -6,6 +7,7 @@ import {
   normalizeServingGroupRxMerResultsPayload,
   type ServingGroupRxMerGroupVisual,
 } from "@/pcw/features/serving-group/lib/rxmerResults";
+import { readSelectedModemIpByMac, saveSelectedModemContext } from "@/pw/features/single-capture/lib/selectedModemContext";
 import { buildExportBaseName } from "@/lib/export/naming";
 import { buildLinePreviewPath, computeLinePreviewBounds } from "@/lib/charts/linePreview";
 import type { SpectrumSelectionRange } from "@/lib/spectrumPower";
@@ -63,6 +65,8 @@ function ChannelSection({ groupId, channel }: { groupId: string; channel: Servin
   const [modemSelection, setModemSelection] = useState<Record<string, SpectrumSelectionRange | null>>({});
   const [modemZoomDomain, setModemZoomDomain] = useState<Record<string, [number, number] | null>>({});
   const [expandedKey, setExpandedKey] = useState<string | null>(null);
+  const numericChannelId = Number.parseInt(channel.channelId, 10);
+  const numericGroupId = Number.parseInt(groupId, 10);
 
   return (
     <article className="analysis-channel-card">
@@ -122,7 +126,26 @@ function ChannelSection({ groupId, channel }: { groupId: string; channel: Servin
               return (
                 <Fragment key={modem.key}>
                   <tr>
-                    <td className="mono">{modem.macAddress}</td>
+                    <td className="mono">
+                      <Link
+                        to="/single-capture/rxmer"
+                        onClick={() => {
+                          const resolvedIpAddress = modem.ipAddress !== "n/a"
+                            ? modem.ipAddress
+                            : (readSelectedModemIpByMac(modem.macAddress) ?? "n/a");
+                          saveSelectedModemContext({
+                            sgId: Number.isFinite(numericGroupId) ? numericGroupId : -1,
+                            macAddress: modem.macAddress,
+                            ipAddress: resolvedIpAddress,
+                            snmpCommunity: "private",
+                            channelIds: Number.isFinite(numericChannelId) ? [numericChannelId] : [],
+                            selectedAtEpochMs: Date.now(),
+                          });
+                        }}
+                      >
+                        {modem.macAddress}
+                      </Link>
+                    </td>
                     <td>{modem.vendor}</td>
                     <td>{modem.model}</td>
                     <td>{modem.softwareVersion}</td>

@@ -41,6 +41,20 @@
   computed values and render UI.
 - `Document Reuse`: when adding a reusable UI/coding pattern, update this CA
   in the same change set so future work follows the same standard.
+- `No Magic Literals`: do not add new hardcoded API paths, timeout values,
+  capture defaults, sample MAC/IP values, or repeated UI placeholder text
+  when a shared constant can be reused.
+- `Lookup Order Before New Constants`: before introducing a new constant,
+  check and reuse existing values in this order:
+  1) `src/lib/constants.ts`
+  2) `src/pcw/services/apiPaths.ts`
+  3) `src/pcw/features/**/lib/*Defaults*.ts`
+  4) `tests/support/*` for test-only fixtures
+  If a value is still missing after that lookup, add it once in the nearest
+  shared module and reference it everywhere else.
+- `Shared Test Fixtures`: repeated test literals (base URLs, sample MAC/IP,
+  operation IDs, default execution payload values) must live in `tests/support`
+  and be imported by test files instead of duplicated inline.
 
 ## Typing And API Contracts (Required)
 
@@ -193,6 +207,9 @@
 - In SG cable-modem tables (filters and per-channel rows), keep identification
   columns present and ordered as `MAC Address`, `Model`, `Vendor`, `Version`
   so operators can scan rows consistently across operations.
+- In serving-group operation result tables, render `MAC Address` as a route
+  link into the corresponding SingleCapture operation page and persist selected
+  modem context on click so capture inputs prefill from that modem.
 - In cable-modem dashboard tables, center column labels within each header
   cell so table scanning remains visually balanced across light and dark
   themes.

@@ -1,8 +1,7 @@
 import { ADVANCED_OPERATION_START_TIMEOUT_MS, ADVANCED_OPERATION_STATUS_TIMEOUT_MS } from "@/lib/constants";
 import { requestWithBaseUrl } from "@/services/http";
 import type { ServingGroupRxMerStartCaptureRequest } from "@/pcw/services/servingGroupRxMerService";
-
-const SERVING_GROUP_CONSTELLATION_DISPLAY_BASE = "/cmts/pnm/sg/ds/ofdm/constellationDisplay";
+import { buildOperationActionPath, CMTS_SERVING_GROUP_CONSTELLATION_DISPLAY_BASE_PATH } from "@/pcw/services/apiPaths";
 
 export async function startServingGroupConstellationDisplayCapture(
   baseUrl: string,
@@ -10,7 +9,7 @@ export async function startServingGroupConstellationDisplayCapture(
 ): Promise<unknown> {
   const response = await requestWithBaseUrl<unknown>(baseUrl, {
     method: "POST",
-    url: `${SERVING_GROUP_CONSTELLATION_DISPLAY_BASE}/startCapture`,
+    url: buildOperationActionPath(CMTS_SERVING_GROUP_CONSTELLATION_DISPLAY_BASE_PATH, "startCapture"),
     data: payload,
     timeout: ADVANCED_OPERATION_START_TIMEOUT_MS,
   });
@@ -20,7 +19,7 @@ export async function startServingGroupConstellationDisplayCapture(
 export async function getServingGroupConstellationDisplayCaptureStatus(baseUrl: string, operationId: string): Promise<unknown> {
   const response = await requestWithBaseUrl<unknown>(baseUrl, {
     method: "POST",
-    url: `${SERVING_GROUP_CONSTELLATION_DISPLAY_BASE}/status`,
+    url: buildOperationActionPath(CMTS_SERVING_GROUP_CONSTELLATION_DISPLAY_BASE_PATH, "status"),
     data: {
       pnm_capture_operation_id: operationId,
     },
@@ -32,7 +31,7 @@ export async function getServingGroupConstellationDisplayCaptureStatus(baseUrl: 
 export async function cancelServingGroupConstellationDisplayCapture(baseUrl: string, operationId: string): Promise<unknown> {
   const response = await requestWithBaseUrl<unknown>(baseUrl, {
     method: "POST",
-    url: `${SERVING_GROUP_CONSTELLATION_DISPLAY_BASE}/cancel`,
+    url: buildOperationActionPath(CMTS_SERVING_GROUP_CONSTELLATION_DISPLAY_BASE_PATH, "cancel"),
     data: {
       pnm_capture_operation_id: operationId,
     },
@@ -44,7 +43,7 @@ export async function cancelServingGroupConstellationDisplayCapture(baseUrl: str
 export async function getServingGroupConstellationDisplayResults(baseUrl: string, operationId: string): Promise<unknown> {
   const response = await requestWithBaseUrl<unknown>(baseUrl, {
     method: "POST",
-    url: `${SERVING_GROUP_CONSTELLATION_DISPLAY_BASE}/results`,
+    url: buildOperationActionPath(CMTS_SERVING_GROUP_CONSTELLATION_DISPLAY_BASE_PATH, "results"),
     data: {
       pnm_capture_operation_id: operationId,
     },

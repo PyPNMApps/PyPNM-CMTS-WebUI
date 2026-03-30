@@ -11,52 +11,47 @@ import {
   getServingGroupSpectrumFriendlyResults,
   startServingGroupSpectrumFriendlyCapture,
 } from "../src/pcw/services/servingGroupSpectrumFriendlyService";
+import {
+  buildServingGroupCapturePayload,
+  TEST_BASE_URL,
+  TEST_OPERATION_ID,
+  TEST_OPERATION_URLS,
+  TEST_TIMEOUTS,
+} from "./support/servingGroupTestConstants";
+import {
+  SERVING_GROUP_SPECTRUM_FRIENDLY_DEFAULTS,
+} from "../src/pcw/features/serving-group/lib/captureDefaults";
+import {
+  DEFAULT_SPECTRUM_ANALYZER_RETRIEVAL_TYPE,
+  DEFAULT_SPECTRUM_ANALYZER_WINDOW_FUNCTION,
+} from "../src/lib/spectrumAnalyzerEnumLookup";
 
 describe("servingGroupSpectrumFriendlyService", () => {
   it("calls startCapture with POST and payload", async () => {
     const requestWithBaseUrl = vi.mocked(httpModule.requestWithBaseUrl);
-    requestWithBaseUrl.mockResolvedValueOnce({ data: { operation_id: "op-1" } } as never);
+    requestWithBaseUrl.mockResolvedValueOnce({ data: { operation_id: TEST_OPERATION_ID } } as never);
 
     const payload = {
-      cmts: {
-        serving_group: { id: [101] },
-        cable_modem: {
-          mac_address: ["00:11:22:33:44:55"],
-          pnm_parameters: {
-            tftp: { ipv4: "172.19.8.28", ipv6: "::1" },
-            capture: { channel_ids: [0] },
-          },
-          snmp: {
-            snmpV2C: { community: "private" },
-          },
-        },
-      },
-      execution: {
-        max_workers: 16,
-        retry_count: 3,
-        retry_delay_seconds: 5,
-        per_modem_timeout_seconds: 30,
-        overall_timeout_seconds: 120,
-      },
+      ...buildServingGroupCapturePayload(),
       capture_settings: {
-        inactivity_timeout: 60,
-        first_segment_center_freq: 300000000,
-        last_segment_center_freq: 900000000,
-        resolution_bw: 30000,
-        noise_bw: 150,
-        window_function: 1,
-        num_averages: 1,
-        spectrum_retrieval_type: 1,
+        inactivity_timeout: SERVING_GROUP_SPECTRUM_FRIENDLY_DEFAULTS.inactivityTimeout,
+        first_segment_center_freq: SERVING_GROUP_SPECTRUM_FRIENDLY_DEFAULTS.firstSegmentCenterFreq,
+        last_segment_center_freq: SERVING_GROUP_SPECTRUM_FRIENDLY_DEFAULTS.lastSegmentCenterFreq,
+        resolution_bw: SERVING_GROUP_SPECTRUM_FRIENDLY_DEFAULTS.resolutionBw,
+        noise_bw: SERVING_GROUP_SPECTRUM_FRIENDLY_DEFAULTS.noiseBw,
+        window_function: DEFAULT_SPECTRUM_ANALYZER_WINDOW_FUNCTION,
+        num_averages: SERVING_GROUP_SPECTRUM_FRIENDLY_DEFAULTS.numAverages,
+        spectrum_retrieval_type: DEFAULT_SPECTRUM_ANALYZER_RETRIEVAL_TYPE,
       },
     };
 
-    await startServingGroupSpectrumFriendlyCapture("http://127.0.0.1:8080", payload);
+    await startServingGroupSpectrumFriendlyCapture(TEST_BASE_URL, payload);
 
-    expect(requestWithBaseUrl).toHaveBeenCalledWith("http://127.0.0.1:8080", {
+    expect(requestWithBaseUrl).toHaveBeenCalledWith(TEST_BASE_URL, {
       method: "POST",
-      url: "/cmts/pnm/sg/spectrumAnalyzer/startCapture",
+      url: TEST_OPERATION_URLS.spectrumAnalyzer.start,
       data: payload,
-      timeout: 120000,
+      timeout: TEST_TIMEOUTS.start,
     });
   });
 
@@ -64,15 +59,15 @@ describe("servingGroupSpectrumFriendlyService", () => {
     const requestWithBaseUrl = vi.mocked(httpModule.requestWithBaseUrl);
     requestWithBaseUrl.mockResolvedValueOnce({ data: { state: "completed" } } as never);
 
-    await getServingGroupSpectrumFriendlyCaptureStatus("http://127.0.0.1:8080", "op-1");
+    await getServingGroupSpectrumFriendlyCaptureStatus(TEST_BASE_URL, TEST_OPERATION_ID);
 
-    expect(requestWithBaseUrl).toHaveBeenCalledWith("http://127.0.0.1:8080", {
+    expect(requestWithBaseUrl).toHaveBeenCalledWith(TEST_BASE_URL, {
       method: "POST",
-      url: "/cmts/pnm/sg/spectrumAnalyzer/status",
+      url: TEST_OPERATION_URLS.spectrumAnalyzer.status,
       data: {
-        pnm_capture_operation_id: "op-1",
+        pnm_capture_operation_id: TEST_OPERATION_ID,
       },
-      timeout: 30000,
+      timeout: TEST_TIMEOUTS.status,
     });
   });
 
@@ -80,15 +75,15 @@ describe("servingGroupSpectrumFriendlyService", () => {
     const requestWithBaseUrl = vi.mocked(httpModule.requestWithBaseUrl);
     requestWithBaseUrl.mockResolvedValueOnce({ data: { state: "cancelling" } } as never);
 
-    await cancelServingGroupSpectrumFriendlyCapture("http://127.0.0.1:8080", "op-1");
+    await cancelServingGroupSpectrumFriendlyCapture(TEST_BASE_URL, TEST_OPERATION_ID);
 
-    expect(requestWithBaseUrl).toHaveBeenCalledWith("http://127.0.0.1:8080", {
+    expect(requestWithBaseUrl).toHaveBeenCalledWith(TEST_BASE_URL, {
       method: "POST",
-      url: "/cmts/pnm/sg/spectrumAnalyzer/cancel",
+      url: TEST_OPERATION_URLS.spectrumAnalyzer.cancel,
       data: {
-        pnm_capture_operation_id: "op-1",
+        pnm_capture_operation_id: TEST_OPERATION_ID,
       },
-      timeout: 30000,
+      timeout: TEST_TIMEOUTS.status,
     });
   });
 
@@ -96,16 +91,15 @@ describe("servingGroupSpectrumFriendlyService", () => {
     const requestWithBaseUrl = vi.mocked(httpModule.requestWithBaseUrl);
     requestWithBaseUrl.mockResolvedValueOnce({ data: { records: [] } } as never);
 
-    await getServingGroupSpectrumFriendlyResults("http://127.0.0.1:8080", "op-1");
+    await getServingGroupSpectrumFriendlyResults(TEST_BASE_URL, TEST_OPERATION_ID);
 
-    expect(requestWithBaseUrl).toHaveBeenCalledWith("http://127.0.0.1:8080", {
+    expect(requestWithBaseUrl).toHaveBeenCalledWith(TEST_BASE_URL, {
       method: "POST",
-      url: "/cmts/pnm/sg/spectrumAnalyzer/results",
+      url: TEST_OPERATION_URLS.spectrumAnalyzer.results,
       data: {
-        pnm_capture_operation_id: "op-1",
+        pnm_capture_operation_id: TEST_OPERATION_ID,
       },
-      timeout: 30000,
+      timeout: TEST_TIMEOUTS.status,
     });
   });
 });
-

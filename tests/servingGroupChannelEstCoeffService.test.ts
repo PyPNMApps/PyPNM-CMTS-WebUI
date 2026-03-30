@@ -11,42 +11,28 @@ import {
   getServingGroupChannelEstCoeffResults,
   startServingGroupChannelEstCoeffCapture,
 } from "../src/pcw/services/servingGroupChannelEstCoeffService";
+import {
+  buildServingGroupCapturePayload,
+  TEST_BASE_URL,
+  TEST_OPERATION_ID,
+  TEST_OPERATION_URLS,
+  TEST_TIMEOUTS,
+} from "./support/servingGroupTestConstants";
 
 describe("servingGroupChannelEstCoeffService", () => {
   it("calls startCapture with POST and payload", async () => {
     const requestWithBaseUrl = vi.mocked(httpModule.requestWithBaseUrl);
-    requestWithBaseUrl.mockResolvedValueOnce({ data: { operation_id: "op-1" } } as never);
+    requestWithBaseUrl.mockResolvedValueOnce({ data: { operation_id: TEST_OPERATION_ID } } as never);
 
-    const payload = {
-      cmts: {
-        serving_group: { id: [101] },
-        cable_modem: {
-          mac_address: ["00:11:22:33:44:55"],
-          pnm_parameters: {
-            tftp: { ipv4: "172.19.8.28", ipv6: "::1" },
-            capture: { channel_ids: [0] },
-          },
-          snmp: {
-            snmpV2C: { community: "private" },
-          },
-        },
-      },
-      execution: {
-        max_workers: 16,
-        retry_count: 3,
-        retry_delay_seconds: 5,
-        per_modem_timeout_seconds: 30,
-        overall_timeout_seconds: 120,
-      },
-    };
+    const payload = buildServingGroupCapturePayload();
 
-    await startServingGroupChannelEstCoeffCapture("http://127.0.0.1:8080", payload);
+    await startServingGroupChannelEstCoeffCapture(TEST_BASE_URL, payload);
 
-    expect(requestWithBaseUrl).toHaveBeenCalledWith("http://127.0.0.1:8080", {
+    expect(requestWithBaseUrl).toHaveBeenCalledWith(TEST_BASE_URL, {
       method: "POST",
-      url: "/cmts/pnm/sg/ds/ofdm/channelEstCoeff/startCapture",
+      url: TEST_OPERATION_URLS.channelEstCoeff.start,
       data: payload,
-      timeout: 120000,
+      timeout: TEST_TIMEOUTS.start,
     });
   });
 
@@ -54,15 +40,15 @@ describe("servingGroupChannelEstCoeffService", () => {
     const requestWithBaseUrl = vi.mocked(httpModule.requestWithBaseUrl);
     requestWithBaseUrl.mockResolvedValueOnce({ data: { state: "completed" } } as never);
 
-    await getServingGroupChannelEstCoeffCaptureStatus("http://127.0.0.1:8080", "op-1");
+    await getServingGroupChannelEstCoeffCaptureStatus(TEST_BASE_URL, TEST_OPERATION_ID);
 
-    expect(requestWithBaseUrl).toHaveBeenCalledWith("http://127.0.0.1:8080", {
+    expect(requestWithBaseUrl).toHaveBeenCalledWith(TEST_BASE_URL, {
       method: "POST",
-      url: "/cmts/pnm/sg/ds/ofdm/channelEstCoeff/status",
+      url: TEST_OPERATION_URLS.channelEstCoeff.status,
       data: {
-        pnm_capture_operation_id: "op-1",
+        pnm_capture_operation_id: TEST_OPERATION_ID,
       },
-      timeout: 30000,
+      timeout: TEST_TIMEOUTS.status,
     });
   });
 
@@ -70,15 +56,15 @@ describe("servingGroupChannelEstCoeffService", () => {
     const requestWithBaseUrl = vi.mocked(httpModule.requestWithBaseUrl);
     requestWithBaseUrl.mockResolvedValueOnce({ data: { state: "cancelling" } } as never);
 
-    await cancelServingGroupChannelEstCoeffCapture("http://127.0.0.1:8080", "op-1");
+    await cancelServingGroupChannelEstCoeffCapture(TEST_BASE_URL, TEST_OPERATION_ID);
 
-    expect(requestWithBaseUrl).toHaveBeenCalledWith("http://127.0.0.1:8080", {
+    expect(requestWithBaseUrl).toHaveBeenCalledWith(TEST_BASE_URL, {
       method: "POST",
-      url: "/cmts/pnm/sg/ds/ofdm/channelEstCoeff/cancel",
+      url: TEST_OPERATION_URLS.channelEstCoeff.cancel,
       data: {
-        pnm_capture_operation_id: "op-1",
+        pnm_capture_operation_id: TEST_OPERATION_ID,
       },
-      timeout: 30000,
+      timeout: TEST_TIMEOUTS.status,
     });
   });
 
@@ -86,16 +72,15 @@ describe("servingGroupChannelEstCoeffService", () => {
     const requestWithBaseUrl = vi.mocked(httpModule.requestWithBaseUrl);
     requestWithBaseUrl.mockResolvedValueOnce({ data: { results: {} } } as never);
 
-    await getServingGroupChannelEstCoeffResults("http://127.0.0.1:8080", "op-1");
+    await getServingGroupChannelEstCoeffResults(TEST_BASE_URL, TEST_OPERATION_ID);
 
-    expect(requestWithBaseUrl).toHaveBeenCalledWith("http://127.0.0.1:8080", {
+    expect(requestWithBaseUrl).toHaveBeenCalledWith(TEST_BASE_URL, {
       method: "POST",
-      url: "/cmts/pnm/sg/ds/ofdm/channelEstCoeff/results",
+      url: TEST_OPERATION_URLS.channelEstCoeff.results,
       data: {
-        pnm_capture_operation_id: "op-1",
+        pnm_capture_operation_id: TEST_OPERATION_ID,
       },
-      timeout: 30000,
+      timeout: TEST_TIMEOUTS.status,
     });
   });
 });
-

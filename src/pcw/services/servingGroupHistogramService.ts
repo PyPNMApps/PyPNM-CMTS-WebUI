@@ -1,8 +1,7 @@
 import { ADVANCED_OPERATION_START_TIMEOUT_MS, ADVANCED_OPERATION_STATUS_TIMEOUT_MS } from "@/lib/constants";
 import { requestWithBaseUrl } from "@/services/http";
 import type { ServingGroupRxMerStartCaptureRequest } from "@/pcw/services/servingGroupRxMerService";
-
-const SERVING_GROUP_HISTOGRAM_BASE = "/cmts/pnm/sg/ds/histogram";
+import { buildOperationActionPath, CMTS_SERVING_GROUP_HISTOGRAM_BASE_PATH } from "@/pcw/services/apiPaths";
 
 export async function startServingGroupHistogramCapture(
   baseUrl: string,
@@ -10,7 +9,7 @@ export async function startServingGroupHistogramCapture(
 ): Promise<unknown> {
   const response = await requestWithBaseUrl<unknown>(baseUrl, {
     method: "POST",
-    url: `${SERVING_GROUP_HISTOGRAM_BASE}/startCapture`,
+    url: buildOperationActionPath(CMTS_SERVING_GROUP_HISTOGRAM_BASE_PATH, "startCapture"),
     data: payload,
     timeout: ADVANCED_OPERATION_START_TIMEOUT_MS,
   });
@@ -20,7 +19,7 @@ export async function startServingGroupHistogramCapture(
 export async function getServingGroupHistogramCaptureStatus(baseUrl: string, operationId: string): Promise<unknown> {
   const response = await requestWithBaseUrl<unknown>(baseUrl, {
     method: "POST",
-    url: `${SERVING_GROUP_HISTOGRAM_BASE}/status`,
+    url: buildOperationActionPath(CMTS_SERVING_GROUP_HISTOGRAM_BASE_PATH, "status"),
     data: {
       pnm_capture_operation_id: operationId,
     },
@@ -32,7 +31,7 @@ export async function getServingGroupHistogramCaptureStatus(baseUrl: string, ope
 export async function cancelServingGroupHistogramCapture(baseUrl: string, operationId: string): Promise<unknown> {
   const response = await requestWithBaseUrl<unknown>(baseUrl, {
     method: "POST",
-    url: `${SERVING_GROUP_HISTOGRAM_BASE}/cancel`,
+    url: buildOperationActionPath(CMTS_SERVING_GROUP_HISTOGRAM_BASE_PATH, "cancel"),
     data: {
       pnm_capture_operation_id: operationId,
     },
@@ -44,7 +43,7 @@ export async function cancelServingGroupHistogramCapture(baseUrl: string, operat
 export async function getServingGroupHistogramResults(baseUrl: string, operationId: string): Promise<unknown> {
   const response = await requestWithBaseUrl<unknown>(baseUrl, {
     method: "POST",
-    url: `${SERVING_GROUP_HISTOGRAM_BASE}/results`,
+    url: buildOperationActionPath(CMTS_SERVING_GROUP_HISTOGRAM_BASE_PATH, "results"),
     data: {
       pnm_capture_operation_id: operationId,
     },
