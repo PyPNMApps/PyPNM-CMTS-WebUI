@@ -1,5 +1,4 @@
 version: 1
-product_profile: pypnm-webui
 defaults:
   selected_instance: default
   poll_interval_ms: 5000
