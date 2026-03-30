@@ -1732,12 +1732,21 @@ pre {
 .constellation-preview-thumb {
   position: relative;
   display: inline-flex;
-  width: 124px;
+  width: 68px;
   height: 40px;
   border: 1px solid var(--line);
   border-radius: 8px;
   overflow: hidden;
   background: rgba(255, 255, 255, 0.02);
+}
+
+.constellation-preview-thumb-compact {
+  width: 56px;
+  height: 34px;
+}
+
+.constellation-preview-thumb.has-pair {
+  width: 124px;
 }
 
 .constellation-preview-svg {
@@ -1807,6 +1816,10 @@ pre {
 .constellation-preview-column {
   min-width: 80px;
   text-align: center;
+}
+
+.constellation-preview-column-compact {
+  min-width: 64px;
 }
 
 .mod-profile-controls {

@@ -1,9 +1,13 @@
+import { Fragment, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import { FecChannelChart } from "@/pw/features/operations/FecChannelChart";
 import {
   normalizeServingGroupFecSummaryResultsPayload,
   type ServingGroupFecSummaryGroupVisual,
 } from "@/pcw/features/serving-group/lib/fecSummaryResults";
 import { buildExportBaseName } from "@/lib/export/naming";
+import { readSelectedModemIpByMac, saveSelectedModemContext } from "@/pw/features/single-capture/lib/selectedModemContext";
+import { buildLinePreviewPath, computeLinePreviewBounds } from "@/lib/charts/linePreview";
 
 interface ServingGroupFecSummaryResultsViewProps {
   payload: unknown;
@@ -13,6 +17,59 @@ function formatCmCountLabel(count: number): string {
   return count === 1 ? "1 CM" : `${count} CMs`;
 }
 
+function buildFecPreviewPoints(modem: ServingGroupFecSummaryGroupVisual["channels"][number]["modems"][number]) {
+  const firstProfile = modem.profiles[0];
+  if (!firstProfile) {
+    return [];
+  }
+  const timestamps = firstProfile.codewords.timestamps ?? [];
+  const totalCodewords = firstProfile.codewords.total_codewords ?? [];
+  const length = Math.min(timestamps.length, totalCodewords.length);
+  const points: Array<{ x: number; y: number }> = [];
+  for (let index = 0; index < length; index += 1) {
+    points.push({ x: timestamps[index], y: totalCodewords[index] });
+  }
+  return points;
+}
+
+function FecPreview({
+  modem,
+  width,
+  height,
+}: {
+  modem: ServingGroupFecSummaryGroupVisual["channels"][number]["modems"][number];
+  width: number;
+  height: number;
+}) {
+  const points = useMemo(() => buildFecPreviewPoints(modem), [modem]);
+  const bounds = useMemo(
+    () => computeLinePreviewBounds(points),
+    [points],
+  );
+  const pad = 8;
+  const innerWidth = width - pad * 2;
+  const innerHeight = height - pad * 2;
+  const hasPoints = points.length > 0 && bounds !== null;
+  const linePath = hasPoints ? buildLinePreviewPath(points, bounds, width, height, pad) : "";
+
+  return (
+    <svg
+      className="constellation-preview-svg"
+      viewBox={`0 0 ${width} ${height}`}
+      preserveAspectRatio="xMidYMid meet"
+      role="img"
+      aria-label="FEC preview"
+    >
+      <rect x={pad} y={pad} width={innerWidth} height={innerHeight} fill="rgba(255,255,255,0.04)" stroke="rgba(121,169,255,0.55)" />
+      {hasPoints ? (
+        <path d={linePath} fill="none" stroke="#79a9ff" strokeWidth="1.6" strokeLinejoin="round" strokeLinecap="round" />
+      ) : (
+        <text x="50%" y="52%" textAnchor="middle" className="constellation-preview-empty-label">No Data</text>
+      )}
+    </svg>
+  );
+}
+
 function ChannelSection({
   groupId,
   channel,
@@ -20,9 +77,9 @@ function ChannelSection({
   groupId: string;
   channel: ServingGroupFecSummaryGroupVisual["channels"][number];
 }) {
-  const modemGridClassName = channel.modems.length === 1
-    ? "analysis-channels-grid analysis-channels-grid-single"
-    : "analysis-channels-grid";
+  const [expandedKey, setExpandedKey] = useState<string | null>(null);
+  const numericChannelId = Number.parseInt(channel.channelId, 10);
+  const numericGroupId = Number.parseInt(groupId, 10);
 
   return (
     <article className="analysis-channel-card">
@@ -32,27 +89,95 @@ function ChannelSection({
           <span>{formatCmCountLabel(channel.modems.length)}</span>
         </div>
       </div>
-      <div className={modemGridClassName}>
-        {channel.modems.map((modem) => (
-          <article key={modem.key} className="analysis-channel-card">
-            <div className="analysis-channel-top">
-              <h4 className="analysis-channel-title">{modem.modelLabel} · {modem.macAddress}</h4>
-              <div className="analysis-channel-meta-line">
-                <span>{modem.captureTimeLabel}</span>
-                <span>Profiles: {modem.profiles.length}</span>
-              </div>
-            </div>
-            <FecChannelChart
-              title={`FEC Summary (MAC ${modem.macAddress})`}
-              profiles={modem.profiles}
-              exportBaseName={buildExportBaseName(
-                modem.macAddress,
-                modem.captureTimeEpoch,
-                `sg-fec-summary-sg-${groupId}-channel-${channel.channelId}`,
-              )}
-            />
-          </article>
-        ))}
+      <div className="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>MAC Address</th>
+              <th>Vendor</th>
+              <th>Model</th>
+              <th>Version</th>
+              <th>Capture Time (UTC)</th>
+              <th>Profiles</th>
+              <th>Samples</th>
+              <th className="constellation-preview-column">Preview</th>
+            </tr>
+          </thead>
+          <tbody>
+            {channel.modems.map((modem) => {
+              const isExpanded = expandedKey === modem.key;
+              const sampleCount = modem.profiles.reduce((sum, profile) => (
+                sum + (profile.codewords.timestamps?.length ?? 0)
+              ), 0);
+
+              return (
+                <Fragment key={modem.key}>
+                  <tr>
+                    <td className="mono">
+                      <Link
+                        to="/single-capture/fec-summary"
+                        onClick={() => {
+                          const resolvedIpAddress = modem.ipAddress !== "n/a"
+                            ? modem.ipAddress
+                            : (readSelectedModemIpByMac(modem.macAddress) ?? "n/a");
+                          saveSelectedModemContext({
+                            sgId: Number.isFinite(numericGroupId) ? numericGroupId : -1,
+                            macAddress: modem.macAddress,
+                            ipAddress: resolvedIpAddress,
+                            snmpCommunity: "private",
+                            channelIds: Number.isFinite(numericChannelId) ? [numericChannelId] : [],
+                            selectedAtEpochMs: Date.now(),
+                          });
+                        }}
+                      >
+                        {modem.macAddress}
+                      </Link>
+                    </td>
+                    <td>{modem.vendor}</td>
+                    <td>{modem.model}</td>
+                    <td>{modem.softwareVersion}</td>
+                    <td>{modem.captureTimeLabel}</td>
+                    <td>{modem.profiles.length}</td>
+                    <td>{sampleCount}</td>
+                    <td className="constellation-preview-column">
+                      <button
+                        type="button"
+                        className="constellation-preview-button"
+                        onClick={() => setExpandedKey((current) => (current === modem.key ? null : modem.key))}
+                        aria-expanded={isExpanded}
+                        aria-label={`Toggle FEC details for ${modem.macAddress}`}
+                      >
+                        <span className="constellation-preview-thumb">
+                          <FecPreview modem={modem} width={110} height={68} />
+                          <span className="constellation-preview-hover">
+                            <FecPreview modem={modem} width={300} height={200} />
+                          </span>
+                        </span>
+                      </button>
+                    </td>
+                  </tr>
+                  {isExpanded ? (
+                    <tr className="constellation-expanded-row">
+                      <td colSpan={8}>
+                        <div className="constellation-expanded-panel">
+                          <FecChannelChart
+                            title={`FEC Summary (MAC ${modem.macAddress})`}
+                            profiles={modem.profiles}
+                            exportBaseName={buildExportBaseName(
+                              modem.macAddress,
+                              modem.captureTimeEpoch,
+                              `sg-fec-summary-sg-${groupId}-channel-${channel.channelId}`,
+                            )}
+                          />
+                        </div>
+                      </td>
+                    </tr>
+                  ) : null}
+                </Fragment>
+              );
+            })}
+          </tbody>
+        </table>
       </div>
     </article>
   );

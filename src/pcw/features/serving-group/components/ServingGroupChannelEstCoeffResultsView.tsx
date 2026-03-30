@@ -59,21 +59,6 @@ function MagnitudePreview({
   );
 }
 
-function PreviewPair({
-  magnitudeSeries,
-  groupDelaySeries,
-}: {
-  magnitudeSeries: ServingGroupChannelEstCoeffGroupVisual["channels"][number]["modems"][number]["magnitudeSeries"];
-  groupDelaySeries: ServingGroupChannelEstCoeffGroupVisual["channels"][number]["modems"][number]["groupDelaySeries"];
-}) {
-  return (
-    <span className="constellation-preview-pair">
-      <MagnitudePreview series={magnitudeSeries} width={110} height={68} />
-      {groupDelaySeries ? <MagnitudePreview series={groupDelaySeries} width={110} height={68} /> : null}
-    </span>
-  );
-}
-
 function ChannelSection({
   groupId,
   channel,
@@ -170,7 +155,7 @@ function ChannelSection({
                     <td>{modem.captureTimeLabel}</td>
                     <td>{modem.magnitudeSeries.points.length}</td>
                     <td>{modem.groupDelaySeries?.points.length ?? 0}</td>
-                    <td className="constellation-preview-column">
+                    <td className="constellation-preview-column constellation-preview-column-compact">
                       <button
                         type="button"
                         className="constellation-preview-button"
@@ -178,19 +163,8 @@ function ChannelSection({
                         aria-expanded={isExpanded}
                         aria-label={`Toggle channel estimation details for ${modem.macAddress}`}
                       >
-                        <span className="constellation-preview-thumb">
-                          <PreviewPair
-                            magnitudeSeries={modem.magnitudeSeries}
-                            groupDelaySeries={modem.groupDelaySeries}
-                          />
-                          <span className="constellation-preview-hover">
-                            <span className="constellation-preview-hover-pair">
-                              <MagnitudePreview series={modem.magnitudeSeries} width={300} height={200} />
-                              {modem.groupDelaySeries ? (
-                                <MagnitudePreview series={modem.groupDelaySeries} width={300} height={200} />
-                              ) : null}
-                            </span>
-                          </span>
+                        <span className="constellation-preview-thumb constellation-preview-thumb-compact">
+                          <MagnitudePreview series={modem.magnitudeSeries} width={90} height={56} />
                         </span>
                       </button>
                     </td>

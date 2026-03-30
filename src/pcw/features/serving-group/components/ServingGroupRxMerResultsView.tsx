@@ -153,7 +153,7 @@ function ChannelSection({ groupId, channel }: { groupId: string; channel: Servin
                     <td>{modem.avgMerDb !== null ? modem.avgMerDb.toFixed(2) : "n/a"}</td>
                     <td>{modem.calculatedSupportedQam}</td>
                     <td>{modem.errorFreeQam}</td>
-                    <td className="constellation-preview-column">
+                    <td className="constellation-preview-column constellation-preview-column-compact">
                       <button
                         type="button"
                         className="constellation-preview-button"
@@ -161,8 +161,8 @@ function ChannelSection({ groupId, channel }: { groupId: string; channel: Servin
                         aria-expanded={isExpanded}
                         aria-label={`Toggle RxMER details for ${modem.macAddress}`}
                       >
-                        <span className="constellation-preview-thumb">
-                          <RxMerPreview series={modem.rxMerSeries[0]} width={110} height={68} />
+                        <span className="constellation-preview-thumb constellation-preview-thumb-compact">
+                          <RxMerPreview series={modem.rxMerSeries[0]} width={90} height={56} />
                           <span className="constellation-preview-hover">
                             <RxMerPreview series={modem.rxMerSeries[0]} width={300} height={200} />
                           </span>
