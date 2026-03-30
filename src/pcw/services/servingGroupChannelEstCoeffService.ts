@@ -1,53 +1,27 @@
-import { ADVANCED_OPERATION_START_TIMEOUT_MS, ADVANCED_OPERATION_STATUS_TIMEOUT_MS } from "@/lib/constants";
-import { requestWithBaseUrl } from "@/services/http";
-import type { ServingGroupRxMerStartCaptureRequest } from "@/pcw/services/servingGroupRxMerService";
-import { buildOperationActionPath, CMTS_SERVING_GROUP_CHANNEL_EST_COEFF_BASE_PATH } from "@/pcw/services/apiPaths";
+import { CMTS_SERVING_GROUP_CHANNEL_EST_COEFF_BASE_PATH } from "@/pcw/services/apiPaths";
+import type { ServingGroupCaptureRequestPayload } from "@/pcw/features/serving-group/lib/captureRequestTypes";
+import {
+  cancelServingGroupOperation,
+  getServingGroupOperationResults,
+  getServingGroupOperationStatus,
+  startServingGroupOperation,
+} from "@/pcw/services/servingGroupOperationService";
 
 export async function startServingGroupChannelEstCoeffCapture(
   baseUrl: string,
-  payload: ServingGroupRxMerStartCaptureRequest,
+  payload: ServingGroupCaptureRequestPayload,
 ): Promise<unknown> {
-  const response = await requestWithBaseUrl<unknown>(baseUrl, {
-    method: "POST",
-    url: buildOperationActionPath(CMTS_SERVING_GROUP_CHANNEL_EST_COEFF_BASE_PATH, "startCapture"),
-    data: payload,
-    timeout: ADVANCED_OPERATION_START_TIMEOUT_MS,
-  });
-  return response.data;
+  return startServingGroupOperation(baseUrl, CMTS_SERVING_GROUP_CHANNEL_EST_COEFF_BASE_PATH, payload);
 }
 
 export async function getServingGroupChannelEstCoeffCaptureStatus(baseUrl: string, operationId: string): Promise<unknown> {
-  const response = await requestWithBaseUrl<unknown>(baseUrl, {
-    method: "POST",
-    url: buildOperationActionPath(CMTS_SERVING_GROUP_CHANNEL_EST_COEFF_BASE_PATH, "status"),
-    data: {
-      pnm_capture_operation_id: operationId,
-    },
-    timeout: ADVANCED_OPERATION_STATUS_TIMEOUT_MS,
-  });
-  return response.data;
+  return getServingGroupOperationStatus(baseUrl, CMTS_SERVING_GROUP_CHANNEL_EST_COEFF_BASE_PATH, operationId);
 }
 
 export async function cancelServingGroupChannelEstCoeffCapture(baseUrl: string, operationId: string): Promise<unknown> {
-  const response = await requestWithBaseUrl<unknown>(baseUrl, {
-    method: "POST",
-    url: buildOperationActionPath(CMTS_SERVING_GROUP_CHANNEL_EST_COEFF_BASE_PATH, "cancel"),
-    data: {
-      pnm_capture_operation_id: operationId,
-    },
-    timeout: ADVANCED_OPERATION_STATUS_TIMEOUT_MS,
-  });
-  return response.data;
+  return cancelServingGroupOperation(baseUrl, CMTS_SERVING_GROUP_CHANNEL_EST_COEFF_BASE_PATH, operationId);
 }
 
 export async function getServingGroupChannelEstCoeffResults(baseUrl: string, operationId: string): Promise<unknown> {
-  const response = await requestWithBaseUrl<unknown>(baseUrl, {
-    method: "POST",
-    url: buildOperationActionPath(CMTS_SERVING_GROUP_CHANNEL_EST_COEFF_BASE_PATH, "results"),
-    data: {
-      pnm_capture_operation_id: operationId,
-    },
-    timeout: ADVANCED_OPERATION_STATUS_TIMEOUT_MS,
-  });
-  return response.data;
+  return getServingGroupOperationResults(baseUrl, CMTS_SERVING_GROUP_CHANNEL_EST_COEFF_BASE_PATH, operationId);
 }
