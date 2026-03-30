@@ -9,6 +9,13 @@
 
 The UI merges these by instance `id`.
 
+Each runtime YAML now also carries:
+
+- `product_profile: pypnm-webui` or `product_profile: pypnm-cmts-webui`
+
+This tag is set from the install profile and used as a safety check to prevent
+loading the wrong mode configuration.
+
 ## Recommended model
 
 - keep safe defaults in `pypnm-instances.yaml`
@@ -30,6 +37,7 @@ Use this to view the minimal runtime shape used by
 
 ```yaml
 version: 1
+product_profile: pypnm-cmts-webui
 defaults:
   selected_instance: pypnm-agent-1
   poll_interval_ms: 5000
@@ -45,6 +53,7 @@ and updates labels/schema hints based on the active profile:
 
 - `pypnm-cmts-webui`: CMTS agent naming, no `request_defaults.cable_modem`
 - `pypnm-webui`: PyPNM agent naming, optional `request_defaults.cable_modem`
+- config/profile mismatch is rejected (`product_profile` must match active mode)
 
 Notes:
 

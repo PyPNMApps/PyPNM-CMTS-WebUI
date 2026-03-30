@@ -25,6 +25,7 @@ describe("config_menu normalization", () => {
   it("builds the minimal local runtime schema example", () => {
     expect(buildRuntimeConfigSchemaExample()).toEqual({
       version: 1,
+      product_profile: "pypnm-cmts-webui",
       defaults: {
         selected_instance: "pypnm-cmts-agent-1",
         poll_interval_ms: 5000,
@@ -36,6 +37,34 @@ describe("config_menu normalization", () => {
       },
       instances: [],
     });
+  });
+
+  it("rejects config with mismatched product_profile tag", () => {
+    const profileContext = {
+      productProfile: "pypnm-cmts-webui" as const,
+      productLabel: "PyPNM-CMTS-WebUI",
+      agentBrand: "PyPNM-CMTS",
+      agentLabelSingular: "PyPNM-CMTS Agent",
+      agentLabelPlural: "PyPNM-CMTS Agents",
+      includeCableModemDefaults: false,
+    };
+
+    const mismatch = normalizeConfig({
+      product_profile: "pypnm-webui",
+      defaults: {
+        selected_instance: "lab-local",
+      },
+      instances: [
+        {
+          id: "lab-local",
+          label: "Lab Local",
+          base_url: "http://127.0.0.1:8080",
+        },
+      ],
+    }, profileContext);
+
+    expect(validateConfigForProfile(mismatch, profileContext))
+      .toBe("product_profile must be 'pypnm-cmts-webui'.");
   });
 
   it("keeps per-instance request defaults and selected_instance", () => {

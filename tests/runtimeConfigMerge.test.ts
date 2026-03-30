@@ -7,6 +7,7 @@ describe("mergeRuntimeConfig", () => {
     const merged = mergeRuntimeConfig(
       {
         version: 2,
+        product_profile: "pypnm-webui",
         defaults: {
           selected_instance: "lab-local",
           poll_interval_ms: 5000,
@@ -35,6 +36,7 @@ describe("mergeRuntimeConfig", () => {
       },
       {
         version: 1,
+        product_profile: "pypnm-cmts-webui",
         defaults: {
           selected_instance: "lab-local",
           poll_interval_ms: 7000,
@@ -82,6 +84,7 @@ describe("mergeRuntimeConfig", () => {
     };
 
     expect(merged.version).toBe(2);
+    expect((merged as { product_profile?: string }).product_profile).toBe("pypnm-webui");
     expect(merged.defaults.health_path).toBe("/health");
     expect(merged.defaults.logging.level).toBe("DEBUG");
     expect(merged.instances).toHaveLength(2);

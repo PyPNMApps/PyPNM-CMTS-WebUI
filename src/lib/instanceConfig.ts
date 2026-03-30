@@ -1,5 +1,6 @@
 import { parse } from "yaml";
 
+import { parseProductProfile } from "@/app/productProfile";
 import { env } from "@/lib/env";
 import type { PypnmInstance, PypnmInstanceConfig, PypnmLogLevel, PypnmRequestDefaults } from "@/types/config";
 
@@ -9,6 +10,7 @@ const LOCAL_OVERRIDE_CONFIG_URL = "/config/pypnm-instances.local.yaml";
 
 interface RawInstanceConfig {
   version?: number;
+  product_profile?: string;
   defaults?: {
     selected_instance?: string;
     poll_interval_ms?: number;
@@ -131,6 +133,15 @@ function sanitizeRawConfig(raw: RawInstanceConfig, sourceLabel: string): RawInst
     ...raw,
     instances: dedupeRawInstances(raw.instances, sourceLabel),
   };
+}
+
+function validateConfigProductProfile(raw: RawInstanceConfig, sourceLabel: string): void {
+  const parsedProfile = parseProductProfile(raw?.product_profile);
+  if (parsedProfile && parsedProfile !== env.productProfile) {
+    throw new Error(
+      `Runtime config profile mismatch in ${sourceLabel}: expected ${env.productProfile}, found ${parsedProfile}.`,
+    );
+  }
 }
 
 function deepMerge(templateValue: unknown, sourceValue: unknown): unknown {
@@ -300,6 +311,7 @@ export async function loadInstanceConfig(): Promise<PypnmInstanceConfig> {
     const response = await fetch(TEMPLATE_CONFIG_URL, { cache: "no-store" });
     if (response.ok) {
       templateConfig = sanitizeRawConfig(((parse(await response.text()) as RawInstanceConfig) ?? {}), TEMPLATE_CONFIG_URL);
+      validateConfigProductProfile(templateConfig, TEMPLATE_CONFIG_URL);
     }
   } catch {
     templateConfig = null;
@@ -309,6 +321,7 @@ export async function loadInstanceConfig(): Promise<PypnmInstanceConfig> {
     const response = await fetch(LOCAL_OVERRIDE_CONFIG_URL, { cache: "no-store" });
     if (response.ok) {
       localOverrideConfig = sanitizeRawConfig(((parse(await response.text()) as RawInstanceConfig) ?? {}), LOCAL_OVERRIDE_CONFIG_URL);
+      validateConfigProductProfile(localOverrideConfig, LOCAL_OVERRIDE_CONFIG_URL);
     }
   } catch {
     localOverrideConfig = null;

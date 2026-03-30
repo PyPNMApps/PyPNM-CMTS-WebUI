@@ -6,8 +6,12 @@ import { fileURLToPath } from "node:url";
 
 import { parse, stringify } from "yaml";
 
+const PRODUCT_PROFILE_PW = "pypnm-webui";
+const PRODUCT_PROFILE_PCW = "pypnm-cmts-webui";
+const DEFAULT_PRODUCT_PROFILE = PRODUCT_PROFILE_PCW;
 const DEFAULT_CONFIG = {
   version: 1,
+  product_profile: DEFAULT_PRODUCT_PROFILE,
   defaults: {
     selected_instance: "default",
     poll_interval_ms: 5000,
@@ -19,9 +23,6 @@ const DEFAULT_CONFIG = {
   },
   instances: [],
 };
-const PRODUCT_PROFILE_PW = "pypnm-webui";
-const PRODUCT_PROFILE_PCW = "pypnm-cmts-webui";
-const DEFAULT_PRODUCT_PROFILE = PRODUCT_PROFILE_PCW;
 const RESERVED_LOCAL_AGENT_ID = "local-pypnm-agent";
 const RESERVED_LOCAL_AGENT_TAG = "combined-install";
 const DEFAULT_PROFILE_CONTEXT = buildProfileContext(DEFAULT_PRODUCT_PROFILE);
@@ -352,6 +353,7 @@ export function normalizeConfig(raw, profileContext = DEFAULT_PROFILE_CONTEXT) {
 
   return {
     version: Number.isInteger(raw?.version) && raw.version > 0 ? raw.version : 1,
+    product_profile: parseProductProfile(raw?.product_profile) || profileContext.productProfile,
     defaults,
     instances,
   };
@@ -360,6 +362,9 @@ export function normalizeConfig(raw, profileContext = DEFAULT_PROFILE_CONTEXT) {
 function validateConfig(config, profileContext = DEFAULT_PROFILE_CONTEXT) {
   if (!config || typeof config !== "object") {
     return "Config is missing or invalid.";
+  }
+  if (parseProductProfile(config?.product_profile) !== profileContext.productProfile) {
+    return `product_profile must be '${profileContext.productProfile}'.`;
   }
 
   if (!Number.isInteger(config?.defaults?.poll_interval_ms) || config.defaults.poll_interval_ms <= 0) {
@@ -420,7 +425,7 @@ function loadConfig(configPath, fallbackPath, profileContext = DEFAULT_PROFILE_C
       const fallbackRaw = sanitizeConfig(parse(fs.readFileSync(fallbackPath, "utf8")) ?? {}, fallbackPath, profileContext);
       return normalizeConfig(fallbackRaw, profileContext);
     }
-    return cloneValue(DEFAULT_CONFIG);
+    return normalizeConfig({}, profileContext);
   }
   const raw = sanitizeConfig(parse(fs.readFileSync(configPath, "utf8")) ?? {}, configPath, profileContext);
   return normalizeConfig(raw, profileContext);
@@ -474,6 +479,7 @@ export function buildRuntimeConfigSchemaExample(profileContext = DEFAULT_PROFILE
     : "pypnm-agent-1";
   return {
     version: 1,
+    product_profile: profileContext.productProfile,
     defaults: {
       selected_instance: selectedInstance,
       poll_interval_ms: 5000,

@@ -34,6 +34,7 @@ export function buildRuntimeConfigSchemaExample(profileContext?: {
   includeCableModemDefaults: boolean;
 }): {
   version: number;
+  product_profile: "pypnm-webui" | "pypnm-cmts-webui";
   defaults: {
     selected_instance: string;
     poll_interval_ms: number;
@@ -82,6 +83,7 @@ export function normalizeConfig(raw: unknown, profileContext?: {
   includeCableModemDefaults: boolean;
 }): {
   version: number;
+  product_profile: "pypnm-webui" | "pypnm-cmts-webui";
   defaults: {
     selected_instance: string;
     poll_interval_ms: number;
@@ -131,6 +133,7 @@ export function saveConfig(
   configPath: string,
   config: {
     version: number;
+    product_profile: "pypnm-webui" | "pypnm-cmts-webui";
     defaults: {
       selected_instance: string;
       poll_interval_ms: number;
@@ -193,6 +196,7 @@ export function ensureLocalRuntimeConfig(
 ): {
   config: {
     version: number;
+    product_profile: "pypnm-webui" | "pypnm-cmts-webui";
     defaults: {
       selected_instance: string;
       poll_interval_ms: number;

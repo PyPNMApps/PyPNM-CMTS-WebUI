@@ -9,6 +9,12 @@ From the repo root:
 ./install.sh --with-pypnm-cmts-webui
 ```
 
+Important:
+
+- this is where you choose runtime mode (`pypnm-webui` vs `pypnm-cmts-webui`)
+- the installer persists that choice in `.env` and runtime YAML `product_profile`
+- switching modes later means re-running install with the other profile flag
+
 If you also want docs/release tooling in `.venv`:
 
 ```bash

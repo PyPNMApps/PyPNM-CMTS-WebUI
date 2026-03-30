@@ -102,6 +102,9 @@ export function mergeRuntimeConfig(templateConfig, sourceConfig) {
   if (sanitizedTemplateConfig?.version !== undefined) {
     merged.version = cloneValue(sanitizedTemplateConfig.version);
   }
+  if (typeof sanitizedTemplateConfig?.product_profile === "string" && sanitizedTemplateConfig.product_profile.trim() !== "") {
+    merged.product_profile = sanitizedTemplateConfig.product_profile.trim();
+  }
 
   const mergedSelectedInstance = merged?.defaults?.selected_instance;
   if (!mergedInstances.some((instance) => instance?.id === mergedSelectedInstance) && mergedInstances.length > 0) {

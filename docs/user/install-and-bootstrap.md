@@ -9,6 +9,14 @@ From the repo root:
 ./install.sh --with-pypnm-cmts-webui
 ```
 
+Profile decision point:
+
+- the mode decision is made when you run one of the profile flags above
+- installer writes `PRODUCT_PROFILE` / `VITE_PRODUCT_PROFILE` into `.env`
+- installer syncs `public/config/pypnm-instances.yaml` from the selected profile template
+- runtime YAML now includes `product_profile` and must match the selected install profile
+- if profile and YAML tag do not match, install/runtime validation fails fast
+
 Install WebUI plus same-machine backend add-on (matching profile):
 
 ```bash
@@ -80,6 +88,7 @@ Note:
 - refreshes `public/config/pypnm-instances.local.yaml` from the version-controlled
   template while preserving local values
 - validates runtime YAML against the selected install profile
+- sets/maintains `product_profile` in runtime YAML to match the selected mode
 
 When `--development` is used, it also:
 
