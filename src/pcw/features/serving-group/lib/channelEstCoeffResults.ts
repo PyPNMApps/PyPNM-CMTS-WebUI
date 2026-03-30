@@ -8,6 +8,10 @@ const UNKNOWN_FREQUENCY_RANGE_LABEL = "Frequency range unavailable";
 export interface ServingGroupChannelEstCoeffModemVisual {
   key: string;
   macAddress: string;
+  ipAddress: string;
+  vendor: string;
+  model: string;
+  softwareVersion: string;
   modelLabel: string;
   captureTimeEpoch?: number;
   captureTimeLabel: string;
@@ -81,6 +85,11 @@ function formatModelLabel(systemDescription: Record<string, unknown> | null): st
   if (model) return model;
   if (sw) return sw;
   return "Unknown Model";
+}
+
+function readSystemDescriptionText(systemDescription: Record<string, unknown> | null, key: string): string {
+  const value = String(systemDescription?.[key] ?? "").trim();
+  return value === "" ? "n/a" : value;
 }
 
 function sortChannelsByFrequency(
@@ -165,6 +174,10 @@ export function normalizeServingGroupChannelEstCoeffResultsPayload(input: unknow
         return {
           key: `${serviceGroupId}-${channelId}-${macAddress}`,
           macAddress,
+          ipAddress: String(modem?.ip_address ?? "").trim() || "n/a",
+          vendor: readSystemDescriptionText(systemDescription, "VENDOR"),
+          model: readSystemDescriptionText(systemDescription, "MODEL"),
+          softwareVersion: readSystemDescriptionText(systemDescription, "SW_REV"),
           modelLabel: formatModelLabel(systemDescription),
           captureTimeEpoch: captureTime,
           captureTimeLabel: captureTime ? formatEpochSecondsUtc(captureTime) : "n/a",
@@ -219,4 +232,3 @@ export function normalizeServingGroupChannelEstCoeffResultsPayload(input: unknow
 
   return { serviceGroups, missingModems };
 }
-

@@ -1732,7 +1732,7 @@ pre {
 .constellation-preview-thumb {
   position: relative;
   display: inline-flex;
-  width: 68px;
+  width: 124px;
   height: 40px;
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -1764,6 +1764,31 @@ pre {
   padding: 8px;
   box-shadow: 0 14px 30px var(--shadow-strong);
   display: none;
+}
+
+.constellation-preview-pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+  width: 100%;
+  height: 100%;
+  padding: 3px;
+}
+
+.constellation-preview-pair .constellation-preview-svg {
+  width: 100%;
+  height: 100%;
+}
+
+.constellation-preview-hover-pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.constellation-preview-hover-pair .constellation-preview-svg {
+  width: 300px;
+  height: 200px;
 }
 
 .constellation-preview-thumb:hover .constellation-preview-hover,

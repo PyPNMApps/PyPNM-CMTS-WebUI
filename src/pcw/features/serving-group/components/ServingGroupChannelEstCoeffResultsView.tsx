@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { Fragment, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import { SpectrumSelectionActions } from "@/components/common/SpectrumSelectionActions";
 import { LineAnalysisChart } from "@/pw/features/analysis/components/LineAnalysisChart";
 import {
@@ -6,6 +7,8 @@ import {
   type ServingGroupChannelEstCoeffGroupVisual,
 } from "@/pcw/features/serving-group/lib/channelEstCoeffResults";
 import { buildZoomedYDomain } from "@/pcw/features/serving-group/lib/channelEstCoeffZoom";
+import { readSelectedModemIpByMac, saveSelectedModemContext } from "@/pw/features/single-capture/lib/selectedModemContext";
+import { buildLinePreviewPath, computeLinePreviewBounds } from "@/lib/charts/linePreview";
 import { buildExportBaseName } from "@/lib/export/naming";
 import type { SpectrumSelectionRange } from "@/lib/spectrumPower";
 
@@ -15,6 +18,60 @@ interface ServingGroupChannelEstCoeffResultsViewProps {
 
 function formatCmCountLabel(count: number): string {
   return count === 1 ? "1 CM" : `${count} CMs`;
+}
+
+function MagnitudePreview({
+  series,
+  width,
+  height,
+}: {
+  series: ServingGroupChannelEstCoeffGroupVisual["channels"][number]["modems"][number]["magnitudeSeries"] | undefined;
+  width: number;
+  height: number;
+}) {
+  const bounds = useMemo(
+    () => computeLinePreviewBounds(series?.points ?? []),
+    [series],
+  );
+  const points = series?.points ?? [];
+  const pad = 8;
+  const innerWidth = width - pad * 2;
+  const innerHeight = height - pad * 2;
+  const stroke = series?.color ?? "#79a9ff";
+  const hasPoints = points.length > 0 && bounds !== null;
+  const linePath = hasPoints ? buildLinePreviewPath(points, bounds, width, height, pad) : "";
+
+  return (
+    <svg
+      className="constellation-preview-svg"
+      viewBox={`0 0 ${width} ${height}`}
+      preserveAspectRatio="xMidYMid meet"
+      role="img"
+      aria-label="Channel estimation magnitude preview"
+    >
+      <rect x={pad} y={pad} width={innerWidth} height={innerHeight} fill="rgba(255,255,255,0.04)" stroke="rgba(121,169,255,0.55)" />
+      {hasPoints ? (
+        <path d={linePath} fill="none" stroke={stroke} strokeWidth="1.6" strokeLinejoin="round" strokeLinecap="round" />
+      ) : (
+        <text x="50%" y="52%" textAnchor="middle" className="constellation-preview-empty-label">No Data</text>
+      )}
+    </svg>
+  );
+}
+
+function PreviewPair({
+  magnitudeSeries,
+  groupDelaySeries,
+}: {
+  magnitudeSeries: ServingGroupChannelEstCoeffGroupVisual["channels"][number]["modems"][number]["magnitudeSeries"];
+  groupDelaySeries: ServingGroupChannelEstCoeffGroupVisual["channels"][number]["modems"][number]["groupDelaySeries"];
+}) {
+  return (
+    <span className="constellation-preview-pair">
+      <MagnitudePreview series={magnitudeSeries} width={110} height={68} />
+      {groupDelaySeries ? <MagnitudePreview series={groupDelaySeries} width={110} height={68} /> : null}
+    </span>
+  );
 }
 
 function ChannelSection({
@@ -30,10 +87,9 @@ function ChannelSection({
   const [modemZoomDomain, setModemZoomDomain] = useState<Record<string, [number, number] | null>>({});
   const [groupDelaySelection, setGroupDelaySelection] = useState<Record<string, SpectrumSelectionRange | null>>({});
   const [groupDelayZoomDomain, setGroupDelayZoomDomain] = useState<Record<string, [number, number] | null>>({});
-
-  const modemGridClassName = channel.modems.length === 1
-    ? "analysis-channels-grid analysis-channels-grid-single"
-    : "analysis-channels-grid";
+  const [expandedKey, setExpandedKey] = useState<string | null>(null);
+  const numericChannelId = Number.parseInt(channel.channelId, 10);
+  const numericGroupId = Number.parseInt(groupId, 10);
 
   return (
     <article className="analysis-channel-card">
@@ -68,88 +124,161 @@ function ChannelSection({
         exportBaseName={`sg-channel-est-coeff-sg-${groupId}-channel-${channel.channelId}-combined`}
       />
 
-      <div className={modemGridClassName}>
-        {channel.modems.map((modem) => (
-          <article key={modem.key} className="analysis-channel-card">
-            <div className="analysis-channel-top">
-              <h4 className="analysis-channel-title">{modem.modelLabel} · {modem.macAddress}</h4>
-              <div className="analysis-channel-meta-line">
-                <span>{modem.captureTimeLabel}</span>
-              </div>
-            </div>
-            <LineAnalysisChart
-              title={`Magnitude (MAC ${modem.macAddress})`}
-              subtitle=""
-              yLabel="Magnitude (dB)"
-              showLegend
-              series={[modem.magnitudeSeries]}
-              xDomain={modemZoomDomain[modem.key] ?? undefined}
-              enableRangeSelection
-              selection={modemSelection[modem.key] ?? null}
-              onSelectionChange={(nextSelection) => setModemSelection((current) => ({
-                ...current,
-                [modem.key]: nextSelection,
-              }))}
-              selectionActions={(
-                <SpectrumSelectionActions
-                  selection={modemSelection[modem.key] ?? null}
-                  hasZoomDomain={(modemZoomDomain[modem.key] ?? null) !== null}
-                  showIntegratedPower={false}
-                  onApplyZoom={(domain) => setModemZoomDomain((current) => ({
-                    ...current,
-                    [modem.key]: domain,
-                  }))}
-                  onResetZoom={() => setModemZoomDomain((current) => ({
-                    ...current,
-                    [modem.key]: null,
-                  }))}
-                />
-              )}
-              exportBaseName={buildExportBaseName(
-                modem.macAddress,
-                modem.captureTimeEpoch,
-                `sg-channel-est-coeff-sg-${groupId}-channel-${channel.channelId}`,
-              )}
-            />
-            {modem.groupDelaySeries ? (
-              <LineAnalysisChart
-                title={`Group Delay (MAC ${modem.macAddress})`}
-                subtitle=""
-                yLabel="Group Delay"
-                showLegend={false}
-                series={[modem.groupDelaySeries]}
-                xDomain={groupDelayZoomDomain[modem.key] ?? undefined}
-                yDomain={buildZoomedYDomain(modem.groupDelaySeries, groupDelayZoomDomain[modem.key] ?? null)}
-                enableRangeSelection
-                selection={groupDelaySelection[modem.key] ?? null}
-                onSelectionChange={(nextSelection) => setGroupDelaySelection((current) => ({
-                  ...current,
-                  [modem.key]: nextSelection,
-                }))}
-                selectionActions={(
-                  <SpectrumSelectionActions
-                    selection={groupDelaySelection[modem.key] ?? null}
-                    hasZoomDomain={(groupDelayZoomDomain[modem.key] ?? null) !== null}
-                    showIntegratedPower={false}
-                    onApplyZoom={(domain) => setGroupDelayZoomDomain((current) => ({
-                      ...current,
-                      [modem.key]: domain,
-                    }))}
-                    onResetZoom={() => setGroupDelayZoomDomain((current) => ({
-                      ...current,
-                      [modem.key]: null,
-                    }))}
-                  />
-                )}
-                exportBaseName={buildExportBaseName(
-                  modem.macAddress,
-                  modem.captureTimeEpoch,
-                  `sg-channel-est-coeff-group-delay-sg-${groupId}-channel-${channel.channelId}`,
-                )}
-              />
-            ) : null}
-          </article>
-        ))}
+      <div className="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>MAC Address</th>
+              <th>Vendor</th>
+              <th>Model</th>
+              <th>Version</th>
+              <th>Capture Time (UTC)</th>
+              <th>Magnitude Points</th>
+              <th>Group Delay Points</th>
+              <th className="constellation-preview-column">Preview</th>
+            </tr>
+          </thead>
+          <tbody>
+            {channel.modems.map((modem) => {
+              const isExpanded = expandedKey === modem.key;
+              return (
+                <Fragment key={modem.key}>
+                  <tr>
+                    <td className="mono">
+                      <Link
+                        to="/single-capture/channel-est-coeff"
+                        onClick={() => {
+                          const resolvedIpAddress = modem.ipAddress !== "n/a"
+                            ? modem.ipAddress
+                            : (readSelectedModemIpByMac(modem.macAddress) ?? "n/a");
+                          saveSelectedModemContext({
+                            sgId: Number.isFinite(numericGroupId) ? numericGroupId : -1,
+                            macAddress: modem.macAddress,
+                            ipAddress: resolvedIpAddress,
+                            snmpCommunity: "private",
+                            channelIds: Number.isFinite(numericChannelId) ? [numericChannelId] : [],
+                            selectedAtEpochMs: Date.now(),
+                          });
+                        }}
+                      >
+                        {modem.macAddress}
+                      </Link>
+                    </td>
+                    <td>{modem.vendor}</td>
+                    <td>{modem.model}</td>
+                    <td>{modem.softwareVersion}</td>
+                    <td>{modem.captureTimeLabel}</td>
+                    <td>{modem.magnitudeSeries.points.length}</td>
+                    <td>{modem.groupDelaySeries?.points.length ?? 0}</td>
+                    <td className="constellation-preview-column">
+                      <button
+                        type="button"
+                        className="constellation-preview-button"
+                        onClick={() => setExpandedKey((current) => (current === modem.key ? null : modem.key))}
+                        aria-expanded={isExpanded}
+                        aria-label={`Toggle channel estimation details for ${modem.macAddress}`}
+                      >
+                        <span className="constellation-preview-thumb">
+                          <PreviewPair
+                            magnitudeSeries={modem.magnitudeSeries}
+                            groupDelaySeries={modem.groupDelaySeries}
+                          />
+                          <span className="constellation-preview-hover">
+                            <span className="constellation-preview-hover-pair">
+                              <MagnitudePreview series={modem.magnitudeSeries} width={300} height={200} />
+                              {modem.groupDelaySeries ? (
+                                <MagnitudePreview series={modem.groupDelaySeries} width={300} height={200} />
+                              ) : null}
+                            </span>
+                          </span>
+                        </span>
+                      </button>
+                    </td>
+                  </tr>
+                  {isExpanded ? (
+                    <tr className="constellation-expanded-row">
+                      <td colSpan={8}>
+                        <div className="constellation-expanded-panel">
+                          <LineAnalysisChart
+                            title={`Magnitude (MAC ${modem.macAddress})`}
+                            subtitle=""
+                            yLabel="Magnitude (dB)"
+                            showLegend
+                            series={[modem.magnitudeSeries]}
+                            xDomain={modemZoomDomain[modem.key] ?? undefined}
+                            enableRangeSelection
+                            selection={modemSelection[modem.key] ?? null}
+                            onSelectionChange={(nextSelection) => setModemSelection((current) => ({
+                              ...current,
+                              [modem.key]: nextSelection,
+                            }))}
+                            selectionActions={(
+                              <SpectrumSelectionActions
+                                selection={modemSelection[modem.key] ?? null}
+                                hasZoomDomain={(modemZoomDomain[modem.key] ?? null) !== null}
+                                showIntegratedPower={false}
+                                onApplyZoom={(domain) => setModemZoomDomain((current) => ({
+                                  ...current,
+                                  [modem.key]: domain,
+                                }))}
+                                onResetZoom={() => setModemZoomDomain((current) => ({
+                                  ...current,
+                                  [modem.key]: null,
+                                }))}
+                              />
+                            )}
+                            exportBaseName={buildExportBaseName(
+                              modem.macAddress,
+                              modem.captureTimeEpoch,
+                              `sg-channel-est-coeff-sg-${groupId}-channel-${channel.channelId}`,
+                            )}
+                          />
+                          {modem.groupDelaySeries ? (
+                            <LineAnalysisChart
+                              title={`Group Delay (MAC ${modem.macAddress})`}
+                              subtitle=""
+                              yLabel="Group Delay"
+                              showLegend={false}
+                              series={[modem.groupDelaySeries]}
+                              xDomain={groupDelayZoomDomain[modem.key] ?? undefined}
+                              yDomain={buildZoomedYDomain(modem.groupDelaySeries, groupDelayZoomDomain[modem.key] ?? null)}
+                              enableRangeSelection
+                              selection={groupDelaySelection[modem.key] ?? null}
+                              onSelectionChange={(nextSelection) => setGroupDelaySelection((current) => ({
+                                ...current,
+                                [modem.key]: nextSelection,
+                              }))}
+                              selectionActions={(
+                                <SpectrumSelectionActions
+                                  selection={groupDelaySelection[modem.key] ?? null}
+                                  hasZoomDomain={(groupDelayZoomDomain[modem.key] ?? null) !== null}
+                                  showIntegratedPower={false}
+                                  onApplyZoom={(domain) => setGroupDelayZoomDomain((current) => ({
+                                    ...current,
+                                    [modem.key]: domain,
+                                  }))}
+                                  onResetZoom={() => setGroupDelayZoomDomain((current) => ({
+                                    ...current,
+                                    [modem.key]: null,
+                                  }))}
+                                />
+                              )}
+                              exportBaseName={buildExportBaseName(
+                                modem.macAddress,
+                                modem.captureTimeEpoch,
+                                `sg-channel-est-coeff-group-delay-sg-${groupId}-channel-${channel.channelId}`,
+                              )}
+                            />
+                          ) : null}
+                        </div>
+                      </td>
+                    </tr>
+                  ) : null}
+                </Fragment>
+              );
+            })}
+          </tbody>
+        </table>
       </div>
     </article>
   );
