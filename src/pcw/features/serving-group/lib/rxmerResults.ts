@@ -1,15 +1,23 @@
 import type { ChartSeries } from "@/pw/features/analysis/types";
 import { formatEpochSecondsUtc } from "@/lib/formatters/dateTime";
 import { formatFrequencyRangeMhz } from "@/lib/formatters/frequency";
+import { summarize } from "@/lib/stats";
+import { inferErrorFreeQamFromMerDb, inferSupportedQamFromMerDb } from "@/lib/rxMerSelectionInsights";
 
 const palette = ["#79a9ff", "#58d0a7", "#ff7a6b", "#f1c75b", "#89b4fa", "#f9e2af", "#a6e3a1", "#f38ba8"] as const;
 
 export interface ServingGroupRxMerModemVisual {
   key: string;
   macAddress: string;
+  vendor: string;
+  model: string;
+  softwareVersion: string;
   modelLabel: string;
   captureTimeEpoch?: number;
   captureTimeLabel: string;
+  avgMerDb: number | null;
+  calculatedSupportedQam: string;
+  errorFreeQam: string;
   rxMerSeries: ChartSeries[];
   modulationCounts?: Record<string, number>;
 }
@@ -148,8 +156,12 @@ export function normalizeServingGroupRxMerResultsPayload(input: unknown): Servin
               .filter(([, value]) => Number.isFinite(value)),
           )
           : undefined;
-
         const series = toChartSeriesFromCarrierValues(analysis, macAddress, palette[modemIndex % palette.length]);
+        const primaryPoints = series[0]?.points ?? [];
+        const magnitudes = primaryPoints
+          .map((point) => point.y)
+          .filter((value) => Number.isFinite(value));
+        const stats = magnitudes.length > 0 ? summarize(magnitudes) : null;
         const hasPrimarySeries = series[0]?.points.length > 0;
         if (!hasPrimarySeries) {
           const analysisError = String(rxMerData?.analysis_error ?? "").trim();
@@ -167,9 +179,15 @@ export function normalizeServingGroupRxMerResultsPayload(input: unknown): Servin
         return {
           key: `${serviceGroupId}-${channelId}-${macAddress}`,
           macAddress,
+          vendor: String(systemDescription?.VENDOR ?? "").trim() || "Unknown Vendor",
+          model: String(systemDescription?.MODEL ?? "").trim() || "Unknown Model",
+          softwareVersion: String(systemDescription?.SW_REV ?? "").trim() || "Unknown Version",
           modelLabel: formatModelLabel(systemDescription),
           captureTimeEpoch: captureTime,
           captureTimeLabel: captureTime ? formatEpochSecondsUtc(captureTime) : "n/a",
+          avgMerDb: stats?.avg ?? null,
+          calculatedSupportedQam: stats ? inferSupportedQamFromMerDb(stats.avg) : "n/a",
+          errorFreeQam: stats ? inferErrorFreeQamFromMerDb(stats.min) : "n/a",
           rxMerSeries: series,
           modulationCounts: modulationCounts && Object.keys(modulationCounts).length > 0 ? modulationCounts : undefined,
         };

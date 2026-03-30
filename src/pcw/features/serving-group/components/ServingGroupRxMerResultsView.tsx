@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import { SpectrumSelectionActions } from "@/components/common/SpectrumSelectionActions";
 import { LineAnalysisChart } from "@/pw/features/analysis/components/LineAnalysisChart";
 import { ModulationCountsChart } from "@/pw/features/operations/ModulationCountsChart";
@@ -7,6 +7,7 @@ import {
   type ServingGroupRxMerGroupVisual,
 } from "@/pcw/features/serving-group/lib/rxmerResults";
 import { buildExportBaseName } from "@/lib/export/naming";
+import { buildLinePreviewPath, computeLinePreviewBounds } from "@/lib/charts/linePreview";
 import type { SpectrumSelectionRange } from "@/lib/spectrumPower";
 
 interface ServingGroupRxMerResultsViewProps {
@@ -17,14 +18,51 @@ function formatCmCountLabel(count: number): string {
   return count === 1 ? "1 CM" : `${count} CMs`;
 }
 
+function RxMerPreview({
+  series,
+  width,
+  height,
+}: {
+  series: ServingGroupRxMerGroupVisual["channels"][number]["modems"][number]["rxMerSeries"][number] | undefined;
+  width: number;
+  height: number;
+}) {
+  const bounds = useMemo(
+    () => computeLinePreviewBounds(series?.points ?? []),
+    [series],
+  );
+  const points = series?.points ?? [];
+  const pad = 8;
+  const innerWidth = width - pad * 2;
+  const innerHeight = height - pad * 2;
+  const stroke = series?.color ?? "#79a9ff";
+  const hasPoints = points.length > 0 && bounds !== null;
+  const linePath = hasPoints ? buildLinePreviewPath(points, bounds, width, height, pad) : "";
+
+  return (
+    <svg
+      className="constellation-preview-svg"
+      viewBox={`0 0 ${width} ${height}`}
+      preserveAspectRatio="xMidYMid meet"
+      role="img"
+      aria-label="RxMER preview"
+    >
+      <rect x={pad} y={pad} width={innerWidth} height={innerHeight} fill="rgba(255,255,255,0.04)" stroke="rgba(121,169,255,0.55)" />
+      {hasPoints ? (
+        <path d={linePath} fill="none" stroke={stroke} strokeWidth="1.6" strokeLinejoin="round" strokeLinecap="round" />
+      ) : (
+        <text x="50%" y="52%" textAnchor="middle" className="constellation-preview-empty-label">No Data</text>
+      )}
+    </svg>
+  );
+}
+
 function ChannelSection({ groupId, channel }: { groupId: string; channel: ServingGroupRxMerGroupVisual["channels"][number] }) {
   const [combinedSelection, setCombinedSelection] = useState<SpectrumSelectionRange | null>(null);
   const [combinedZoomDomain, setCombinedZoomDomain] = useState<[number, number] | null>(null);
   const [modemSelection, setModemSelection] = useState<Record<string, SpectrumSelectionRange | null>>({});
   const [modemZoomDomain, setModemZoomDomain] = useState<Record<string, [number, number] | null>>({});
-  const modemGridClassName = channel.modems.length === 1
-    ? "analysis-channels-grid analysis-channels-grid-single"
-    : "analysis-channels-grid";
+  const [expandedKey, setExpandedKey] = useState<string | null>(null);
 
   return (
     <article className="analysis-channel-card">
@@ -63,60 +101,108 @@ function ChannelSection({ groupId, channel }: { groupId: string; channel: Servin
         <p className="panel-copy">No combined RxMER series available.</p>
       )}
 
-      <div className={modemGridClassName}>
-        {channel.modems.map((modem) => (
-          <article key={modem.key} className="analysis-channel-card">
-            <div className="analysis-channel-top">
-              <h4 className="analysis-channel-title">{modem.modelLabel} · {modem.macAddress}</h4>
-              <div className="analysis-channel-meta-line">
-                <span>{modem.captureTimeLabel}</span>
-              </div>
-            </div>
-            <LineAnalysisChart
-              title={`RxMER (MAC ${modem.macAddress})`}
-              subtitle=""
-              yLabel="RxMER (dB)"
-              showLegend
-              series={modem.rxMerSeries}
-              xDomain={modemZoomDomain[modem.key] ?? undefined}
-              enableRangeSelection
-              selection={modemSelection[modem.key] ?? null}
-              onSelectionChange={(nextSelection) => setModemSelection((current) => ({
-                ...current,
-                [modem.key]: nextSelection,
-              }))}
-              selectionActions={(
-                <SpectrumSelectionActions
-                  selection={modemSelection[modem.key] ?? null}
-                  hasZoomDomain={(modemZoomDomain[modem.key] ?? null) !== null}
-                  showIntegratedPower={false}
-                  onApplyZoom={(domain) => setModemZoomDomain((current) => ({
-                    ...current,
-                    [modem.key]: domain,
-                  }))}
-                  onResetZoom={() => setModemZoomDomain((current) => ({
-                    ...current,
-                    [modem.key]: null,
-                  }))}
-                />
-              )}
-              exportBaseName={buildExportBaseName(
-                modem.macAddress,
-                modem.captureTimeEpoch,
-                `sg-rxmer-sg-${groupId}-channel-${channel.channelId}`,
-              )}
-            />
-            <ModulationCountsChart
-              title={`Supported Modulation Counts (MAC ${modem.macAddress})`}
-              counts={modem.modulationCounts}
-              exportBaseName={buildExportBaseName(
-                modem.macAddress,
-                modem.captureTimeEpoch,
-                `sg-rxmer-modulation-sg-${groupId}-channel-${channel.channelId}`,
-              )}
-            />
-          </article>
-        ))}
+      <div className="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>MAC Address</th>
+              <th>Vendor</th>
+              <th>Model</th>
+              <th>Version</th>
+              <th>Capture Time (UTC)</th>
+              <th>Avg MER (dB)</th>
+              <th>Supported QAM (calc)</th>
+              <th>Error-Free QAM</th>
+              <th className="constellation-preview-column">Preview</th>
+            </tr>
+          </thead>
+          <tbody>
+            {channel.modems.map((modem) => {
+              const isExpanded = expandedKey === modem.key;
+              return (
+                <Fragment key={modem.key}>
+                  <tr>
+                    <td className="mono">{modem.macAddress}</td>
+                    <td>{modem.vendor}</td>
+                    <td>{modem.model}</td>
+                    <td>{modem.softwareVersion}</td>
+                    <td>{modem.captureTimeLabel}</td>
+                    <td>{modem.avgMerDb !== null ? modem.avgMerDb.toFixed(2) : "n/a"}</td>
+                    <td>{modem.calculatedSupportedQam}</td>
+                    <td>{modem.errorFreeQam}</td>
+                    <td className="constellation-preview-column">
+                      <button
+                        type="button"
+                        className="constellation-preview-button"
+                        onClick={() => setExpandedKey((current) => (current === modem.key ? null : modem.key))}
+                        aria-expanded={isExpanded}
+                        aria-label={`Toggle RxMER details for ${modem.macAddress}`}
+                      >
+                        <span className="constellation-preview-thumb">
+                          <RxMerPreview series={modem.rxMerSeries[0]} width={110} height={68} />
+                          <span className="constellation-preview-hover">
+                            <RxMerPreview series={modem.rxMerSeries[0]} width={300} height={200} />
+                          </span>
+                        </span>
+                      </button>
+                    </td>
+                  </tr>
+                  {isExpanded ? (
+                    <tr className="constellation-expanded-row">
+                      <td colSpan={9}>
+                        <div className="constellation-expanded-panel">
+                          <LineAnalysisChart
+                            title={`RxMER (MAC ${modem.macAddress})`}
+                            subtitle=""
+                            yLabel="RxMER (dB)"
+                            showLegend
+                            series={modem.rxMerSeries}
+                            xDomain={modemZoomDomain[modem.key] ?? undefined}
+                            enableRangeSelection
+                            selection={modemSelection[modem.key] ?? null}
+                            onSelectionChange={(nextSelection) => setModemSelection((current) => ({
+                              ...current,
+                              [modem.key]: nextSelection,
+                            }))}
+                            selectionActions={(
+                              <SpectrumSelectionActions
+                                selection={modemSelection[modem.key] ?? null}
+                                hasZoomDomain={(modemZoomDomain[modem.key] ?? null) !== null}
+                                showIntegratedPower={false}
+                                onApplyZoom={(domain) => setModemZoomDomain((current) => ({
+                                  ...current,
+                                  [modem.key]: domain,
+                                }))}
+                                onResetZoom={() => setModemZoomDomain((current) => ({
+                                  ...current,
+                                  [modem.key]: null,
+                                }))}
+                              />
+                            )}
+                            exportBaseName={buildExportBaseName(
+                              modem.macAddress,
+                              modem.captureTimeEpoch,
+                              `sg-rxmer-sg-${groupId}-channel-${channel.channelId}`,
+                            )}
+                          />
+                          <ModulationCountsChart
+                            title={`Supported Modulation Counts (MAC ${modem.macAddress})`}
+                            counts={modem.modulationCounts}
+                            exportBaseName={buildExportBaseName(
+                              modem.macAddress,
+                              modem.captureTimeEpoch,
+                              `sg-rxmer-modulation-sg-${groupId}-channel-${channel.channelId}`,
+                            )}
+                          />
+                        </div>
+                      </td>
+                    </tr>
+                  ) : null}
+                </Fragment>
+              );
+            })}
+          </tbody>
+        </table>
       </div>
     </article>
   );

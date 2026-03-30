@@ -54,6 +54,9 @@ describe("normalizeServingGroupRxMerResultsPayload", () => {
     expect(normalized.serviceGroups[0].channels[0].combinedSeries).toHaveLength(1);
     expect(normalized.serviceGroups[0].channels[0].modems[0].rxMerSeries).toHaveLength(2);
     expect(normalized.serviceGroups[0].channels[0].modems[0].modulationCounts).toEqual({ qam_1024: 12 });
+    expect(normalized.serviceGroups[0].channels[0].modems[0].avgMerDb).toBeCloseTo(45.85, 2);
+    expect(normalized.serviceGroups[0].channels[0].modems[0].calculatedSupportedQam).toBe("QAM-4096");
+    expect(normalized.serviceGroups[0].channels[0].modems[0].errorFreeQam).toBe("QAM-4096");
   });
 
   it("returns empty list when payload has no serving_groups", () => {

@@ -1,12 +1,12 @@
 // @vitest-environment jsdom
 
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { ServingGroupRxMerResultsView } from "@/pcw/features/serving-group/components/ServingGroupRxMerResultsView";
 
 describe("ServingGroupRxMerResultsView", () => {
-  it("uses single-column layout and 1 CM labels for single-channel single-modem results", () => {
+  it("renders row-preview table pattern and expands modem details from preview action", () => {
     const payload = {
       results: {
         serving_groups: [
@@ -40,9 +40,17 @@ describe("ServingGroupRxMerResultsView", () => {
       },
     };
 
-    const { container } = render(<ServingGroupRxMerResultsView payload={payload} />);
+    render(<ServingGroupRxMerResultsView payload={payload} />);
     expect(screen.getAllByText("1 CM").length).toBeGreaterThan(0);
-    expect(container.querySelectorAll(".analysis-channels-grid-single").length).toBeGreaterThan(0);
+    expect(screen.getByRole("columnheader", { name: "Preview" })).toBeTruthy();
+    expect(screen.getByRole("columnheader", { name: "MAC Address" })).toBeTruthy();
+    expect(screen.getByRole("columnheader", { name: "Avg MER (dB)" })).toBeTruthy();
+    expect(screen.getByRole("columnheader", { name: "Supported QAM (calc)" })).toBeTruthy();
+    expect(screen.getByRole("columnheader", { name: "Error-Free QAM" })).toBeTruthy();
+    expect(screen.getByText("45.85")).toBeTruthy();
+    expect(screen.getAllByText("QAM-4096").length).toBeGreaterThan(0);
+
+    fireEvent.click(screen.getByRole("button", { name: /Toggle RxMER details for aa:bb:cc:dd:ee:ff/i }));
     expect(screen.getAllByRole("button", { name: "Zoom" }).length).toBeGreaterThan(0);
     expect(screen.getAllByRole("button", { name: "Reset Zoom" }).length).toBeGreaterThan(0);
   });

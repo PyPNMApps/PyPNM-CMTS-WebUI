@@ -7,6 +7,7 @@ import {
   collectSelectedRxMerValuesFromSeries,
   estimateBitloadFromMerDb,
   inferErrorFreeQamFromMerDb,
+  inferSupportedQamFromMerDb,
 } from "@/lib/rxMerSelectionInsights";
 
 describe("rxMerSelectionInsights", () => {
@@ -49,6 +50,12 @@ describe("rxMerSelectionInsights", () => {
     expect(inferErrorFreeQamFromMerDb(46)).toBe("QAM-4096");
     expect(inferErrorFreeQamFromMerDb(39)).toBe("QAM-1024");
     expect(inferErrorFreeQamFromMerDb(30)).toBe("Below QAM-256");
+  });
+
+  it("infers calculated supported QAM from average MER", () => {
+    expect(inferSupportedQamFromMerDb(46)).toBe("QAM-4096");
+    expect(inferSupportedQamFromMerDb(36)).toBe("QAM-2048");
+    expect(inferSupportedQamFromMerDb(10)).toBe("QAM-8");
   });
 
   it("builds MER distribution bins with all values accounted for", () => {

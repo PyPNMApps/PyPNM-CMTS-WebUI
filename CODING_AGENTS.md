@@ -35,6 +35,10 @@
 - `Common Before Specific`: when a behavior appears in more than one endpoint
   workflow, extract to common-code first and only keep endpoint-local
   behavior when technically required.
+- `Math In Common Code`: all calculation logic (statistics, thresholds, domain
+  bounds, coordinate transforms, derived metrics) must live in shared modules
+  under `src/lib` or shared feature libs. Components should only consume
+  computed values and render UI.
 - `Document Reuse`: when adding a reusable UI/coding pattern, update this CA
   in the same change set so future work follows the same standard.
 
