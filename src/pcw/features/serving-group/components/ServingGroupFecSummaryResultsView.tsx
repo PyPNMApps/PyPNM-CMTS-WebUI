@@ -148,7 +148,7 @@ function ChannelSection({
                         aria-label={`Toggle FEC details for ${modem.macAddress}`}
                       >
                         <span className="constellation-preview-thumb">
-                          <FecPreview modem={modem} width={110} height={68} />
+                          <FecPreview modem={modem} width={68} height={40} />
                           <span className="constellation-preview-hover">
                             <FecPreview modem={modem} width={300} height={200} />
                           </span>

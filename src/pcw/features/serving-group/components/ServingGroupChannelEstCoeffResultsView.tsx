@@ -155,7 +155,7 @@ function ChannelSection({
                     <td>{modem.captureTimeLabel}</td>
                     <td>{modem.magnitudeSeries.points.length}</td>
                     <td>{modem.groupDelaySeries?.points.length ?? 0}</td>
-                    <td className="constellation-preview-column constellation-preview-column-compact">
+                    <td className="constellation-preview-column">
                       <button
                         type="button"
                         className="constellation-preview-button"
@@ -163,8 +163,8 @@ function ChannelSection({
                         aria-expanded={isExpanded}
                         aria-label={`Toggle channel estimation details for ${modem.macAddress}`}
                       >
-                        <span className="constellation-preview-thumb constellation-preview-thumb-compact">
-                          <MagnitudePreview series={modem.magnitudeSeries} width={90} height={56} />
+                        <span className="constellation-preview-thumb">
+                          <MagnitudePreview series={modem.magnitudeSeries} width={68} height={40} />
                         </span>
                       </button>
                     </td>

@@ -1740,19 +1740,14 @@ pre {
   background: rgba(255, 255, 255, 0.02);
 }
 
-.constellation-preview-thumb-compact {
-  width: 56px;
-  height: 34px;
-}
-
 .constellation-preview-thumb.has-pair {
   width: 124px;
 }
 
 .constellation-preview-svg {
   display: block;
-  width: 68px;
-  height: 40px;
+  width: 100%;
+  height: 100%;
 }
 
 .constellation-preview-empty-label {
@@ -1816,10 +1811,6 @@ pre {
 .constellation-preview-column {
   min-width: 80px;
   text-align: center;
-}
-
-.constellation-preview-column-compact {
-  min-width: 64px;
 }
 
 .mod-profile-controls {

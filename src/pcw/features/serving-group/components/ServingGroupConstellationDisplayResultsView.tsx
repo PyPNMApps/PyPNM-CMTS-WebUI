@@ -147,7 +147,7 @@ function ChannelModemTable({
                       aria-label={`Toggle constellation details for ${modem.macAddress}`}
                     >
                       <span className="constellation-preview-thumb">
-                        <ConstellationPreview soft={soft} hard={hard} width={110} height={68} />
+                        <ConstellationPreview soft={soft} hard={hard} width={68} height={40} />
                         <span className="constellation-preview-hover">
                           <ConstellationPreview soft={soft} hard={hard} width={300} height={200} />
                         </span>
