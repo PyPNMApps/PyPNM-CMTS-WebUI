@@ -8,52 +8,21 @@ import {
 import { validateAndNormalizeChannelIds } from "@/lib/channelIds";
 import { requestWithBaseUrl } from "@/services/http";
 import { useEffect, useMemo, useState } from "react";
-
-export interface ServingGroupCaptureRequestPayload {
-  cmts: {
-    serving_group: {
-      id: number[];
-    };
-    cable_modem: {
-      mac_address: string[];
-      pnm_parameters: {
-        tftp: {
-          ipv4: string;
-          ipv6: string;
-        };
-        capture: {
-          channel_ids: number[];
-        };
-      };
-      snmp: {
-        snmpV2C: {
-          community: string;
-        };
-      };
-    };
-  };
-  execution: {
-    max_workers: number;
-    retry_count: number;
-    retry_delay_seconds: number;
-    per_modem_timeout_seconds: number;
-    overall_timeout_seconds: number;
-  };
-  capture_settings?: {
-    fec_summary_type?: number;
-    modulation_order_offset?: number;
-    number_sample_symbol?: number;
-    sample_duration?: number;
-    inactivity_timeout?: number;
-    first_segment_center_freq?: number;
-    last_segment_center_freq?: number;
-    resolution_bw?: number;
-    noise_bw?: number;
-    window_function?: number;
-    num_averages?: number;
-    spectrum_retrieval_type?: number;
-  };
-}
+import { updateSelectedModemIpCache } from "@/pw/features/single-capture/lib/selectedModemContext";
+import {
+  CMTS_SERVING_GROUP_CABLE_MODEMS_PATH,
+  CMTS_SERVING_GROUP_WORKER_PROCESS_PATH,
+} from "@/pcw/services/apiPaths";
+import {
+  SERVING_GROUP_CONSTELLATION_DEFAULTS,
+  SERVING_GROUP_EXECUTION_DEFAULTS,
+  SERVING_GROUP_FEC_SUMMARY_DEFAULTS,
+  SERVING_GROUP_FORM_PLACEHOLDERS,
+  SERVING_GROUP_HISTOGRAM_DEFAULTS,
+  SERVING_GROUP_SPECTRUM_FRIENDLY_DEFAULTS,
+} from "@/pcw/features/serving-group/lib/captureDefaults";
+import type { ServingGroupCaptureRequestPayload } from "@/pcw/features/serving-group/lib/captureRequestTypes";
+export type { ServingGroupCaptureRequestPayload } from "@/pcw/features/serving-group/lib/captureRequestTypes";
 
 export const FEC_SUMMARY_TYPE_OPTIONS = [
   { value: 3, label: "24 Hours" },
@@ -72,6 +41,10 @@ interface ServingGroupCaptureRequestFormProps {
 
 interface CableModemListItem {
   mac_address?: string;
+  ip_address?: string;
+  ipAddress?: string;
+  ipv4?: string;
+  ipv6?: string;
   sysdescr?: {
     VENDOR?: string;
     MODEL?: string;
@@ -99,6 +72,7 @@ interface FieldLabelWithHintProps {
 
 interface CableModemRow {
   macAddress: string;
+  ipAddress: string;
   vendor: string;
   model: string;
   registrationStatusText: string;
@@ -167,6 +141,7 @@ function normalizeCableModemRows(response: CableModemListResponse): CableModemRo
       const registrationCode = typeof item.registration_status?.status === "number" ? item.registration_status.status : null;
       rows.push({
         macAddress,
+        ipAddress: String(item.ip_address ?? item.ipAddress ?? item.ipv4 ?? item.ipv6 ?? "").trim() || "n/a",
         vendor: String(item.sysdescr?.VENDOR ?? "").trim() || "n/a",
         model: String(item.sysdescr?.MODEL ?? "").trim() || "n/a",
         registrationStatusText: registrationText || "n/a",
@@ -207,26 +182,26 @@ export function ServingGroupCaptureRequestForm({
   const [loadingServingGroups, setLoadingServingGroups] = useState(false);
   const [servingGroupLoadError, setServingGroupLoadError] = useState("");
 
-  const [channelIdsRaw, setChannelIdsRaw] = useState("0");
+  const [channelIdsRaw, setChannelIdsRaw] = useState<string>(SERVING_GROUP_FORM_PLACEHOLDERS.channelIds);
   const [tftpIpv4, setTftpIpv4] = useState("");
   const [tftpIpv6, setTftpIpv6] = useState("");
   const [community, setCommunity] = useState("");
-  const [executionMaxWorkers, setExecutionMaxWorkers] = useState("16");
-  const [executionRetryCount, setExecutionRetryCount] = useState("3");
-  const [executionRetryDelaySeconds, setExecutionRetryDelaySeconds] = useState("5");
-  const [executionPerModemTimeoutSeconds, setExecutionPerModemTimeoutSeconds] = useState("30");
-  const [executionOverallTimeoutSeconds, setExecutionOverallTimeoutSeconds] = useState("120");
-  const [fecSummaryType, setFecSummaryType] = useState<number>(2);
-  const [modulationOrderOffset, setModulationOrderOffset] = useState("0");
-  const [numberSampleSymbol, setNumberSampleSymbol] = useState("8192");
-  const [sampleDuration, setSampleDuration] = useState("10");
-  const [inactivityTimeout, setInactivityTimeout] = useState("60");
-  const [firstSegmentCenterFreq, setFirstSegmentCenterFreq] = useState("300000000");
-  const [lastSegmentCenterFreq, setLastSegmentCenterFreq] = useState("900000000");
-  const [resolutionBw, setResolutionBw] = useState("30000");
-  const [noiseBw, setNoiseBw] = useState("150");
+  const [executionMaxWorkers, setExecutionMaxWorkers] = useState(String(SERVING_GROUP_EXECUTION_DEFAULTS.maxWorkers));
+  const [executionRetryCount, setExecutionRetryCount] = useState(String(SERVING_GROUP_EXECUTION_DEFAULTS.retryCount));
+  const [executionRetryDelaySeconds, setExecutionRetryDelaySeconds] = useState(String(SERVING_GROUP_EXECUTION_DEFAULTS.retryDelaySeconds));
+  const [executionPerModemTimeoutSeconds, setExecutionPerModemTimeoutSeconds] = useState(String(SERVING_GROUP_EXECUTION_DEFAULTS.perModemTimeoutSeconds));
+  const [executionOverallTimeoutSeconds, setExecutionOverallTimeoutSeconds] = useState(String(SERVING_GROUP_EXECUTION_DEFAULTS.overallTimeoutSeconds));
+  const [fecSummaryType, setFecSummaryType] = useState<number>(SERVING_GROUP_FEC_SUMMARY_DEFAULTS.summaryType);
+  const [modulationOrderOffset, setModulationOrderOffset] = useState(String(SERVING_GROUP_CONSTELLATION_DEFAULTS.modulationOrderOffset));
+  const [numberSampleSymbol, setNumberSampleSymbol] = useState(String(SERVING_GROUP_CONSTELLATION_DEFAULTS.numberSampleSymbol));
+  const [sampleDuration, setSampleDuration] = useState(String(SERVING_GROUP_HISTOGRAM_DEFAULTS.sampleDuration));
+  const [inactivityTimeout, setInactivityTimeout] = useState(String(SERVING_GROUP_SPECTRUM_FRIENDLY_DEFAULTS.inactivityTimeout));
+  const [firstSegmentCenterFreq, setFirstSegmentCenterFreq] = useState(String(SERVING_GROUP_SPECTRUM_FRIENDLY_DEFAULTS.firstSegmentCenterFreq));
+  const [lastSegmentCenterFreq, setLastSegmentCenterFreq] = useState(String(SERVING_GROUP_SPECTRUM_FRIENDLY_DEFAULTS.lastSegmentCenterFreq));
+  const [resolutionBw, setResolutionBw] = useState(String(SERVING_GROUP_SPECTRUM_FRIENDLY_DEFAULTS.resolutionBw));
+  const [noiseBw, setNoiseBw] = useState(String(SERVING_GROUP_SPECTRUM_FRIENDLY_DEFAULTS.noiseBw));
   const [windowFunction, setWindowFunction] = useState(String(DEFAULT_SPECTRUM_ANALYZER_WINDOW_FUNCTION));
-  const [numAverages, setNumAverages] = useState("1");
+  const [numAverages, setNumAverages] = useState(String(SERVING_GROUP_SPECTRUM_FRIENDLY_DEFAULTS.numAverages));
   const [spectrumRetrievalType, setSpectrumRetrievalType] = useState(String(DEFAULT_SPECTRUM_ANALYZER_RETRIEVAL_TYPE));
   const [cableModemRows, setCableModemRows] = useState<CableModemRow[]>([]);
   const [selectedCableModems, setSelectedCableModems] = useState<string[]>([]);
@@ -265,7 +240,7 @@ export function ServingGroupCaptureRequestForm({
       try {
         const response = await requestWithBaseUrl<unknown>(baseUrl, {
           method: "GET",
-          url: "/ops/servingGroupWorker/process",
+          url: CMTS_SERVING_GROUP_WORKER_PROCESS_PATH,
         });
         if (cancelled) {
           return;
@@ -315,7 +290,7 @@ export function ServingGroupCaptureRequestForm({
       try {
         const response = await requestWithBaseUrl<CableModemListResponse>(baseUrl, {
           method: "POST",
-          url: "/cmts/servingGroup/operations/get/cableModems",
+          url: CMTS_SERVING_GROUP_CABLE_MODEMS_PATH,
           data: {
             cmts: {
               serving_group: {
@@ -336,6 +311,10 @@ export function ServingGroupCaptureRequestForm({
         const defaultSelection = rows.map((entry) => entry.macAddress);
         setCableModemRows(rows);
         setSelectedCableModems(defaultSelection);
+        updateSelectedModemIpCache(rows.map((entry) => ({
+          macAddress: entry.macAddress,
+          ipAddress: entry.ipAddress,
+        })));
       } catch (error) {
         if (!cancelled) {
           const message = error instanceof Error ? error.message : "Failed to load cable modems.";
@@ -391,11 +370,11 @@ export function ServingGroupCaptureRequestForm({
         },
       },
       execution: {
-        max_workers: parsePositiveInteger(executionMaxWorkers, 16),
-        retry_count: parseNonNegativeInteger(executionRetryCount, 3),
-        retry_delay_seconds: parseNonNegativeInteger(executionRetryDelaySeconds, 5),
-        per_modem_timeout_seconds: parsePositiveInteger(executionPerModemTimeoutSeconds, 30),
-        overall_timeout_seconds: parsePositiveInteger(executionOverallTimeoutSeconds, 120),
+        max_workers: parsePositiveInteger(executionMaxWorkers, SERVING_GROUP_EXECUTION_DEFAULTS.maxWorkers),
+        retry_count: parseNonNegativeInteger(executionRetryCount, SERVING_GROUP_EXECUTION_DEFAULTS.retryCount),
+        retry_delay_seconds: parseNonNegativeInteger(executionRetryDelaySeconds, SERVING_GROUP_EXECUTION_DEFAULTS.retryDelaySeconds),
+        per_modem_timeout_seconds: parsePositiveInteger(executionPerModemTimeoutSeconds, SERVING_GROUP_EXECUTION_DEFAULTS.perModemTimeoutSeconds),
+        overall_timeout_seconds: parsePositiveInteger(executionOverallTimeoutSeconds, SERVING_GROUP_EXECUTION_DEFAULTS.overallTimeoutSeconds),
       },
     };
     if (captureSettingsMode === "fec-summary") {
@@ -405,24 +384,24 @@ export function ServingGroupCaptureRequestForm({
     }
     if (captureSettingsMode === "constellation-display") {
       payload.capture_settings = {
-        modulation_order_offset: parseNonNegativeInteger(modulationOrderOffset, 0),
-        number_sample_symbol: parsePositiveInteger(numberSampleSymbol, 8192),
+        modulation_order_offset: parseNonNegativeInteger(modulationOrderOffset, SERVING_GROUP_CONSTELLATION_DEFAULTS.modulationOrderOffset),
+        number_sample_symbol: parsePositiveInteger(numberSampleSymbol, SERVING_GROUP_CONSTELLATION_DEFAULTS.numberSampleSymbol),
       };
     }
     if (captureSettingsMode === "histogram") {
       payload.capture_settings = {
-        sample_duration: parsePositiveInteger(sampleDuration, 10),
+        sample_duration: parsePositiveInteger(sampleDuration, SERVING_GROUP_HISTOGRAM_DEFAULTS.sampleDuration),
       };
     }
     if (captureSettingsMode === "spectrum-friendly") {
       payload.capture_settings = {
-        inactivity_timeout: parsePositiveInteger(inactivityTimeout, 60),
-        first_segment_center_freq: parsePositiveInteger(firstSegmentCenterFreq, 300000000),
-        last_segment_center_freq: parsePositiveInteger(lastSegmentCenterFreq, 900000000),
-        resolution_bw: parsePositiveInteger(resolutionBw, 30000),
-        noise_bw: parseNonNegativeInteger(noiseBw, 150),
+        inactivity_timeout: parsePositiveInteger(inactivityTimeout, SERVING_GROUP_SPECTRUM_FRIENDLY_DEFAULTS.inactivityTimeout),
+        first_segment_center_freq: parsePositiveInteger(firstSegmentCenterFreq, SERVING_GROUP_SPECTRUM_FRIENDLY_DEFAULTS.firstSegmentCenterFreq),
+        last_segment_center_freq: parsePositiveInteger(lastSegmentCenterFreq, SERVING_GROUP_SPECTRUM_FRIENDLY_DEFAULTS.lastSegmentCenterFreq),
+        resolution_bw: parsePositiveInteger(resolutionBw, SERVING_GROUP_SPECTRUM_FRIENDLY_DEFAULTS.resolutionBw),
+        noise_bw: parseNonNegativeInteger(noiseBw, SERVING_GROUP_SPECTRUM_FRIENDLY_DEFAULTS.noiseBw),
         window_function: parseNonNegativeInteger(windowFunction, DEFAULT_SPECTRUM_ANALYZER_WINDOW_FUNCTION),
-        num_averages: parsePositiveInteger(numAverages, 1),
+        num_averages: parsePositiveInteger(numAverages, SERVING_GROUP_SPECTRUM_FRIENDLY_DEFAULTS.numAverages),
         spectrum_retrieval_type: parseNonNegativeInteger(spectrumRetrievalType, DEFAULT_SPECTRUM_ANALYZER_RETRIEVAL_TYPE),
       };
     }
@@ -604,7 +583,7 @@ export function ServingGroupCaptureRequestForm({
                   id={`${idPrefix}-community`}
                   value={community}
                   onChange={(event) => setCommunity(event.target.value)}
-                  placeholder="private"
+                  placeholder={SERVING_GROUP_FORM_PLACEHOLDERS.snmpCommunity}
                   autoComplete="off"
                 />
               </div>
@@ -614,7 +593,7 @@ export function ServingGroupCaptureRequestForm({
                   id={`${idPrefix}-tftp-ipv4`}
                   value={tftpIpv4}
                   onChange={(event) => setTftpIpv4(event.target.value)}
-                  placeholder="172.19.8.28"
+                  placeholder={SERVING_GROUP_FORM_PLACEHOLDERS.tftpIpv4}
                 />
               </div>
               <div className="field capture-request-compact-input">
@@ -623,7 +602,7 @@ export function ServingGroupCaptureRequestForm({
                   id={`${idPrefix}-tftp-ipv6`}
                   value={tftpIpv6}
                   onChange={(event) => setTftpIpv6(event.target.value)}
-                  placeholder="::"
+                  placeholder={SERVING_GROUP_FORM_PLACEHOLDERS.tftpIpv6}
                 />
               </div>
             </div>
@@ -634,7 +613,7 @@ export function ServingGroupCaptureRequestForm({
                   <select
                     id={`${idPrefix}-fec-summary-type`}
                     value={String(fecSummaryType)}
-                    onChange={(event) => setFecSummaryType(Number.parseInt(event.target.value, 10) || 2)}
+                    onChange={(event) => setFecSummaryType(Number.parseInt(event.target.value, 10) || SERVING_GROUP_FEC_SUMMARY_DEFAULTS.summaryType)}
                   >
                     {FEC_SUMMARY_TYPE_OPTIONS.map((option) => (
                       <option key={option.value} value={option.value}>{option.label}</option>
@@ -657,7 +636,7 @@ export function ServingGroupCaptureRequestForm({
                     min={0}
                     value={modulationOrderOffset}
                     onChange={(event) => setModulationOrderOffset(event.target.value)}
-                    placeholder="0"
+                    placeholder={SERVING_GROUP_FORM_PLACEHOLDERS.modulationOrderOffset}
                   />
                 </div>
                 <div className="field capture-request-compact-input">
@@ -672,7 +651,7 @@ export function ServingGroupCaptureRequestForm({
                     min={1}
                     value={numberSampleSymbol}
                     onChange={(event) => setNumberSampleSymbol(event.target.value)}
-                    placeholder="8192"
+                    placeholder={SERVING_GROUP_FORM_PLACEHOLDERS.numberSampleSymbol}
                   />
                 </div>
               </div>
@@ -691,7 +670,7 @@ export function ServingGroupCaptureRequestForm({
                     min={1}
                     value={sampleDuration}
                     onChange={(event) => setSampleDuration(event.target.value)}
-                    placeholder="10"
+                    placeholder={SERVING_GROUP_FORM_PLACEHOLDERS.sampleDuration}
                   />
                 </div>
               </div>
@@ -710,7 +689,7 @@ export function ServingGroupCaptureRequestForm({
                     min={1}
                     value={inactivityTimeout}
                     onChange={(event) => setInactivityTimeout(event.target.value)}
-                    placeholder="60"
+                    placeholder={SERVING_GROUP_FORM_PLACEHOLDERS.inactivityTimeout}
                   />
                 </div>
                 <div className="field capture-request-compact-input">
@@ -725,7 +704,7 @@ export function ServingGroupCaptureRequestForm({
                     min={1}
                     value={firstSegmentCenterFreq}
                     onChange={(event) => setFirstSegmentCenterFreq(event.target.value)}
-                    placeholder="300000000"
+                    placeholder={SERVING_GROUP_FORM_PLACEHOLDERS.firstSegmentCenterFreq}
                   />
                 </div>
                 <div className="field capture-request-compact-input">
@@ -740,7 +719,7 @@ export function ServingGroupCaptureRequestForm({
                     min={1}
                     value={lastSegmentCenterFreq}
                     onChange={(event) => setLastSegmentCenterFreq(event.target.value)}
-                    placeholder="900000000"
+                    placeholder={SERVING_GROUP_FORM_PLACEHOLDERS.lastSegmentCenterFreq}
                   />
                 </div>
                 <div className="field capture-request-compact-input">
@@ -755,7 +734,7 @@ export function ServingGroupCaptureRequestForm({
                     min={1}
                     value={resolutionBw}
                     onChange={(event) => setResolutionBw(event.target.value)}
-                    placeholder="30000"
+                    placeholder={SERVING_GROUP_FORM_PLACEHOLDERS.resolutionBw}
                   />
                 </div>
                 <div className="field capture-request-compact-input">
@@ -770,7 +749,7 @@ export function ServingGroupCaptureRequestForm({
                     min={0}
                     value={noiseBw}
                     onChange={(event) => setNoiseBw(event.target.value)}
-                    placeholder="150"
+                    placeholder={SERVING_GROUP_FORM_PLACEHOLDERS.noiseBw}
                   />
                 </div>
                 <div className="field capture-request-compact-input">
@@ -803,7 +782,7 @@ export function ServingGroupCaptureRequestForm({
                     min={1}
                     value={numAverages}
                     onChange={(event) => setNumAverages(event.target.value)}
-                    placeholder="1"
+                    placeholder={SERVING_GROUP_FORM_PLACEHOLDERS.numAverages}
                   />
                 </div>
                 <div className="field capture-request-compact-input">

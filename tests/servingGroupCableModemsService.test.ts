@@ -6,6 +6,7 @@ vi.mock("../src/services/http", () => ({
 
 import * as httpModule from "../src/services/http";
 import { getServingGroupCableModems } from "../src/pcw/services/servingGroupCableModemsService";
+import { TEST_BASE_URL, TEST_MAC_ADDRESS, TEST_MODEM_IPV4, TEST_OPERATION_URLS } from "./support/servingGroupTestConstants";
 
 describe("servingGroupCableModemsService", () => {
   it("calls endpoint with light refresh by default and normalizes rows", async () => {
@@ -17,8 +18,8 @@ describe("servingGroupCableModemsService", () => {
             sg_id: 1,
             items: [
               {
-                mac_address: "AA:BB:CC:DD:EE:FF",
-                ipv4: "10.1.0.10",
+                mac_address: TEST_MAC_ADDRESS,
+                ipv4: TEST_MODEM_IPV4,
                 ds_channel_ids: [193, 194],
                 us_channel_ids: [12],
                 sysdescr: {
@@ -37,11 +38,11 @@ describe("servingGroupCableModemsService", () => {
       },
     } as never);
 
-    const rows = await getServingGroupCableModems("http://127.0.0.1:8080", [], "light");
+    const rows = await getServingGroupCableModems(TEST_BASE_URL, [], "light");
 
-    expect(requestWithBaseUrl).toHaveBeenCalledWith("http://127.0.0.1:8080", {
+    expect(requestWithBaseUrl).toHaveBeenCalledWith(TEST_BASE_URL, {
       method: "POST",
-      url: "/cmts/servingGroup/operations/get/cableModems",
+      url: TEST_OPERATION_URLS.cableModems,
       data: {
         cmts: {
           serving_group: {
@@ -56,8 +57,8 @@ describe("servingGroupCableModemsService", () => {
       },
     });
     expect(rows).toHaveLength(1);
-    expect(rows[0]?.macAddress).toBe("aa:bb:cc:dd:ee:ff");
-    expect(rows[0]?.ipAddress).toBe("10.1.0.10");
+    expect(rows[0]?.macAddress).toBe(TEST_MAC_ADDRESS.toLowerCase());
+    expect(rows[0]?.ipAddress).toBe(TEST_MODEM_IPV4);
     expect(rows[0]?.dsChannelIds).toEqual([193, 194]);
     expect(rows[0]?.usChannelIds).toEqual([12]);
     expect(rows[0]?.channelIds).toEqual([12, 193, 194]);

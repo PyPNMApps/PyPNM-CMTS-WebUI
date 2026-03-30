@@ -1,6 +1,9 @@
 import { requestWithBaseUrl } from "@/services/http";
+import { CMTS_SERVING_GROUP_CABLE_MODEMS_PATH } from "@/pcw/services/apiPaths";
 
 export type ServingGroupCableModemRefreshMode = "light" | "heavy";
+const CABLE_MODEMS_LIGHT_TIMEOUT_SECONDS = 8;
+const CABLE_MODEMS_HEAVY_TIMEOUT_SECONDS = 20;
 
 interface ServingGroupCableModemItem {
   mac_address?: string;
@@ -117,7 +120,7 @@ export async function getServingGroupCableModems(
 ): Promise<ServingGroupCableModemRow[]> {
   const response = await requestWithBaseUrl<ServingGroupCableModemResponse>(baseUrl, {
     method: "POST",
-    url: "/cmts/servingGroup/operations/get/cableModems",
+    url: CMTS_SERVING_GROUP_CABLE_MODEMS_PATH,
     data: {
       cmts: {
         serving_group: {
@@ -127,7 +130,7 @@ export async function getServingGroupCableModems(
       refresh: {
         mode: refreshMode,
         wait_for_cache: refreshMode === "heavy",
-        timeout_seconds: refreshMode === "heavy" ? 20 : 8,
+        timeout_seconds: refreshMode === "heavy" ? CABLE_MODEMS_HEAVY_TIMEOUT_SECONDS : CABLE_MODEMS_LIGHT_TIMEOUT_SECONDS,
       },
     },
   });

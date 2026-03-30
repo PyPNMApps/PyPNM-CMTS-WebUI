@@ -1,15 +1,24 @@
 import type { ChartSeries } from "@/pw/features/analysis/types";
 import { formatEpochSecondsUtc } from "@/lib/formatters/dateTime";
 import { formatFrequencyRangeMhz } from "@/lib/formatters/frequency";
+import { summarize } from "@/lib/stats";
+import { inferErrorFreeQamFromMerDb, inferSupportedQamFromMerDb } from "@/lib/rxMerSelectionInsights";
 
 const palette = ["#79a9ff", "#58d0a7", "#ff7a6b", "#f1c75b", "#89b4fa", "#f9e2af", "#a6e3a1", "#f38ba8"] as const;
 
 export interface ServingGroupRxMerModemVisual {
   key: string;
   macAddress: string;
+  ipAddress: string;
+  vendor: string;
+  model: string;
+  softwareVersion: string;
   modelLabel: string;
   captureTimeEpoch?: number;
   captureTimeLabel: string;
+  avgMerDb: number | null;
+  calculatedSupportedQam: string;
+  errorFreeQam: string;
   rxMerSeries: ChartSeries[];
   modulationCounts?: Record<string, number>;
 }
@@ -56,6 +65,99 @@ function asNumberArray(value: unknown): number[] {
   return asArray(value)
     .map((item) => (typeof item === "number" ? item : Number.NaN))
     .filter((item) => Number.isFinite(item));
+}
+
+function isLikelyIpAddress(value: string): boolean {
+  const text = value.trim();
+  if (!text) {
+    return false;
+  }
+  const macAddress = /^(?:[0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2}$/;
+  if (macAddress.test(text)) {
+    return false;
+  }
+  const ipv4 = /^(?:\d{1,3}\.){3}\d{1,3}$/;
+  const ipv6 = /^[0-9a-fA-F:]+$/;
+  if (ipv4.test(text)) {
+    return true;
+  }
+  if (text.includes(":") && text.split(":").length >= 3 && ipv6.test(text)) {
+    return true;
+  }
+  return false;
+}
+
+function findNestedIpAddress(value: unknown, depth = 0): string | null {
+  if (depth > 5 || value === null || value === undefined) {
+    return null;
+  }
+  if (typeof value === "string") {
+    return isLikelyIpAddress(value) ? value.trim() : null;
+  }
+  if (Array.isArray(value)) {
+    for (const item of value) {
+      const nested = findNestedIpAddress(item, depth + 1);
+      if (nested) {
+        return nested;
+      }
+    }
+    return null;
+  }
+  if (typeof value !== "object") {
+    return null;
+  }
+  const record = value as Record<string, unknown>;
+  const prioritizedKeys = Object.keys(record).sort((left, right) => {
+    const leftScore = left.toLowerCase().includes("ip") ? 0 : 1;
+    const rightScore = right.toLowerCase().includes("ip") ? 0 : 1;
+    return leftScore - rightScore;
+  });
+  for (const key of prioritizedKeys) {
+    const candidate = record[key];
+    if (typeof candidate === "string" && isLikelyIpAddress(candidate)) {
+      return candidate.trim();
+    }
+    const nested = findNestedIpAddress(candidate, depth + 1);
+    if (nested) {
+      return nested;
+    }
+  }
+  return null;
+}
+
+function resolveModemIpAddress(modem: Record<string, unknown>): string {
+  const candidates = [
+    modem.ip_address,
+    modem.ipAddress,
+    modem.ipv4,
+    modem.ipv6,
+    modem.ip,
+    modem.cm_ip,
+    modem.cmIp,
+    asRecord(modem.cable_modem)?.ip_address,
+    asRecord(modem.cable_modem)?.ipv4,
+    asRecord(modem.cable_modem)?.ipv6,
+    asRecord(modem.rxmer_data)?.ip_address,
+    asRecord(modem.rxmer_data)?.ipv4,
+    asRecord(modem.rxmer_data)?.ipv6,
+    asRecord(asRecord(modem.rxmer_data)?.analysis)?.ip_address,
+    asRecord(asRecord(modem.rxmer_data)?.analysis)?.ipv4,
+    asRecord(asRecord(modem.rxmer_data)?.analysis)?.ipv6,
+    asRecord(modem.system_description)?.IP,
+    asRecord(modem.system_description)?.ip,
+    asRecord(modem.system_description)?.IP_ADDRESS,
+    asRecord(modem.system_description)?.ip_address,
+  ];
+  for (const candidate of candidates) {
+    if (typeof candidate === "string" && isLikelyIpAddress(candidate)) {
+      return candidate.trim();
+    }
+  }
+  const discovered = findNestedIpAddress(modem);
+  if (discovered) {
+    return discovered;
+  }
+  return "n/a";
 }
 
 function sortChannelsByFrequency(left: ServingGroupRxMerChannelVisual, right: ServingGroupRxMerChannelVisual): number {
@@ -132,7 +234,7 @@ export function normalizeServingGroupRxMerResultsPayload(input: unknown): Servin
       const cableModems = asArray(channel?.cable_modems);
 
       const modems: ServingGroupRxMerModemVisual[] = cableModems.map((modemValue, modemIndex) => {
-        const modem = asRecord(modemValue);
+        const modem = asRecord(modemValue) ?? {};
         const macAddress = String(modem?.mac_address ?? "").trim() || `modem-${modemIndex + 1}`;
         const systemDescription = asRecord(modem?.system_description);
         const rxMerData = asRecord(modem?.rxmer_data);
@@ -148,8 +250,12 @@ export function normalizeServingGroupRxMerResultsPayload(input: unknown): Servin
               .filter(([, value]) => Number.isFinite(value)),
           )
           : undefined;
-
         const series = toChartSeriesFromCarrierValues(analysis, macAddress, palette[modemIndex % palette.length]);
+        const primaryPoints = series[0]?.points ?? [];
+        const magnitudes = primaryPoints
+          .map((point) => point.y)
+          .filter((value) => Number.isFinite(value));
+        const stats = magnitudes.length > 0 ? summarize(magnitudes) : null;
         const hasPrimarySeries = series[0]?.points.length > 0;
         if (!hasPrimarySeries) {
           const analysisError = String(rxMerData?.analysis_error ?? "").trim();
@@ -167,9 +273,16 @@ export function normalizeServingGroupRxMerResultsPayload(input: unknown): Servin
         return {
           key: `${serviceGroupId}-${channelId}-${macAddress}`,
           macAddress,
+          ipAddress: resolveModemIpAddress(modem),
+          vendor: String(systemDescription?.VENDOR ?? "").trim() || "Unknown Vendor",
+          model: String(systemDescription?.MODEL ?? "").trim() || "Unknown Model",
+          softwareVersion: String(systemDescription?.SW_REV ?? "").trim() || "Unknown Version",
           modelLabel: formatModelLabel(systemDescription),
           captureTimeEpoch: captureTime,
           captureTimeLabel: captureTime ? formatEpochSecondsUtc(captureTime) : "n/a",
+          avgMerDb: stats?.avg ?? null,
+          calculatedSupportedQam: stats ? inferSupportedQamFromMerDb(stats.avg) : "n/a",
+          errorFreeQam: stats ? inferErrorFreeQamFromMerDb(stats.min) : "n/a",
           rxMerSeries: series,
           modulationCounts: modulationCounts && Object.keys(modulationCounts).length > 0 ? modulationCounts : undefined,
         };

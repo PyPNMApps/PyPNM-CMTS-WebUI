@@ -11,42 +11,34 @@ import {
   getServingGroupFecSummaryResults,
   startServingGroupFecSummaryCapture,
 } from "../src/pcw/services/servingGroupFecSummaryService";
+import {
+  buildServingGroupCapturePayload,
+  TEST_BASE_URL,
+  TEST_OPERATION_ID,
+  TEST_OPERATION_URLS,
+  TEST_TIMEOUTS,
+} from "./support/servingGroupTestConstants";
+import { SERVING_GROUP_FEC_SUMMARY_DEFAULTS } from "../src/pcw/features/serving-group/lib/captureDefaults";
 
 describe("servingGroupFecSummaryService", () => {
   it("calls startCapture with POST and payload", async () => {
     const requestWithBaseUrl = vi.mocked(httpModule.requestWithBaseUrl);
-    requestWithBaseUrl.mockResolvedValueOnce({ data: { operation_id: "op-1" } } as never);
+    requestWithBaseUrl.mockResolvedValueOnce({ data: { operation_id: TEST_OPERATION_ID } } as never);
 
     const payload = {
-      cmts: {
-        serving_group: { id: [101] },
-        cable_modem: {
-          mac_address: ["00:11:22:33:44:55"],
-          pnm_parameters: {
-            tftp: { ipv4: "172.19.8.28", ipv6: "::1" },
-            capture: { channel_ids: [0] },
-          },
-          snmp: {
-            snmpV2C: { community: "private" },
-          },
-        },
-      },
-      execution: {
-        max_workers: 16,
-        retry_count: 3,
-        retry_delay_seconds: 5,
-        per_modem_timeout_seconds: 30,
-        overall_timeout_seconds: 120,
+      ...buildServingGroupCapturePayload(),
+      capture_settings: {
+        fec_summary_type: SERVING_GROUP_FEC_SUMMARY_DEFAULTS.summaryType,
       },
     };
 
-    await startServingGroupFecSummaryCapture("http://127.0.0.1:8080", payload);
+    await startServingGroupFecSummaryCapture(TEST_BASE_URL, payload);
 
-    expect(requestWithBaseUrl).toHaveBeenCalledWith("http://127.0.0.1:8080", {
+    expect(requestWithBaseUrl).toHaveBeenCalledWith(TEST_BASE_URL, {
       method: "POST",
-      url: "/cmts/pnm/sg/ds/ofdm/fecSummary/startCapture",
+      url: TEST_OPERATION_URLS.fecSummary.start,
       data: payload,
-      timeout: 120000,
+      timeout: TEST_TIMEOUTS.start,
     });
   });
 
@@ -54,15 +46,15 @@ describe("servingGroupFecSummaryService", () => {
     const requestWithBaseUrl = vi.mocked(httpModule.requestWithBaseUrl);
     requestWithBaseUrl.mockResolvedValueOnce({ data: { state: "completed" } } as never);
 
-    await getServingGroupFecSummaryCaptureStatus("http://127.0.0.1:8080", "op-1");
+    await getServingGroupFecSummaryCaptureStatus(TEST_BASE_URL, TEST_OPERATION_ID);
 
-    expect(requestWithBaseUrl).toHaveBeenCalledWith("http://127.0.0.1:8080", {
+    expect(requestWithBaseUrl).toHaveBeenCalledWith(TEST_BASE_URL, {
       method: "POST",
-      url: "/cmts/pnm/sg/ds/ofdm/fecSummary/status",
+      url: TEST_OPERATION_URLS.fecSummary.status,
       data: {
-        pnm_capture_operation_id: "op-1",
+        pnm_capture_operation_id: TEST_OPERATION_ID,
       },
-      timeout: 30000,
+      timeout: TEST_TIMEOUTS.status,
     });
   });
 
@@ -70,15 +62,15 @@ describe("servingGroupFecSummaryService", () => {
     const requestWithBaseUrl = vi.mocked(httpModule.requestWithBaseUrl);
     requestWithBaseUrl.mockResolvedValueOnce({ data: { state: "cancelling" } } as never);
 
-    await cancelServingGroupFecSummaryCapture("http://127.0.0.1:8080", "op-1");
+    await cancelServingGroupFecSummaryCapture(TEST_BASE_URL, TEST_OPERATION_ID);
 
-    expect(requestWithBaseUrl).toHaveBeenCalledWith("http://127.0.0.1:8080", {
+    expect(requestWithBaseUrl).toHaveBeenCalledWith(TEST_BASE_URL, {
       method: "POST",
-      url: "/cmts/pnm/sg/ds/ofdm/fecSummary/cancel",
+      url: TEST_OPERATION_URLS.fecSummary.cancel,
       data: {
-        pnm_capture_operation_id: "op-1",
+        pnm_capture_operation_id: TEST_OPERATION_ID,
       },
-      timeout: 30000,
+      timeout: TEST_TIMEOUTS.status,
     });
   });
 
@@ -86,15 +78,15 @@ describe("servingGroupFecSummaryService", () => {
     const requestWithBaseUrl = vi.mocked(httpModule.requestWithBaseUrl);
     requestWithBaseUrl.mockResolvedValueOnce({ data: { results: {} } } as never);
 
-    await getServingGroupFecSummaryResults("http://127.0.0.1:8080", "op-1");
+    await getServingGroupFecSummaryResults(TEST_BASE_URL, TEST_OPERATION_ID);
 
-    expect(requestWithBaseUrl).toHaveBeenCalledWith("http://127.0.0.1:8080", {
+    expect(requestWithBaseUrl).toHaveBeenCalledWith(TEST_BASE_URL, {
       method: "POST",
-      url: "/cmts/pnm/sg/ds/ofdm/fecSummary/results",
+      url: TEST_OPERATION_URLS.fecSummary.results,
       data: {
-        pnm_capture_operation_id: "op-1",
+        pnm_capture_operation_id: TEST_OPERATION_ID,
       },
-      timeout: 30000,
+      timeout: TEST_TIMEOUTS.status,
     });
   });
 });

@@ -95,6 +95,15 @@ export function inferErrorFreeQamFromMerDb(minMerDb: number): string {
   return match?.qam ?? "Below QAM-256";
 }
 
+export function inferSupportedQamFromMerDb(avgMerDb: number): string {
+  const bitload = estimateBitloadFromMerDb(avgMerDb);
+  if (!Number.isFinite(bitload) || bitload < 2) {
+    return "Below QAM-4";
+  }
+  const bits = Math.max(2, Math.floor(bitload));
+  return `QAM-${2 ** bits}`;
+}
+
 export function buildRxMerDistributionBins(values: number[], binCount = 12): RxMerDistributionBin[] {
   const numericValues = values.filter((value) => Number.isFinite(value));
   if (!numericValues.length) {
