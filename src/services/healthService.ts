@@ -1,5 +1,9 @@
 import { requestWithBaseUrl } from "@/services/http";
 import type { HealthResponse } from "@/types/api";
+import {
+  PRODUCT_PROFILE_PCW,
+  resolveProductProfileWithFallback,
+} from "@/app/productProfile";
 
 const DEFAULT_HEALTH_TIMEOUT_MS = 4000;
 const DEFAULT_RELOAD_TIMEOUT_MS = 15000;
@@ -37,11 +41,13 @@ export async function getHealth(
 
 export async function reloadWebService(
   baseUrl: string,
-  reloadPath = "/pypnm/system/webService/reload",
+  reloadPath = resolveProductProfileWithFallback() === PRODUCT_PROFILE_PCW
+    ? "/cmts/system/webService/reload"
+    : "/pypnm/system/webService/reload",
   timeoutMs = DEFAULT_RELOAD_TIMEOUT_MS,
 ): Promise<void> {
   await requestWithBaseUrl(baseUrl, {
-    method: "GET",
+    method: "POST",
     timeout: timeoutMs,
     url: reloadPath,
   });

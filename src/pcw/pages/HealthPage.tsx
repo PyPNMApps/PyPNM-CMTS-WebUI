@@ -152,7 +152,7 @@ export function HealthPage() {
             <thead>
               <tr>
                 <th title="Configured PyPNM instance label and base URL.">Agent</th>
-                <th title="Send a GET reload request to this agent's web service.">Reload</th>
+                <th title="Send a POST reload request to this agent's web service.">Reload</th>
                 <th title="Latest health status returned by the backend.">Status</th>
                 <th title="Health message or transport error summary.">Message</th>
                 <th title="Backend service name reported by /health.">Service</th>

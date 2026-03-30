@@ -1,4 +1,5 @@
 import { requestWithBaseUrl } from "@/services/http";
+import { toPwApiPath } from "@/lib/pwCompat";
 import {
   ADVANCED_OFDMA_PRE_EQ_ANALYSIS_TIMEOUT_MS,
   ADVANCED_OPERATION_START_TIMEOUT_MS,
@@ -17,7 +18,7 @@ const ADVANCED_OFDMA_PRE_EQ_BASE = "/advance/multi/us/ofdmaPreEqualization";
 export async function startAdvancedOfdmaPreEq(baseUrl: string, payload: AdvancedMultiUsOfdmaPreEqRequest): Promise<AdvancedMultiUsOfdmaPreEqStartResponse> {
   const response = await requestWithBaseUrl<AdvancedMultiUsOfdmaPreEqStartResponse>(baseUrl, {
     method: "POST",
-    url: `${ADVANCED_OFDMA_PRE_EQ_BASE}/start`,
+    url: toPwApiPath(`${ADVANCED_OFDMA_PRE_EQ_BASE}/start`),
     data: payload,
     timeout: ADVANCED_OPERATION_START_TIMEOUT_MS,
   });
@@ -27,7 +28,7 @@ export async function startAdvancedOfdmaPreEq(baseUrl: string, payload: Advanced
 export async function getAdvancedOfdmaPreEqStatus(baseUrl: string, operationId: string): Promise<AdvancedMultiUsOfdmaPreEqStatusResponse> {
   const response = await requestWithBaseUrl<AdvancedMultiUsOfdmaPreEqStatusResponse>(baseUrl, {
     method: "GET",
-    url: `${ADVANCED_OFDMA_PRE_EQ_BASE}/status/${operationId}`,
+    url: toPwApiPath(`${ADVANCED_OFDMA_PRE_EQ_BASE}/status/${operationId}`),
     timeout: ADVANCED_OPERATION_STATUS_TIMEOUT_MS,
   });
   return response.data;
@@ -36,7 +37,7 @@ export async function getAdvancedOfdmaPreEqStatus(baseUrl: string, operationId: 
 export async function stopAdvancedOfdmaPreEq(baseUrl: string, operationId: string): Promise<AdvancedMultiUsOfdmaPreEqStatusResponse> {
   const response = await requestWithBaseUrl<AdvancedMultiUsOfdmaPreEqStatusResponse>(baseUrl, {
     method: "DELETE",
-    url: `${ADVANCED_OFDMA_PRE_EQ_BASE}/stop/${operationId}`,
+    url: toPwApiPath(`${ADVANCED_OFDMA_PRE_EQ_BASE}/stop/${operationId}`),
     timeout: ADVANCED_OPERATION_STATUS_TIMEOUT_MS,
   });
   return response.data;
@@ -45,7 +46,7 @@ export async function stopAdvancedOfdmaPreEq(baseUrl: string, operationId: strin
 export async function analyzeAdvancedOfdmaPreEq(baseUrl: string, payload: AdvancedMultiUsOfdmaPreEqAnalysisRequest): Promise<AdvancedMultiUsOfdmaPreEqAnalysisResponse> {
   const response = await requestWithBaseUrl<AdvancedMultiUsOfdmaPreEqAnalysisResponse>(baseUrl, {
     method: "POST",
-    url: `${ADVANCED_OFDMA_PRE_EQ_BASE}/analysis`,
+    url: toPwApiPath(`${ADVANCED_OFDMA_PRE_EQ_BASE}/analysis`),
     data: payload,
     timeout: ADVANCED_OFDMA_PRE_EQ_ANALYSIS_TIMEOUT_MS,
   });
@@ -53,5 +54,5 @@ export async function analyzeAdvancedOfdmaPreEq(baseUrl: string, payload: Advanc
 }
 
 export function getAdvancedOfdmaPreEqResultsZipUrl(baseUrl: string, operationId: string): string {
-  return new URL(`${ADVANCED_OFDMA_PRE_EQ_BASE}/results/${operationId}`, baseUrl).toString();
+  return new URL(toPwApiPath(`${ADVANCED_OFDMA_PRE_EQ_BASE}/results/${operationId}`), baseUrl).toString();
 }

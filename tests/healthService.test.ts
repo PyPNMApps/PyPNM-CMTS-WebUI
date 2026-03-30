@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("../src/services/http", () => ({
   requestWithBaseUrl: vi.fn(),
@@ -8,6 +8,11 @@ import * as httpModule from "../src/services/http";
 import { classifyHealthError, reloadWebService } from "../src/services/healthService";
 
 describe("classifyHealthError", () => {
+  afterEach(() => {
+    vi.clearAllMocks();
+    vi.unstubAllEnvs();
+  });
+
   it("marks timeout and network failures as unreachable", () => {
     expect(classifyHealthError(new Error("timeout of 4000ms exceeded"))).toEqual({
       status: "unreachable",
@@ -26,14 +31,29 @@ describe("classifyHealthError", () => {
     });
   });
 
-  it("calls the web service reload endpoint with GET", async () => {
+  it("calls the PCW web service reload endpoint with POST", async () => {
     const requestWithBaseUrl = vi.mocked(httpModule.requestWithBaseUrl);
     requestWithBaseUrl.mockResolvedValueOnce({ data: null } as never);
+    vi.stubEnv("VITE_PRODUCT_PROFILE", "pypnm-cmts-webui");
 
     await reloadWebService("http://127.0.0.1:8080/");
 
     expect(requestWithBaseUrl).toHaveBeenCalledWith("http://127.0.0.1:8080/", {
-      method: "GET",
+      method: "POST",
+      timeout: 15000,
+      url: "/cmts/system/webService/reload",
+    });
+  });
+
+  it("calls the PW web service reload endpoint with POST when PW profile is active", async () => {
+    const requestWithBaseUrl = vi.mocked(httpModule.requestWithBaseUrl);
+    requestWithBaseUrl.mockResolvedValueOnce({ data: null } as never);
+    vi.stubEnv("VITE_PRODUCT_PROFILE", "pypnm-webui");
+
+    await reloadWebService("http://127.0.0.1:8080/");
+
+    expect(requestWithBaseUrl).toHaveBeenCalledWith("http://127.0.0.1:8080/", {
+      method: "POST",
       timeout: 15000,
       url: "/pypnm/system/webService/reload",
     });
