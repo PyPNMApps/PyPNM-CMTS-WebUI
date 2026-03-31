@@ -2332,6 +2332,11 @@ pre {
   align-items: start;
 }
 
+.single-capture-toolbar-meta {
+  grid-column: 1 / -1;
+  margin-top: 2px;
+}
+
 .capture-request-group {
   display: grid;
   gap: 12px;
@@ -2393,6 +2398,10 @@ pre {
 .capture-request-table-wrap {
   max-height: 360px;
   overflow: auto;
+}
+
+.single-capture-dashboard-table-wrap {
+  max-height: calc(100vh - 250px);
 }
 
 .capture-request-selection-summary {

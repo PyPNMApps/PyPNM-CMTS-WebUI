@@ -261,21 +261,21 @@ export function CmtsSingleCaptureDashboardPage() {
               </button>
             </div>
           </div>
-        </div>
-        <div className="status-chip-row operation-status-chip-row">
-          <span className="analysis-chip"><b>Total</b> {rows.length}</span>
-          <span className="analysis-chip"><b>Visible</b> {visibleRows.length}</span>
-          <span className="analysis-chip"><b>Operational</b> {rows.filter((row) => isOperational(row)).length}</span>
-          <span className="analysis-chip">
-            <b>Poll Mode</b> {lastRefreshMode} · <b>Last Refresh</b> {lastRefreshEpochMs ? new Date(lastRefreshEpochMs).toLocaleTimeString() : "n/a"}
-          </span>
+          <div className="status-chip-row single-capture-toolbar-meta">
+            <span className="analysis-chip"><b>Total</b> {rows.length}</span>
+            <span className="analysis-chip"><b>Visible</b> {visibleRows.length}</span>
+            <span className="analysis-chip"><b>Operational</b> {rows.filter((row) => isOperational(row)).length}</span>
+            <span className="analysis-chip">
+              <b>Poll Mode</b> {lastRefreshMode} · <b>Last Refresh</b> {lastRefreshEpochMs ? new Date(lastRefreshEpochMs).toLocaleTimeString() : "n/a"}
+            </span>
+          </div>
         </div>
         {isLoading ? <p className="panel-copy">Loading cable modems...</p> : null}
         {errorMessage ? <p className="advanced-error-text">{errorMessage}</p> : null}
       </article>
 
       <article className="chart-frame">
-        <div className="table-wrap capture-request-table-wrap">
+        <div className="table-wrap capture-request-table-wrap single-capture-dashboard-table-wrap">
           <table>
             <thead>
               <tr>
