@@ -25,7 +25,7 @@ function MagnitudePreview({
   width,
   height,
 }: {
-  series: ServingGroupChannelEstCoeffGroupVisual["channels"][number]["modems"][number]["magnitudeSeries"] | undefined;
+  series: { points: Array<{ x: number; y: number }>; color?: string } | undefined;
   width: number;
   height: number;
 }) {
@@ -118,8 +118,6 @@ function ChannelSection({
               <th>Model</th>
               <th>Version</th>
               <th>Capture Time (UTC)</th>
-              <th>Magnitude Points</th>
-              <th>Group Delay Points</th>
               <th className="constellation-preview-column">Preview</th>
             </tr>
           </thead>
@@ -153,8 +151,6 @@ function ChannelSection({
                     <td>{modem.model}</td>
                     <td>{modem.softwareVersion}</td>
                     <td>{modem.captureTimeLabel}</td>
-                    <td>{modem.magnitudeSeries.points.length}</td>
-                    <td>{modem.groupDelaySeries?.points.length ?? 0}</td>
                     <td className="constellation-preview-column">
                       <button
                         type="button"
@@ -163,15 +159,26 @@ function ChannelSection({
                         aria-expanded={isExpanded}
                         aria-label={`Toggle channel estimation details for ${modem.macAddress}`}
                       >
-                        <span className="constellation-preview-thumb">
-                          <MagnitudePreview series={modem.magnitudeSeries} width={68} height={40} />
+                        <span className="constellation-preview-pair-inline">
+                          <span className="constellation-preview-thumb">
+                            <MagnitudePreview series={modem.magnitudeSeries} width={68} height={40} />
+                            <span className="constellation-preview-hover">
+                              <MagnitudePreview series={modem.magnitudeSeries} width={300} height={200} />
+                            </span>
+                          </span>
+                          <span className="constellation-preview-thumb">
+                            <MagnitudePreview series={modem.groupDelaySeries} width={68} height={40} />
+                            <span className="constellation-preview-hover">
+                              <MagnitudePreview series={modem.groupDelaySeries} width={300} height={200} />
+                            </span>
+                          </span>
                         </span>
                       </button>
                     </td>
                   </tr>
                   {isExpanded ? (
                     <tr className="constellation-expanded-row">
-                      <td colSpan={8}>
+                      <td colSpan={6}>
                         <div className="constellation-expanded-panel">
                           <LineAnalysisChart
                             title={`Magnitude (MAC ${modem.macAddress})`}

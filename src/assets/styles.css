@@ -1784,6 +1784,12 @@ pre {
   height: 100%;
 }
 
+.constellation-preview-pair-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
 .constellation-preview-hover-pair {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
