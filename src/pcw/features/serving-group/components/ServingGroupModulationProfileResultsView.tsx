@@ -409,13 +409,12 @@ export function ServingGroupModulationProfileResultsView({ payload }: ServingGro
         </details>
       ))}
       {normalized.missingModems.length > 0 ? (
-        <article className="chart-frame">
-          <div className="analysis-channel-top">
-            <h3 className="analysis-channel-title">Excluded Cable Modems</h3>
-            <div className="analysis-channel-meta-line">
-              <span>MACs omitted from visuals due to missing or unusable data</span>
-              <span>Total: {normalized.missingModems.length}</span>
-            </div>
+        <details className="chart-frame capture-request-dropdown">
+          <summary className="capture-request-dropdown-summary">
+            <span>Excluded Cable Modems ({normalized.missingModems.length})</span>
+          </summary>
+          <div className="analysis-channel-meta-line">
+            <span>MACs omitted from visuals due to missing or unusable data</span>
           </div>
           <div className="table-wrap">
             <table>
@@ -439,7 +438,7 @@ export function ServingGroupModulationProfileResultsView({ payload }: ServingGro
               </tbody>
             </table>
           </div>
-        </article>
+        </details>
       ) : null}
     </div>
   );

@@ -3,6 +3,8 @@ import { FoldablePanelTitle } from "@/components/common/FoldablePanelTitle";
 import { Panel } from "@/components/common/Panel";
 import { JsonPayloadModal } from "@/components/common/JsonPayloadModal";
 import { ThinkingIndicator } from "@/components/common/ThinkingIndicator";
+import { OperationStatusDetailsChips } from "@/pcw/components/OperationStatusDetailsChips";
+import { OperationStatusPrimaryChips } from "@/pcw/components/OperationStatusPrimaryChips";
 import { useAdvancedOperationMachine } from "@/pw/features/advanced/useAdvancedOperationMachine";
 import {
   ServingGroupCaptureRequestForm,
@@ -253,33 +255,16 @@ export function CmtsSgRxMerWorkflowPage() {
               </button>
             </div>
           </div>
-          <div className="status-chip-row operation-status-chip-row">
-            <span className="analysis-chip"><b>State</b> {machine.lifecycleState.toUpperCase()}</span>
-            <span className="analysis-chip"><b>Polling</b> {machine.isPolling ? "yes" : "no"}</span>
-            <span className="analysis-chip"><b>Collected</b> {machine.statusSummary?.collected ?? 0}</span>
-            <span className="analysis-chip"><b>Time Remaining</b> {machine.statusSummary?.timeRemaining ?? 0}s</span>
-            <span className="analysis-chip"><b>Operation ID</b> {machine.operationId ?? "n/a"}</span>
-          </div>
-          <details className="capture-request-dropdown operation-status-details">
-            <summary className="capture-request-dropdown-summary">
-              <span>Operation Details</span>
-            </summary>
-            <div className="status-chip-row operation-status-chip-row">
-              <span className="analysis-chip"><b>Total Modems</b> {machine.statusSummary?.totalModems ?? 0}</span>
-              <span className="analysis-chip"><b>Eligible</b> {machine.statusSummary?.eligibleModems ?? 0}</span>
-              <span className="analysis-chip"><b>Precheck Passed</b> {machine.statusSummary?.precheckPassed ?? 0}</span>
-              <span className="analysis-chip"><b>Capture Started</b> {machine.statusSummary?.captureStarted ?? 0}</span>
-              <span className="analysis-chip"><b>Success</b> {machine.statusSummary?.successCount ?? 0}</span>
-              <span className="analysis-chip"><b>Failed</b> {machine.statusSummary?.failedCount ?? 0}</span>
-              <span className="analysis-chip"><b>Skipped</b> {machine.statusSummary?.skippedCount ?? 0}</span>
-            </div>
-            <div className="status-chip-row operation-status-chip-row">
-              <span className="analysis-chip"><b>Created</b> {formatOperationEpoch(machine.statusSummary?.createdEpoch)}</span>
-              <span className="analysis-chip"><b>Started</b> {formatOperationEpoch(machine.statusSummary?.startedEpoch)}</span>
-              <span className="analysis-chip"><b>Updated</b> {formatOperationEpoch(machine.statusSummary?.updatedEpoch)}</span>
-              <span className="analysis-chip"><b>Finished</b> {formatOperationEpoch(machine.statusSummary?.finishedEpoch)}</span>
-            </div>
-          </details>
+          <OperationStatusPrimaryChips
+            lifecycleState={machine.lifecycleState}
+            operationId={machine.operationId}
+            collected={machine.statusSummary?.collected}
+            timeRemainingSeconds={machine.statusSummary?.timeRemaining}
+          />
+          <OperationStatusDetailsChips
+            statusSummary={machine.statusSummary}
+            formatEpoch={formatOperationEpoch}
+          />
           {machine.lifecycleState === "starting" || machine.lifecycleState === "running" ? (
             <ThinkingIndicator label="Running SG RxMER capture and polling status..." />
           ) : null}
