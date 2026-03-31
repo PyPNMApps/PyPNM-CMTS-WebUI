@@ -66,6 +66,7 @@ export function CmtsSingleCaptureDashboardPage() {
   const [detailsRow, setDetailsRow] = useState<ServingGroupCableModemRow | null>(null);
   const [rowActionByKey, setRowActionByKey] = useState<Record<string, RowAction>>({});
   const [operationPickerRow, setOperationPickerRow] = useState<ServingGroupCableModemRow | null>(null);
+  const [isControlsCollapsed, setIsControlsCollapsed] = useState(true);
 
   const operationMenuGroups = useMemo(() => {
     const levelOneEntries = [...new Set(operationsMenuNavigationItems.map((item) => item.menuPath[0]))];
@@ -212,64 +213,76 @@ export function CmtsSingleCaptureDashboardPage() {
       </nav>
 
       <article className="chart-frame capture-request-group">
-        <div className="capture-request-top-grid">
-          <div className="field capture-request-compact-input">
-            <label htmlFor="single-capture-cm-search">Search MAC/IP</label>
-            <input
-              id="single-capture-cm-search"
-              value={searchText}
-              onChange={(event) => setSearchText(event.target.value)}
-              placeholder="Filter by MAC or IP"
-            />
-          </div>
-          <div className="status-chip-row">
-            <button
-              type="button"
-              className={filterMode === "all" ? "analysis-chip-button active" : "analysis-chip-button"}
-              onClick={() => setFilterMode("all")}
-            >
-              All
-            </button>
-            <button
-              type="button"
-              className={filterMode === "operational" ? "analysis-chip-button active" : "analysis-chip-button"}
-              onClick={() => setFilterMode("operational")}
-            >
-              Operational Only
-            </button>
-            <div className="single-capture-poll-group" role="group" aria-label="Polling controls">
+        <details className="capture-request-dropdown single-capture-toolbar-dropdown" open={!isControlsCollapsed}>
+          <summary
+            className="capture-request-dropdown-summary"
+            onClick={(event) => {
+              event.preventDefault();
+              setIsControlsCollapsed((current) => !current);
+            }}
+          >
+            <span>Dashboard Controls</span>
+            <span className="capture-request-group-meta">{isControlsCollapsed ? "Show" : "Hide"}</span>
+          </summary>
+          <div className="capture-request-top-grid">
+            <div className="field capture-request-compact-input">
+              <label htmlFor="single-capture-cm-search">Search MAC/IP</label>
+              <input
+                id="single-capture-cm-search"
+                value={searchText}
+                onChange={(event) => setSearchText(event.target.value)}
+                placeholder="Filter by MAC or IP"
+              />
+            </div>
+            <div className="status-chip-row single-capture-toolbar-meta">
+              <span className="analysis-chip"><b>Total</b> {rows.length}</span>
+              <span className="analysis-chip"><b>Visible</b> {visibleRows.length}</span>
+              <span className="analysis-chip"><b>Operational</b> {rows.filter((row) => isOperational(row)).length}</span>
+              <span className="analysis-chip">
+                <b>Poll Mode</b> {lastRefreshMode} · <b>Last Refresh</b> {lastRefreshEpochMs ? new Date(lastRefreshEpochMs).toLocaleTimeString() : "n/a"}
+              </span>
+            </div>
+            <div className="status-chip-row single-capture-toolbar-controls">
               <button
                 type="button"
-                className="single-capture-poll-button"
-                disabled={isLoading}
-                onClick={() => {
-                  void refreshCableModems("light");
-                }}
+                className={filterMode === "all" ? "analysis-chip-button active" : "analysis-chip-button"}
+                onClick={() => setFilterMode("all")}
               >
-                Light Poll
+                All
               </button>
               <button
                 type="button"
-                className={heavyPollingEnabled ? "single-capture-poll-button active" : "single-capture-poll-button"}
-                disabled={isLoading}
-                onClick={() => {
-                  setHeavyPollingEnabled((current) => !current);
-                  void refreshCableModems("heavy");
-                }}
+                className={filterMode === "operational" ? "analysis-chip-button active" : "analysis-chip-button"}
+                onClick={() => setFilterMode("operational")}
               >
-                {heavyPollingEnabled ? "Heavy Polling On" : "Heavy Poll"}
+                Operational Only
               </button>
+              <div className="single-capture-poll-group" role="group" aria-label="Polling controls">
+                <button
+                  type="button"
+                  className="single-capture-poll-button"
+                  disabled={isLoading}
+                  onClick={() => {
+                    void refreshCableModems("light");
+                  }}
+                >
+                  Light Poll
+                </button>
+                <button
+                  type="button"
+                  className={heavyPollingEnabled ? "single-capture-poll-button active" : "single-capture-poll-button"}
+                  disabled={isLoading}
+                  onClick={() => {
+                    setHeavyPollingEnabled((current) => !current);
+                    void refreshCableModems("heavy");
+                  }}
+                >
+                  {heavyPollingEnabled ? "Heavy Polling On" : "Heavy Poll"}
+                </button>
+              </div>
             </div>
           </div>
-          <div className="status-chip-row single-capture-toolbar-meta">
-            <span className="analysis-chip"><b>Total</b> {rows.length}</span>
-            <span className="analysis-chip"><b>Visible</b> {visibleRows.length}</span>
-            <span className="analysis-chip"><b>Operational</b> {rows.filter((row) => isOperational(row)).length}</span>
-            <span className="analysis-chip">
-              <b>Poll Mode</b> {lastRefreshMode} · <b>Last Refresh</b> {lastRefreshEpochMs ? new Date(lastRefreshEpochMs).toLocaleTimeString() : "n/a"}
-            </span>
-          </div>
-        </div>
+        </details>
         {isLoading ? <p className="panel-copy">Loading cable modems...</p> : null}
         {errorMessage ? <p className="advanced-error-text">{errorMessage}</p> : null}
       </article>

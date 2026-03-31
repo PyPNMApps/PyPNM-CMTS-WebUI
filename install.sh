@@ -457,52 +457,57 @@ ensure_docs_preview_browser() {
 }
 
 ensure_cli_shim() {
-  local user_bin_dir="$HOME/.local/bin"
-  local primary_shim_path="${user_bin_dir}/${WEBUI_CLI_NAME}"
-  local compat_shim_path="${user_bin_dir}/pypnm-cmts-webui"
+  local shim_dirs=("$HOME/.local/bin" "$HOME/bin")
+  local shell_profiles=("$HOME/.bashrc" "$HOME/.profile" "$HOME/.bash_profile" "$HOME/.zshrc" "$HOME/.zprofile")
+  local cmts_cli_script="${ROOT_DIR}/tools/cli/pypnm-cmts-webui.js"
+  local path_export_local='export PATH="$HOME/.local/bin:$PATH"'
+  local path_export_home='export PATH="$HOME/bin:$PATH"'
+  local primary_shim_name="${WEBUI_CLI_NAME}"
+  local compat_shim_name="pypnm-cmts-webui"
   if [ "${WEBUI_CLI_NAME}" = "pypnm-cmts-webui" ]; then
-    compat_shim_path="${user_bin_dir}/pypnm-webui"
-  fi
-  local path_export='export PATH="$HOME/.local/bin:$PATH"'
-  local shell_profiles=("$HOME/.bashrc" "$HOME/.profile")
-
-  mkdir -p "$user_bin_dir"
-  cat >"${primary_shim_path}" <<EOF
-#!/usr/bin/env bash
-exec "${ROOT_DIR}/tools/cli/pypnm-cmts-webui.js" "\$@"
-EOF
-  chmod +x "${primary_shim_path}"
-  log "Installed CLI shim at ${primary_shim_path}"
-
-  cat >"${compat_shim_path}" <<EOF
-#!/usr/bin/env bash
-exec "${ROOT_DIR}/tools/cli/pypnm-cmts-webui.js" "\$@"
-EOF
-  chmod +x "${compat_shim_path}"
-  log "Installed compatibility CLI shim at ${compat_shim_path}"
-
-  if [ "${primary_shim_path}" = "${compat_shim_path}" ]; then
-    rm -f "${compat_shim_path}"
+    compat_shim_name="pypnm-webui"
   fi
 
-  case ":$PATH:" in
-    *":${user_bin_dir}:"*)
-      ;;
-    *)
-      local profile
-      for profile in "${shell_profiles[@]}"; do
-        if [ ! -f "$profile" ]; then
-          touch "$profile"
-        fi
-        if ! grep -Fqx "$path_export" "$profile"; then
-          printf '\n%s\n' "$path_export" >>"$profile"
-          log "Added ${user_bin_dir} to PATH in ${profile}"
-        fi
-      done
-      log "${user_bin_dir} is not on PATH in this shell"
-      log "Run: source ~/.bashrc"
-      ;;
-  esac
+  local shim_dir
+  for shim_dir in "${shim_dirs[@]}"; do
+    mkdir -p "${shim_dir}"
+    local primary_shim_path="${shim_dir}/${primary_shim_name}"
+    local compat_shim_path="${shim_dir}/${compat_shim_name}"
+
+    cat >"${primary_shim_path}" <<EOF
+#!/usr/bin/env bash
+exec "${cmts_cli_script}" "\$@"
+EOF
+    chmod +x "${primary_shim_path}"
+    log "Installed CLI shim at ${primary_shim_path}"
+
+    cat >"${compat_shim_path}" <<EOF
+#!/usr/bin/env bash
+exec "${cmts_cli_script}" "\$@"
+EOF
+    chmod +x "${compat_shim_path}"
+    log "Installed compatibility CLI shim at ${compat_shim_path}"
+  done
+
+  local profile
+  for profile in "${shell_profiles[@]}"; do
+    if [ ! -f "${profile}" ]; then
+      touch "${profile}"
+    fi
+    if ! grep -Fqx "${path_export_local}" "${profile}"; then
+      printf '\n%s\n' "${path_export_local}" >>"${profile}"
+      log "Added ~/.local/bin PATH export to ${profile}"
+    fi
+    if ! grep -Fqx "${path_export_home}" "${profile}"; then
+      printf '\n%s\n' "${path_export_home}" >>"${profile}"
+      log "Added ~/bin PATH export to ${profile}"
+    fi
+  done
+
+  if ! command -v "${WEBUI_CLI_NAME}" >/dev/null 2>&1; then
+    log "~/.local/bin and ~/bin were configured, but PATH is not updated in this shell yet."
+    log "Run: source ~/.bashrc (or open a new terminal), then run: ${WEBUI_CLI_NAME} --help"
+  fi
 }
 
 merge_runtime_config_override() {

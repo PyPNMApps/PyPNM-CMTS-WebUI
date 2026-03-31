@@ -117,6 +117,7 @@ export function AppRoutes() {
               <Route path="/operations/cmts-sg-ds-histogram" element={<CmtsSgHistogramWorkflowPage />} />
               <Route path="/operations/cmts-sg-ds-ofdm-histogram" element={<CmtsSgHistogramWorkflowPage />} />
               <Route path="/operations/cmts-spectrum-friendly" element={<CmtsSpectrumFriendlyWorkflowPage />} />
+              <Route path="/operations/:operationId" element={<EndpointExplorerPage />} />
             </>
           ) : (
             <>

@@ -2333,6 +2333,10 @@ pre {
 }
 
 .single-capture-toolbar-meta {
+  justify-content: flex-end;
+}
+
+.single-capture-toolbar-controls {
   grid-column: 1 / -1;
   margin-top: 2px;
 }
