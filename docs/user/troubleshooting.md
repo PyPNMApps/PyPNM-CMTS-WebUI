@@ -23,6 +23,11 @@ Then verify backend health directly:
 curl -s http://<cmts-api-host>:<port>/health
 ```
 
+You can also use `Health -> Log` to download backend logs:
+
+- PCW mode (`--with-pypnm-cmts-webui`): `GET /cm/pypnm/system/log/download`
+- PW mode (`--with-pypnm-webui`): `GET /pypnm/system/log/download`
+
 ## Serving Group list is empty
 
 The form reads SG IDs from:

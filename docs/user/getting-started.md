@@ -58,6 +58,7 @@ Useful menu shortcut:
 ## 4. First operator check
 
 1. open `Health` and confirm the selected CMTS API is reachable
+   use per-agent `Log` to download backend logs and `Reload` to restart the web service
 2. open `Serving Group -> RxMER`
 3. pick serving groups and confirm cable modems populate
 4. verify request JSON using the `Request JSON` popup in the Capture Request header

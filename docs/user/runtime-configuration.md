@@ -88,3 +88,10 @@ If runtime YAML is unavailable, the app falls back to:
 - `VITE_REQUEST_TIMEOUT_MS`
 
 in `.env`.
+
+## Health page actions
+
+Per agent, the Health table provides:
+
+- `Log`: opens backend log download for the selected instance base URL
+- `Reload`: sends web-service reload request to the selected instance
