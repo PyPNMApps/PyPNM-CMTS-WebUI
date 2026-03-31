@@ -5,7 +5,7 @@ vi.mock("../src/services/http", () => ({
 }));
 
 import * as httpModule from "../src/services/http";
-import { classifyHealthError, reloadWebService } from "../src/services/healthService";
+import { classifyHealthError, getHealthLogDownloadUrl, reloadWebService } from "../src/services/healthService";
 
 describe("classifyHealthError", () => {
   afterEach(() => {
@@ -57,5 +57,19 @@ describe("classifyHealthError", () => {
       timeout: 15000,
       url: "/pypnm/system/webService/reload",
     });
+  });
+
+  it("builds CMTS health log download URL when PCW profile is active", () => {
+    vi.stubEnv("VITE_PRODUCT_PROFILE", "pypnm-cmts-webui");
+    expect(getHealthLogDownloadUrl("http://127.0.0.1:8080")).toBe(
+      "http://127.0.0.1:8080/cm/pypnm/system/log/download",
+    );
+  });
+
+  it("builds native PW health log download URL when PW profile is active", () => {
+    vi.stubEnv("VITE_PRODUCT_PROFILE", "pypnm-webui");
+    expect(getHealthLogDownloadUrl("http://127.0.0.1:8080")).toBe(
+      "http://127.0.0.1:8080/pypnm/system/log/download",
+    );
   });
 });

@@ -1336,6 +1336,10 @@ pre {
   text-align: center;
 }
 
+.health-log-link {
+  min-width: 64px;
+}
+
 .health-popup {
   position: relative;
 }

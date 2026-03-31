@@ -11,12 +11,14 @@ import { HealthPage } from "@/pcw/pages/HealthPage";
 
 const healthServiceMocks = vi.hoisted(() => ({
   getHealth: vi.fn(),
+  getHealthLogDownloadUrl: vi.fn((baseUrl: string) => `${baseUrl.replace(/\/$/, "")}/cm/pypnm/system/log/download`),
   reloadWebService: vi.fn(),
 }));
 
 vi.mock("@/services/healthService", () => ({
   classifyHealthError: vi.fn((error: Error) => ({ status: "error", message: error.message })),
   getHealth: healthServiceMocks.getHealth,
+  getHealthLogDownloadUrl: healthServiceMocks.getHealthLogDownloadUrl,
   reloadWebService: healthServiceMocks.reloadWebService,
 }));
 
@@ -151,6 +153,7 @@ describe("HealthPage", () => {
 
   beforeEach(() => {
     healthServiceMocks.getHealth.mockReset();
+    healthServiceMocks.getHealthLogDownloadUrl.mockClear();
     healthServiceMocks.reloadWebService.mockReset();
     healthServiceMocks.getHealth.mockResolvedValue({
       status: "ok",
@@ -199,6 +202,7 @@ describe("HealthPage", () => {
     });
 
     expect(screen.getByRole("button", { name: "Reload All Web Services" })).toBeTruthy();
+    expect(screen.getAllByRole("link", { name: "Log" })).toHaveLength(2);
     expect(screen.getAllByRole("button", { name: "Reload" })).toHaveLength(2);
   });
 

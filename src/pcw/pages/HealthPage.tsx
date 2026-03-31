@@ -3,7 +3,7 @@ import { useMutation, useQueries } from "@tanstack/react-query";
 import { useInstanceConfig } from "@/app/useInstanceConfig";
 import { PageHeader } from "@/components/common/PageHeader";
 import { Panel } from "@/components/common/Panel";
-import { classifyHealthError, getHealth, reloadWebService } from "@/services/healthService";
+import { classifyHealthError, getHealth, getHealthLogDownloadUrl, reloadWebService } from "@/services/healthService";
 
 const MAX_HEALTH_TIMEOUT_MS = 4000;
 
@@ -91,6 +91,7 @@ export function HealthPage() {
       isSelected: instance.id == selectedInstance?.id,
       status: query.isPending ? "loading" : errorState?.status ?? String(data?.status ?? "unknown"),
       message: errorState?.message ?? data?.message ?? "n/a",
+      logDownloadUrl: getHealthLogDownloadUrl(instance.baseUrl),
       service: data?.service?.name ?? "n/a",
       version: data?.service?.version ?? "n/a",
       uptime: formatUptime(data?.uptime?.uptime),
@@ -152,6 +153,7 @@ export function HealthPage() {
             <thead>
               <tr>
                 <th title="Configured PyPNM instance label and base URL.">Agent</th>
+                <th title="Download the backend service log archive for this agent.">Log</th>
                 <th title="Send a POST reload request to this agent's web service.">Reload</th>
                 <th title="Latest health status returned by the backend.">Status</th>
                 <th title="Health message or transport error summary.">Message</th>
@@ -175,6 +177,16 @@ export function HealthPage() {
                   <td>
                     <div>{row.instance.label}</div>
                     <div className="health-agent-meta mono">{row.instance.baseUrl}</div>
+                  </td>
+                  <td>
+                    <a
+                      className="button-link health-log-link"
+                      href={row.logDownloadUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      Log
+                    </a>
                   </td>
                   <td>
                     <button

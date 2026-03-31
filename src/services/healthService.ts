@@ -1,5 +1,6 @@
 import { requestWithBaseUrl } from "@/services/http";
 import type { HealthResponse } from "@/types/api";
+import { toPwApiPath } from "@/lib/pwCompat";
 import {
   PRODUCT_PROFILE_PCW,
   resolveProductProfileWithFallback,
@@ -51,4 +52,12 @@ export async function reloadWebService(
     timeout: timeoutMs,
     url: reloadPath,
   });
+}
+
+export function getHealthLogDownloadUrl(
+  baseUrl: string,
+  logPath = toPwApiPath("/pypnm/system/log/download"),
+): string {
+  const normalizedBaseUrl = baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`;
+  return new URL(logPath, normalizedBaseUrl).toString();
 }

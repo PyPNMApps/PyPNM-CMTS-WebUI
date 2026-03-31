@@ -33,6 +33,7 @@ export function renderEndpointExplorerRequestForm(params: EndpointExplorerReques
         submitLabel={`Run ${params.selectedOperationLabel}`}
         errorMessage={params.errorMessage}
         onConnectivityInputsChange={params.onConnectivityInputsChange}
+        requestDefaultsOverride={params.requestDefaultsOverride}
         onSubmit={params.onSubmit}
       />
     );
@@ -59,6 +60,7 @@ export function renderEndpointExplorerRequestForm(params: EndpointExplorerReques
         submitLabel={`Run ${params.selectedOperationLabel}`}
         errorMessage={params.errorMessage}
         onConnectivityInputsChange={params.onConnectivityInputsChange}
+        requestDefaultsOverride={params.requestDefaultsOverride}
         onSubmit={params.onSubmit}
       />
     );
@@ -88,6 +90,7 @@ export function renderEndpointExplorerRequestForm(params: EndpointExplorerReques
         errorMessage={params.errorMessage}
         extraActions={params.requestJsonAction}
         onConnectivityInputsChange={params.onConnectivityInputsChange}
+        requestDefaultsOverride={params.requestDefaultsOverride}
         onSubmit={params.onSubmit}
       />
     );
@@ -102,6 +105,7 @@ export function renderEndpointExplorerRequestForm(params: EndpointExplorerReques
         errorMessage={params.errorMessage}
         extraActions={params.requestJsonAction}
         onConnectivityInputsChange={params.onConnectivityInputsChange}
+        requestDefaultsOverride={params.requestDefaultsOverride}
         onSubmit={params.onSubmit}
       />
     );
@@ -118,6 +122,7 @@ export function renderEndpointExplorerRequestForm(params: EndpointExplorerReques
         errorMessage={params.errorMessage}
         extraActions={params.requestJsonAction}
         onConnectivityInputsChange={params.onConnectivityInputsChange}
+        requestDefaultsOverride={params.requestDefaultsOverride}
         onSubmit={params.onSubmit}
       />
     );
