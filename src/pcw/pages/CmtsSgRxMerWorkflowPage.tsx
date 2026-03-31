@@ -274,7 +274,7 @@ export function CmtsSgRxMerWorkflowPage() {
       </Panel>
       <Panel
         title={(
-          <div className="capture-status-title-layout">
+          <div className="capture-results-title-layout">
             <FoldablePanelTitle
               id="cmts-sg-rxmer-capture-results-body"
               label="Capture Results"

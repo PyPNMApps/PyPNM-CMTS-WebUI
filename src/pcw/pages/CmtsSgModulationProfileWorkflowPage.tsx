@@ -272,7 +272,7 @@ export function CmtsSgModulationProfileWorkflowPage() {
       </Panel>
       <Panel
         title={(
-          <div className="capture-status-title-layout">
+          <div className="capture-results-title-layout">
             <FoldablePanelTitle
               id="cmts-sg-modulation-profile-capture-results-body"
               label="Capture Results"

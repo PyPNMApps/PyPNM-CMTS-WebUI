@@ -273,7 +273,7 @@ export function CmtsSgHistogramWorkflowPage() {
       </Panel>
       <Panel
         title={(
-          <div className="capture-status-title-layout">
+          <div className="capture-results-title-layout">
             <FoldablePanelTitle
               id="cmts-sg-histogram-results-body"
               label="Capture Results"

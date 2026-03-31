@@ -273,7 +273,7 @@ export function CmtsSgFecSummaryWorkflowPage() {
       </Panel>
       <Panel
         title={(
-          <div className="capture-status-title-layout">
+          <div className="capture-results-title-layout">
             <FoldablePanelTitle
               id="cmts-sg-fec-summary-capture-results-body"
               label="Capture Results"

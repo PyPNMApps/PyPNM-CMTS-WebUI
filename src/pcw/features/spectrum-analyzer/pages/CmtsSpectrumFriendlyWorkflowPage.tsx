@@ -268,7 +268,7 @@ export function CmtsSpectrumFriendlyWorkflowPage() {
       </Panel>
       <Panel
         title={(
-          <div className="capture-status-title-layout">
+          <div className="capture-results-title-layout">
             <FoldablePanelTitle
               id="cmts-spectrum-friendly-results-body"
               label="Capture Results"

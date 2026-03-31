@@ -273,7 +273,7 @@ export function CmtsSgConstellationDisplayWorkflowPage() {
       </Panel>
       <Panel
         title={(
-          <div className="capture-status-title-layout">
+          <div className="capture-results-title-layout">
             <FoldablePanelTitle
               id="cmts-sg-constellation-display-capture-results-body"
               label="Capture Results"

@@ -154,7 +154,13 @@ export function normalizeServingGroupChannelEstCoeffResultsPayload(input: unknow
           ? {
             label: `${macAddress} Group Delay`,
             color: "#f1c75b",
-            points: groupDelay.map((y, index) => ({ x: index, y })),
+            points: groupDelay.map((y, index) => {
+              const frequencyHz = frequency[index];
+              return {
+                x: Number.isFinite(frequencyHz) ? frequencyHz / 1_000_000 : index,
+                y,
+              };
+            }),
           }
           : undefined;
 

@@ -271,7 +271,7 @@ export function CmtsSgChannelEstCoeffWorkflowPage() {
       </Panel>
       <Panel
         title={(
-          <div className="capture-status-title-layout">
+          <div className="capture-results-title-layout">
             <FoldablePanelTitle
               id="cmts-sg-channel-est-coeff-capture-results-body"
               label="Capture Results"

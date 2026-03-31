@@ -930,6 +930,14 @@ button[aria-disabled="true"]:focus-visible,
   margin-left: auto;
 }
 
+.capture-results-title-layout {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+}
+
 .request-panel-actions {
   display: flex;
   justify-content: flex-end;
