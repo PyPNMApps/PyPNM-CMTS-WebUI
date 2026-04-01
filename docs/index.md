@@ -15,6 +15,7 @@ This docs set is organized for the current MVP scope of `PyPNM-CMTS-WebUI`.
 2. [Install And Bootstrap](user/install-and-bootstrap.md)
 3. [Runtime Configuration](user/runtime-configuration.md)
 4. [Serving Group RxMER](user/serving-group-rxmer.md)
+5. [Form Gallery](user/forms/gallery.md)
 
 ## Reference
 

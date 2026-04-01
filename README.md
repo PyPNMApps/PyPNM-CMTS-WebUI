@@ -133,7 +133,14 @@ pypnm-cmts-webui kill-pypnm-webui --help
 - [Install And Bootstrap](docs/user/install-and-bootstrap.md)
 - [Runtime Configuration](docs/user/runtime-configuration.md)
 - [Serving Group RxMER](docs/user/serving-group-rxmer.md)
+- [Form Gallery](docs/user/forms/gallery.md)
 - [Troubleshooting](docs/user/troubleshooting.md)
+
+## Form previews
+
+| RxMER Capture Request | Channel Est Coeff Capture Request |
+| --- | --- |
+| [![Serving Group RxMER form](docs/images/forms/serving-group-rxmer-form.png)](docs/user/forms/gallery.md) | [![Serving Group Channel Est Coeff form](docs/images/forms/serving-group-channel-est-coeff-form.png)](docs/user/forms/gallery.md) |
 
 ## Development docs
 

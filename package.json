@@ -15,6 +15,7 @@
     "build": "tsc -b && vite build",
     "docs:capture-live-endpoint-examples": "node ./tools/docs/capture-live-endpoint-examples.mjs",
     "docs:capture-ui-previews": "node ./tools/docs/capture-ui-previews.mjs",
+    "docs:capture-form-gallery": "node ./tools/docs/capture-form-gallery.mjs",
     "docs:build": ".venv/bin/python -m mkdocs build --strict",
     "docs:serve": ".venv/bin/python -m mkdocs serve",
     "preview": "vite preview",

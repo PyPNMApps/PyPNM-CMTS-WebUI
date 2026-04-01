@@ -42,6 +42,7 @@ nav:
       - Install And Bootstrap: user/install-and-bootstrap.md
       - Runtime Configuration: user/runtime-configuration.md
       - Serving Group RxMER: user/serving-group-rxmer.md
+      - Form Gallery: user/forms/gallery.md
       - Troubleshooting: user/troubleshooting.md
   - Development:
       - Workflow: development/workflow.md
