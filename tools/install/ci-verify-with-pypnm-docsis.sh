@@ -69,6 +69,28 @@ wait_for_url() {
   fail "${label} failed to become ready at ${url}"
 }
 
+verify_kill_script_behavior() {
+  log "Verifying kill script against running ${PRODUCT_PROFILE} stack"
+  local list_output=""
+  list_output="$(./tools/maintenance/kill-pypnm-webui.sh --list || true)"
+  printf '%s\n' "${list_output}"
+  printf '%s\n' "${list_output}" | grep -Eq 'INDEX[[:space:]]+PID[[:space:]]+COMMAND|pypnm-webui|pypnm-cmts-webui|vite' \
+    || fail "Kill script did not list expected running WebUI processes."
+
+  ./tools/maintenance/kill-pypnm-webui.sh --kill-all
+
+  sleep 2
+  if curl -fsS "http://127.0.0.1:${WEBUI_PORT}" >/dev/null 2>&1; then
+    fail "WebUI still reachable after kill script --kill-all."
+  fi
+
+  if [ -n "${STACK_PID}" ] && kill -0 "${STACK_PID}" >/dev/null 2>&1; then
+    wait "${STACK_PID}" 2>/dev/null || true
+  fi
+  STACK_PID=""
+  log "Kill script verification passed"
+}
+
 verify_runtime_config() {
   log "Verifying generated runtime config"
   LOCAL_AGENT_LABEL="${LOCAL_AGENT_LABEL}" node --input-type=module <<'EOF'
@@ -168,6 +190,8 @@ main() {
   PYPNM_LIVE_BASE_URL="http://127.0.0.1:8000" \
   PYPNM_LIVE_HEALTH_PATH="/health" \
   npm run test:integration
+
+  verify_kill_script_behavior
 }
 
 main "$@"

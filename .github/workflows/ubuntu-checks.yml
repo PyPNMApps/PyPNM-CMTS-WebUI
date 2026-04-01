@@ -35,6 +35,11 @@ jobs:
           node-version: "22"
           cache: "npm"
 
+      - name: Verify Host Prerequisites
+        run: |
+          chmod +x tools/install/ci-verify-host-prereqs.sh
+          ./tools/install/ci-verify-host-prereqs.sh
+
       - name: Install Dependencies
         run: npm ci
 

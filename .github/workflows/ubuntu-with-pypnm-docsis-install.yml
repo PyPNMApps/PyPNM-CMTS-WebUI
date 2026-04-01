@@ -86,6 +86,7 @@ jobs:
           chmod +x tools/install/ci-verify-with-pypnm-docsis.sh
           chmod +x tools/install/with-pypnm-docsis.sh
           chmod +x tools/install/start-local-stack.sh
+          chmod +x tools/maintenance/kill-pypnm-webui.sh
 
       - name: Verify Combined Install
         working-directory: PyPNM-CMTS-WebUI
