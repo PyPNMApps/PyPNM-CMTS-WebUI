@@ -131,10 +131,18 @@ function SpectrumScqamChannelDetail({
         )}
       />
       <details className="capture-request-dropdown spectrum-math-details">
-        <summary className="capture-request-dropdown-summary">Math & Metrics</summary>
+        <summary className="capture-request-dropdown-summary">Channel Statistics</summary>
         <SpectrumSelectionSummary selection={selection} integratedPower={integratedPower} />
         <div className="table-scroll">
-          <table className="channel-metrics-table">
+          <table className="channel-metrics-table scqam-summary-table">
+            <colgroup>
+              <col style={{ width: "18%" }} />
+              <col style={{ width: "12%" }} />
+              <col style={{ width: "14%" }} />
+              <col style={{ width: "14%" }} />
+              <col style={{ width: "18%" }} />
+              <col style={{ width: "24%" }} />
+            </colgroup>
             <thead>
               <tr>
                 <th>Receive Power</th>

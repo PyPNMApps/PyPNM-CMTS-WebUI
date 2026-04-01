@@ -143,7 +143,7 @@ function SpectrumOfdmChannelDetail({
         )}
       />
       <details className="capture-request-dropdown spectrum-math-details">
-        <summary className="capture-request-dropdown-summary">Math & Metrics</summary>
+        <summary className="capture-request-dropdown-summary">Channel Statistics</summary>
         <SpectrumSelectionSummary selection={selection} integratedPower={integratedPower} />
         <table className="channel-metrics-table">
           <tbody>

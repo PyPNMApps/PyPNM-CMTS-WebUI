@@ -2382,6 +2382,16 @@ pre {
   padding: 8px 6px;
 }
 
+.scqam-summary-table {
+  table-layout: fixed;
+}
+
+.scqam-summary-table th,
+.scqam-summary-table td {
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
 .profile-stats-stack {
   display: grid;
   gap: 14px;
