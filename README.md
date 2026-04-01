@@ -54,18 +54,28 @@ cd PyPNM-CMTS-WebUI
 
 ## Install
 
-Select product profile on install:
+Recommended (PCW mode):
 
 ```bash
-./install.sh --with-pypnm-webui
 ./install.sh --with-pypnm-cmts-webui
 ```
 
-Install same-machine backend add-on (must match selected profile):
+Recommended with same-machine backend add-on:
+
+```bash
+./install.sh --with-pypnm-cmts-webui --with-pypnm-docsis-cmts
+```
+
+PW compatibility profile (optional):
+
+```bash
+./install.sh --with-pypnm-webui
+```
+
+PW compatibility with same-machine backend add-on:
 
 ```bash
 ./install.sh --with-pypnm-webui --with-pypnm-docsis
-./install.sh --with-pypnm-cmts-webui --with-pypnm-docsis-cmts
 ```
 
 Install Python development tooling (docs/release helpers) into `.venv`:
@@ -86,22 +96,22 @@ Reset local install artifacts for a clean reinstall:
 
 ## Run locally
 
-If installed with `--with-pypnm-webui`:
-
-```bash
-pypnm-webui serve
-```
-
-If installed with `--with-pypnm-cmts-webui`:
+Recommended (PCW mode):
 
 ```bash
 pypnm-cmts-webui serve
 ```
 
-Start same-machine backend (PyPNM) + frontend from the normal serve flow:
+Start same-machine backend + frontend from PCW mode:
 
 ```bash
 pypnm-cmts-webui serve --start-local-pypnm-docsis
+```
+
+PW compatibility CLI (only when installed with `--with-pypnm-webui`):
+
+```bash
+pypnm-webui serve
 ```
 
 Default local URL:
