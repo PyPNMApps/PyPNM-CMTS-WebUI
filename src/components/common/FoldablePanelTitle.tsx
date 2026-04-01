@@ -15,6 +15,7 @@ export function FoldablePanelTitle({ id, label, isCollapsed, onToggle }: Foldabl
       onClick={onToggle}
     >
       <span className="panel-title-heading">{label}</span>
+      <span className="panel-title-state">{isCollapsed ? "Show" : "Hide"}</span>
     </button>
   );
 }

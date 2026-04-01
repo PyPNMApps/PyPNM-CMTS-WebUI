@@ -222,7 +222,6 @@ export function CmtsSingleCaptureDashboardPage() {
             }}
           >
             <span>Dashboard Controls</span>
-            <span className="capture-request-group-meta">{isControlsCollapsed ? "Show" : "Hide"}</span>
           </summary>
           <div className="capture-request-top-grid">
             <div className="field capture-request-compact-input">

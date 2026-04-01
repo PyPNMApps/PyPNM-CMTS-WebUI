@@ -1,12 +1,14 @@
 import { useMemo, useState } from "react";
 
 import { DeviceInfoTable } from "@/components/common/DeviceInfoTable";
+import { FoldablePanelTitle } from "@/components/common/FoldablePanelTitle";
 import { Panel } from "@/components/common/Panel";
 import { SeriesVisibilityChips } from "@/components/common/SeriesVisibilityChips";
 import { SpectrumSelectionActions } from "@/components/common/SpectrumSelectionActions";
 import { SpectrumSelectionSummary } from "@/components/common/SpectrumSelectionSummary";
 import { LineAnalysisChart } from "@/pw/features/analysis/components/LineAnalysisChart";
 import type { ChartSeries } from "@/pw/features/analysis/types";
+import { SpectrumChannelPreviewTable } from "@/pw/features/spectrum-analyzer/components/SpectrumChannelPreviewTable";
 import { buildExportBaseName } from "@/lib/export/naming";
 import { integrateVisibleSpectrumPower, type SpectrumSelectionRange } from "@/lib/spectrumPower";
 import { toDeviceInfo } from "@/lib/pypnm/deviceInfo";
@@ -25,6 +27,14 @@ function formatRangeMhz(startHz: number | undefined, endHz: number | undefined):
 
 function formatNumber(value: number | undefined): string {
   return typeof value === "number" && Number.isFinite(value) ? value.toLocaleString() : "n/a";
+}
+
+function formatDbmv(value: number | undefined): string {
+  return typeof value === "number" && Number.isFinite(value) ? `${value.toFixed(2)} dBmV` : "n/a";
+}
+
+function formatDb(value: number | undefined): string {
+  return typeof value === "number" && Number.isFinite(value) ? `${value.toFixed(2)} dB` : "n/a";
 }
 
 function mean(values: number[]): number | undefined {
@@ -62,7 +72,7 @@ function channelSeries(mode: SpectrumMode, analysis: SingleSpectrumScqamAnalysis
   return series;
 }
 
-function SpectrumScqamChannelCard({
+function SpectrumScqamChannelDetail({
   channelId,
   analysis,
   channelStats,
@@ -81,16 +91,18 @@ function SpectrumScqamChannelCard({
     () => integrateVisibleSpectrumPower(series, selection, analysis.signal_analysis?.channel_power_dbmv ?? null),
     [series, selection, analysis.signal_analysis?.channel_power_dbmv],
   );
+  const receivePowerDbmv = analysis.signal_analysis?.channel_power_dbmv ?? channelStats?.docsIfDownChannelPower;
+  const rxMerDb = channelStats?.docsIf3SignalQualityExtRxMER;
 
   return (
-    <Panel title={`Channel ${channelId}`}>
+    <div className="spectrum-channel-detail-card">
       <div className="status-chip-row">
         <span className="analysis-chip"><b>Freq</b> {formatMhz(channelStats?.docsIfDownChannelFrequency)}</span>
         <span className="analysis-chip"><b>Width</b> {formatMhz(channelStats?.docsIfDownChannelWidth)}</span>
-        <span className="analysis-chip"><b>Power</b> {typeof channelStats?.docsIfDownChannelPower === "number" ? `${channelStats.docsIfDownChannelPower.toFixed(1)} dBmV` : "n/a"}</span>
-        <span className="analysis-chip"><b>RxMER</b> {typeof channelStats?.docsIf3SignalQualityExtRxMER === "number" ? `${channelStats.docsIf3SignalQualityExtRxMER.toFixed(1)} dB` : "n/a"}</span>
+        <span className="analysis-chip"><b>Receive Power</b> {formatDbmv(receivePowerDbmv)}</span>
+        <span className="analysis-chip"><b>RxMER</b> {formatDb(rxMerDb)}</span>
       </div>
-      <div className="status-chip-row">
+      <div className="status-chip-row spectrum-channel-detail-actions">
         <button type="button" className={`analysis-chip-button${mode === "actual" ? " active" : ""}`} onClick={() => setMode("actual")}>Actual</button>
         <button type="button" className={`analysis-chip-button${mode === "avg" ? " active" : ""}`} onClick={() => setMode("avg")}>Avg</button>
         <button type="button" className={`analysis-chip-button${mode === "both" ? " active" : ""}`} onClick={() => setMode("both")}>Both</button>
@@ -118,38 +130,69 @@ function SpectrumScqamChannelCard({
           `single-spectrum-scqam-channel-${channelId}`,
         )}
       />
-      <SpectrumSelectionSummary selection={selection} integratedPower={integratedPower} />
-      <table className="channel-metrics-table">
-        <tbody>
-          <tr><th>Modulation</th><td className="mono">{channelStats?.docsIfDownChannelModulation ?? "n/a"}</td></tr>
-          <tr><th>Interleave</th><td className="mono">{channelStats?.docsIfDownChannelInterleave ?? "n/a"}</td></tr>
-          <tr><th>Microreflections</th><td className="mono">{formatNumber(channelStats?.docsIfSigQMicroreflections)}</td></tr>
-          <tr><th>Min / Max</th><td className="mono">{findMinMax(magnitudes)}</td></tr>
-        </tbody>
-      </table>
-      <div className="table-scroll">
+      <details className="capture-request-dropdown spectrum-math-details">
+        <summary className="capture-request-dropdown-summary">Math & Metrics</summary>
+        <SpectrumSelectionSummary selection={selection} integratedPower={integratedPower} />
         <table className="channel-metrics-table">
-          <thead>
-            <tr>
-              <th>Capture</th>
-              <th>Freq Range</th>
-              <th>Center</th>
-              <th>Avg Power</th>
-              <th>Min / Max</th>
-            </tr>
-          </thead>
           <tbody>
-            <tr>
-              <td className="mono">Capture 1</td>
-              <td className="mono">{formatRangeMhz(analysis.capture_parameters?.first_segment_center_freq, analysis.capture_parameters?.last_segment_center_freq)}</td>
-              <td className="mono">{formatMhz(((analysis.capture_parameters?.first_segment_center_freq ?? 0) + (analysis.capture_parameters?.last_segment_center_freq ?? 0)) / 2)}</td>
-              <td className="mono">{typeof averagePower === "number" ? `${averagePower.toFixed(2)} dB` : "n/a"}</td>
-              <td className="mono">{findMinMax(magnitudes)}</td>
-            </tr>
+            <tr><th>Receive Power</th><td className="mono">{formatDbmv(receivePowerDbmv)}</td></tr>
+            <tr><th>RxMER</th><td className="mono">{formatDb(rxMerDb)}</td></tr>
+            <tr><th>Microreflections</th><td className="mono">{formatNumber(channelStats?.docsIfSigQMicroreflections)}</td></tr>
+            <tr><th>Modulation</th><td className="mono">{channelStats?.docsIfDownChannelModulation ?? "n/a"}</td></tr>
+            <tr><th>Interleave</th><td className="mono">{channelStats?.docsIfDownChannelInterleave ?? "n/a"}</td></tr>
+            <tr><th>Min / Max</th><td className="mono">{findMinMax(magnitudes)}</td></tr>
           </tbody>
         </table>
-      </div>
-    </Panel>
+        <div className="table-scroll">
+          <table className="channel-metrics-table">
+            <thead>
+              <tr>
+                <th>FEC Group</th>
+                <th>Unerrored</th>
+                <th>Corrected</th>
+                <th>Uncorrectable</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Primary FEC</td>
+                <td className="mono">{formatNumber(channelStats?.docsIfSigQUnerroreds)}</td>
+                <td className="mono">{formatNumber(channelStats?.docsIfSigQCorrecteds)}</td>
+                <td className="mono">{formatNumber(channelStats?.docsIfSigQUncorrectables)}</td>
+              </tr>
+              <tr>
+                <td>Extended FEC</td>
+                <td className="mono">{formatNumber(channelStats?.docsIfSigQExtUnerroreds)}</td>
+                <td className="mono">{formatNumber(channelStats?.docsIfSigQExtCorrecteds)}</td>
+                <td className="mono">{formatNumber(channelStats?.docsIfSigQExtUncorrectables)}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div className="table-scroll">
+          <table className="channel-metrics-table">
+            <thead>
+              <tr>
+                <th>Capture</th>
+                <th>Freq Range</th>
+                <th>Center</th>
+                <th>Avg Power</th>
+                <th>Min / Max</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td className="mono">Capture 1</td>
+                <td className="mono">{formatRangeMhz(analysis.capture_parameters?.first_segment_center_freq, analysis.capture_parameters?.last_segment_center_freq)}</td>
+                <td className="mono">{formatMhz(((analysis.capture_parameters?.first_segment_center_freq ?? 0) + (analysis.capture_parameters?.last_segment_center_freq ?? 0)) / 2)}</td>
+                <td className="mono">{typeof averagePower === "number" ? `${averagePower.toFixed(2)} dB` : "n/a"}</td>
+                <td className="mono">{findMinMax(magnitudes)}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </details>
+    </div>
   );
 }
 
@@ -157,6 +200,7 @@ export function SingleSpectrumScqamCaptureView({ response }: { response: SingleS
   const [combinedSelection, setCombinedSelection] = useState<SpectrumSelectionRange | null>(null);
   const [combinedZoomDomain, setCombinedZoomDomain] = useState<[number, number] | null>(null);
   const [combinedVisibility, setCombinedVisibility] = useState<Record<string, boolean>>({});
+  const [isChannelWaveformPreviewCollapsed, setChannelWaveformPreviewCollapsed] = useState(false);
   const analyses = response.data?.analyses ?? [];
   const measurementStats = response.data?.measurement_stats ?? [];
   const deviceInfo = toDeviceInfo(
@@ -194,6 +238,51 @@ export function SingleSpectrumScqamCaptureView({ response }: { response: SingleS
   if (!channels.length) {
     return <p className="panel-copy">No SCQAM spectrum analyzer data available yet.</p>;
   }
+
+  const previewRows = channels
+    .map(({ analysis, channelStats, channelId }, index) => {
+      const frequencies = analysis.signal_analysis?.frequencies ?? [];
+      const magnitudes = analysis.signal_analysis?.magnitudes ?? [];
+      const previewPoints = frequencies
+        .slice(0, magnitudes.length)
+        .map((frequency, pointIndex) => ({ x: frequency / 1_000_000, y: magnitudes[pointIndex] ?? 0 }));
+      const rangeLabel = formatRangeMhz(
+        analysis.capture_parameters?.first_segment_center_freq,
+        analysis.capture_parameters?.last_segment_center_freq,
+      );
+      const captureCenterHz = ((analysis.capture_parameters?.first_segment_center_freq ?? 0) + (analysis.capture_parameters?.last_segment_center_freq ?? 0)) / 2;
+      const sortStartHz = analysis.capture_parameters?.first_segment_center_freq ?? Number.POSITIVE_INFINITY;
+      const receivePowerDbmv = analysis.signal_analysis?.channel_power_dbmv ?? channelStats?.docsIfDownChannelPower;
+      const rxMerDb = channelStats?.docsIf3SignalQualityExtRxMER;
+      return {
+        key: `${channelId}-${analysis.capture_parameters?.first_segment_center_freq ?? "na"}`,
+        previewLabel: `SCQAM channel ${channelId}`,
+        previewColor: ["#79a9ff", "#58d0a7", "#f59e0b", "#ef4444", "#a78bfa"][index % 5],
+        previewPoints,
+        sortStartHz,
+        cells: [
+          <span className="mono" key="channel-id">{channelId}</span>,
+          <span className="mono" key="freq-range">{rangeLabel}</span>,
+          <span className="mono" key="center">{formatMhz(captureCenterHz)}</span>,
+          <span className="mono" key="receive-power">{formatDbmv(receivePowerDbmv)}</span>,
+          <span className="mono" key="rxmer">{formatDb(rxMerDb)}</span>,
+          <span className="mono" key="modulation">{channelStats?.docsIfDownChannelModulation ?? "n/a"}</span>,
+        ],
+        detail: (
+          <SpectrumScqamChannelDetail
+            channelId={channelId}
+            analysis={analysis}
+            channelStats={channelStats}
+          />
+        ),
+      };
+    })
+    .sort((left, right) => left.sortStartHz - right.sortStartHz)
+    .map((entry) => {
+      const { sortStartHz, ...row } = entry;
+      void sortStartHz;
+      return row;
+    });
 
   return (
     <div className="operations-visual-stack">
@@ -234,16 +323,25 @@ export function SingleSpectrumScqamCaptureView({ response }: { response: SingleS
         />
         <SpectrumSelectionSummary selection={combinedSelection} integratedPower={combinedIntegratedPower} />
       </Panel>
-      <div className="if31-ds-ofdm-channel-grid">
-        {channels.map(({ analysis, channelStats, channelId }) => (
-          <SpectrumScqamChannelCard
-            key={`${channelId}-${analysis.capture_parameters?.first_segment_center_freq ?? "na"}`}
-            channelId={channelId}
-            analysis={analysis}
-            channelStats={channelStats}
+      <Panel
+        title={(
+          <FoldablePanelTitle
+            id="single-spectrum-scqam-channel-waveform-preview"
+            label="Channel Waveform Preview"
+            isCollapsed={isChannelWaveformPreviewCollapsed}
+            onToggle={() => setChannelWaveformPreviewCollapsed((current) => !current)}
           />
-        ))}
-      </div>
+        )}
+      >
+        <div id="single-spectrum-scqam-channel-waveform-preview">
+          {isChannelWaveformPreviewCollapsed ? null : (
+            <SpectrumChannelPreviewTable
+              columns={["Channel", "Freq Range", "Center", "Receive Power", "RxMER", "Modulation"]}
+              rows={previewRows}
+            />
+          )}
+        </div>
+      </Panel>
     </div>
   );
 }

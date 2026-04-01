@@ -793,7 +793,14 @@ button[aria-disabled="true"]:focus-visible,
   cursor: pointer;
   display: inline-flex;
   align-items: center;
+  justify-content: space-between;
   gap: 8px;
+  width: 100%;
+}
+
+.panel-title-state {
+  font-size: 12px;
+  color: var(--muted);
 }
 
 .panel-title-toggle:hover .panel-title-heading,
@@ -1220,6 +1227,21 @@ th {
 .analysis-raw-json summary {
   cursor: pointer;
   font-weight: 700;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.analysis-raw-json summary::after {
+  content: "Show";
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.analysis-raw-json[open] summary::after {
+  content: "Hide";
 }
 
 pre {
@@ -1361,6 +1383,17 @@ pre {
   background: rgba(255, 255, 255, 0.04);
   color: var(--accent);
   cursor: pointer;
+}
+
+.health-popup-trigger::after {
+  content: "Show";
+  margin-left: 8px;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.health-popup[open] .health-popup-trigger::after {
+  content: "Hide";
 }
 
 .health-popup-card {
@@ -1522,6 +1555,17 @@ pre {
   gap: 12px;
   padding: 14px 16px;
   cursor: pointer;
+}
+
+.files-type-summary::after {
+  content: "Show";
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.files-type-card[open] .files-type-summary::after {
+  content: "Hide";
 }
 
 .files-type-summary::-webkit-details-marker {
@@ -1829,6 +1873,30 @@ pre {
 .constellation-preview-column {
   min-width: 80px;
   text-align: center;
+}
+
+.spectrum-channel-detail-card {
+  display: grid;
+  gap: 10px;
+}
+
+.spectrum-channel-detail-actions {
+  margin-top: -2px;
+  margin-bottom: 2px;
+}
+
+.spectrum-math-details {
+  margin-top: 2px;
+}
+
+.spectrum-math-details .capture-request-dropdown-summary {
+  min-height: 20px;
+  padding: 0;
+}
+
+.spectrum-math-details .analysis-selection-summary-grid {
+  margin-top: 8px;
+  margin-bottom: 8px;
 }
 
 .mod-profile-controls {
@@ -2391,12 +2459,23 @@ pre {
   color: var(--ink);
 }
 
+.capture-request-dropdown-summary::after {
+  content: "Show";
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--muted);
+}
+
 .capture-request-dropdown-summary::-webkit-details-marker {
   display: none;
 }
 
 .capture-request-dropdown[open] .capture-request-dropdown-summary {
   margin-bottom: 10px;
+}
+
+.capture-request-dropdown[open] > .capture-request-dropdown-summary::after {
+  content: "Hide";
 }
 
 .capture-request-mac-textarea {

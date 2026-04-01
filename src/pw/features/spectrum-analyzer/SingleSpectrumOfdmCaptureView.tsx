@@ -1,12 +1,14 @@
 import { useMemo, useState } from "react";
 
 import { DeviceInfoTable } from "@/components/common/DeviceInfoTable";
+import { FoldablePanelTitle } from "@/components/common/FoldablePanelTitle";
 import { Panel } from "@/components/common/Panel";
 import { SeriesVisibilityChips } from "@/components/common/SeriesVisibilityChips";
 import { SpectrumSelectionActions } from "@/components/common/SpectrumSelectionActions";
 import { SpectrumSelectionSummary } from "@/components/common/SpectrumSelectionSummary";
 import { LineAnalysisChart } from "@/pw/features/analysis/components/LineAnalysisChart";
 import type { ChartSeries } from "@/pw/features/analysis/types";
+import { SpectrumChannelPreviewTable } from "@/pw/features/spectrum-analyzer/components/SpectrumChannelPreviewTable";
 import { buildExportBaseName } from "@/lib/export/naming";
 import { integrateVisibleSpectrumPower, type SpectrumSelectionRange } from "@/lib/spectrumPower";
 import { toDeviceInfo } from "@/lib/pypnm/deviceInfo";
@@ -23,6 +25,14 @@ function formatMhz(valueHz: number | undefined): string {
 function formatRangeMhz(startHz: number | undefined, endHz: number | undefined): string {
   if (typeof startHz !== "number" || typeof endHz !== "number") return "n/a";
   return `${(startHz / 1_000_000).toFixed(3)} - ${(endHz / 1_000_000).toFixed(3)} MHz`;
+}
+
+function formatDbmv(value: number | undefined): string {
+  return typeof value === "number" && Number.isFinite(value) ? `${value.toFixed(2)} dBmV` : "n/a";
+}
+
+function formatDb(value: number | undefined): string {
+  return typeof value === "number" && Number.isFinite(value) ? `${value.toFixed(2)} dB` : "n/a";
 }
 
 function channelSeries(mode: SpectrumMode, analysis: SpectrumOfdmAnalysis): ChartSeries[] {
@@ -71,7 +81,7 @@ function asChannelStats(entry: If31DsOfdmChannelStatsEntryData | undefined) {
   };
 }
 
-function SpectrumOfdmChannelCard({
+function SpectrumOfdmChannelDetail({
   channelId,
   analysis,
   channelStats,
@@ -91,15 +101,20 @@ function SpectrumOfdmChannelCard({
     [series, selection, analysis.signal_analysis?.channel_power_dbmv],
   );
   const stats = asChannelStats(channelStats);
+  const receivePowerDbmv = analysis.signal_analysis?.channel_power_dbmv;
+  const rxMerDb = (channelStats as unknown as Record<string, unknown> | undefined)?.docsIf3SignalQualityExtRxMER;
+  const rxMerNumber = typeof rxMerDb === "number" ? rxMerDb : undefined;
 
   return (
-    <Panel title={`Channel ${channelId}`}>
+    <div className="spectrum-channel-detail-card">
       <div className="status-chip-row">
         <span className="analysis-chip"><b>Range</b> {formatRangeMhz(analysis.capture_parameters?.first_segment_center_freq, analysis.capture_parameters?.last_segment_center_freq)}</span>
         <span className="analysis-chip"><b>Center</b> {formatMhz(((analysis.capture_parameters?.first_segment_center_freq ?? 0) + (analysis.capture_parameters?.last_segment_center_freq ?? 0)) / 2)}</span>
+        <span className="analysis-chip"><b>Receive Power</b> {formatDbmv(receivePowerDbmv)}</span>
+        <span className="analysis-chip"><b>RxMER</b> {formatDb(rxMerNumber)}</span>
         <span className="analysis-chip"><b>Avg Power</b> {typeof averagePower === "number" ? `${averagePower.toFixed(2)} dB` : "n/a"}</span>
       </div>
-      <div className="status-chip-row">
+      <div className="status-chip-row spectrum-channel-detail-actions">
         <button type="button" className={`analysis-chip-button${mode === "actual" ? " active" : ""}`} onClick={() => setMode("actual")}>Actual</button>
         <button type="button" className={`analysis-chip-button${mode === "avg" ? " active" : ""}`} onClick={() => setMode("avg")}>Moving Avg</button>
         <button type="button" className={`analysis-chip-button${mode === "both" ? " active" : ""}`} onClick={() => setMode("both")}>Both</button>
@@ -127,22 +142,25 @@ function SpectrumOfdmChannelCard({
           `single-spectrum-ofdm-channel-${channelId}`,
         )}
       />
-      <SpectrumSelectionSummary selection={selection} integratedPower={integratedPower} />
-      <table className="channel-metrics-table">
-        <tbody>
-          <tr><th>Indicator</th><td className="mono">{stats.indicator}</td></tr>
-          <tr><th>Zero Frequency</th><td className="mono">{stats.zeroFrequency}</td></tr>
-          <tr><th>PLC Frequency</th><td className="mono">{stats.plcFrequency}</td></tr>
-          <tr><th>Subcarrier Spacing</th><td className="mono">{stats.subcarrierSpacing}</td></tr>
-          <tr><th>Num Active Subcarriers</th><td className="mono">{stats.activeSubcarriers}</td></tr>
-          <tr><th>Cyclic Prefix</th><td className="mono">{stats.cyclicPrefix}</td></tr>
-          <tr><th>Roll-Off Period</th><td className="mono">{stats.rollOff}</td></tr>
-          <tr><th>Pilots</th><td className="mono">{stats.pilots}</td></tr>
-          <tr><th>Time Interleaver Depth</th><td className="mono">{stats.interleaverDepth}</td></tr>
-          <tr><th>Min / Max</th><td className="mono">{findMinMax(magnitudes)}</td></tr>
-        </tbody>
-      </table>
-    </Panel>
+      <details className="capture-request-dropdown spectrum-math-details">
+        <summary className="capture-request-dropdown-summary">Math & Metrics</summary>
+        <SpectrumSelectionSummary selection={selection} integratedPower={integratedPower} />
+        <table className="channel-metrics-table">
+          <tbody>
+            <tr><th>Indicator</th><td className="mono">{stats.indicator}</td></tr>
+            <tr><th>Zero Frequency</th><td className="mono">{stats.zeroFrequency}</td></tr>
+            <tr><th>PLC Frequency</th><td className="mono">{stats.plcFrequency}</td></tr>
+            <tr><th>Subcarrier Spacing</th><td className="mono">{stats.subcarrierSpacing}</td></tr>
+            <tr><th>Num Active Subcarriers</th><td className="mono">{stats.activeSubcarriers}</td></tr>
+            <tr><th>Cyclic Prefix</th><td className="mono">{stats.cyclicPrefix}</td></tr>
+            <tr><th>Roll-Off Period</th><td className="mono">{stats.rollOff}</td></tr>
+            <tr><th>Pilots</th><td className="mono">{stats.pilots}</td></tr>
+            <tr><th>Time Interleaver Depth</th><td className="mono">{stats.interleaverDepth}</td></tr>
+            <tr><th>Min / Max</th><td className="mono">{findMinMax(magnitudes)}</td></tr>
+          </tbody>
+        </table>
+      </details>
+    </div>
   );
 }
 
@@ -150,6 +168,7 @@ export function SingleSpectrumOfdmCaptureView({ response }: { response: SingleSp
   const [combinedSelection, setCombinedSelection] = useState<SpectrumSelectionRange | null>(null);
   const [combinedZoomDomain, setCombinedZoomDomain] = useState<[number, number] | null>(null);
   const [combinedVisibility, setCombinedVisibility] = useState<Record<string, boolean>>({});
+  const [isChannelWaveformPreviewCollapsed, setChannelWaveformPreviewCollapsed] = useState(false);
   const analyses = response.data?.analyses ?? [];
   const measurementStats = response.data?.measurement_stats ?? [];
   const deviceInfo = toDeviceInfo(
@@ -185,6 +204,52 @@ export function SingleSpectrumOfdmCaptureView({ response }: { response: SingleSp
   if (!channels.length) {
     return <p className="panel-copy">No OFDM spectrum analyzer data available yet.</p>;
   }
+
+  const previewRows = channels
+    .map(({ analysis, channelStats, channelId }, index) => {
+      const frequencies = analysis.signal_analysis?.frequencies ?? [];
+      const magnitudes = analysis.signal_analysis?.magnitudes ?? [];
+      const previewPoints = frequencies
+        .slice(0, magnitudes.length)
+        .map((frequency, pointIndex) => ({ x: frequency / 1_000_000, y: magnitudes[pointIndex] ?? 0 }));
+      const rangeLabel = formatRangeMhz(
+        analysis.capture_parameters?.first_segment_center_freq,
+        analysis.capture_parameters?.last_segment_center_freq,
+      );
+      const sortStartHz = analysis.capture_parameters?.first_segment_center_freq ?? Number.POSITIVE_INFINITY;
+      const receivePowerDbmv = analysis.signal_analysis?.channel_power_dbmv;
+      const rxMerDb = (channelStats as unknown as Record<string, unknown> | undefined)?.docsIf3SignalQualityExtRxMER;
+      const rxMerNumber = typeof rxMerDb === "number" ? rxMerDb : undefined;
+      return {
+        key: `${channelId}-${analysis.capture_parameters?.first_segment_center_freq ?? "na"}`,
+        previewLabel: `OFDM channel ${channelId}`,
+        previewColor: CHART_SERIES_PALETTE[index % CHART_SERIES_PALETTE_SIZE],
+        previewPoints,
+        sortStartHz,
+        cells: [
+          <span className="mono" key="channel-id">{channelId}</span>,
+          <span className="mono" key="freq-range">{rangeLabel}</span>,
+          <span className="mono" key="receive-power">{formatDbmv(receivePowerDbmv)}</span>,
+          <span className="mono" key="rxmer">{formatDb(rxMerNumber)}</span>,
+          <span className="mono" key="plc-freq">{formatMhz(channelStats?.docsIf31CmDsOfdmChanPlcFreq)}</span>,
+          <span className="mono" key="spacing">{typeof channelStats?.docsIf31CmDsOfdmChanSubcarrierSpacing === "number" ? `${(channelStats.docsIf31CmDsOfdmChanSubcarrierSpacing / 1000).toFixed(0)} kHz` : "n/a"}</span>,
+          <span className="mono" key="active-subcarriers">{channelStats?.docsIf31CmDsOfdmChanNumActiveSubcarriers ?? "n/a"}</span>,
+        ],
+        detail: (
+          <SpectrumOfdmChannelDetail
+            channelId={channelId}
+            analysis={analysis}
+            channelStats={channelStats}
+          />
+        ),
+      };
+    })
+    .sort((left, right) => left.sortStartHz - right.sortStartHz)
+    .map((entry) => {
+      const { sortStartHz, ...row } = entry;
+      void sortStartHz;
+      return row;
+    });
 
   return (
     <div className="operations-visual-stack">
@@ -225,16 +290,25 @@ export function SingleSpectrumOfdmCaptureView({ response }: { response: SingleSp
         />
         <SpectrumSelectionSummary selection={combinedSelection} integratedPower={combinedIntegratedPower} />
       </Panel>
-      <div className="if31-ds-ofdm-channel-grid">
-        {channels.map(({ analysis, channelStats, channelId }) => (
-          <SpectrumOfdmChannelCard
-            key={`${channelId}-${analysis.capture_parameters?.first_segment_center_freq ?? "na"}`}
-            channelId={channelId}
-            analysis={analysis}
-            channelStats={channelStats}
+      <Panel
+        title={(
+          <FoldablePanelTitle
+            id="single-spectrum-ofdm-channel-waveform-preview"
+            label="Channel Waveform Preview"
+            isCollapsed={isChannelWaveformPreviewCollapsed}
+            onToggle={() => setChannelWaveformPreviewCollapsed((current) => !current)}
           />
-        ))}
-      </div>
+        )}
+      >
+        <div id="single-spectrum-ofdm-channel-waveform-preview">
+          {isChannelWaveformPreviewCollapsed ? null : (
+            <SpectrumChannelPreviewTable
+              columns={["Channel", "Freq Range", "Receive Power", "RxMER", "PLC Freq", "Spacing", "Active SC"]}
+              rows={previewRows}
+            />
+          )}
+        </div>
+      </Panel>
     </div>
   );
 }
