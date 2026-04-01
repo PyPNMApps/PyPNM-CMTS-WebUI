@@ -133,16 +133,30 @@ function SpectrumScqamChannelDetail({
       <details className="capture-request-dropdown spectrum-math-details">
         <summary className="capture-request-dropdown-summary">Math & Metrics</summary>
         <SpectrumSelectionSummary selection={selection} integratedPower={integratedPower} />
-        <table className="channel-metrics-table">
-          <tbody>
-            <tr><th>Receive Power</th><td className="mono">{formatDbmv(receivePowerDbmv)}</td></tr>
-            <tr><th>RxMER</th><td className="mono">{formatDb(rxMerDb)}</td></tr>
-            <tr><th>Microreflections</th><td className="mono">{formatNumber(channelStats?.docsIfSigQMicroreflections)}</td></tr>
-            <tr><th>Modulation</th><td className="mono">{channelStats?.docsIfDownChannelModulation ?? "n/a"}</td></tr>
-            <tr><th>Interleave</th><td className="mono">{channelStats?.docsIfDownChannelInterleave ?? "n/a"}</td></tr>
-            <tr><th>Min / Max</th><td className="mono">{findMinMax(magnitudes)}</td></tr>
-          </tbody>
-        </table>
+        <div className="table-scroll">
+          <table className="channel-metrics-table">
+            <thead>
+              <tr>
+                <th>Receive Power</th>
+                <th>RxMER</th>
+                <th>Microreflections</th>
+                <th>Modulation</th>
+                <th>Interleave</th>
+                <th>Min / Max</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td className="mono">{formatDbmv(receivePowerDbmv)}</td>
+                <td className="mono">{formatDb(rxMerDb)}</td>
+                <td className="mono">{formatNumber(channelStats?.docsIfSigQMicroreflections)}</td>
+                <td className="mono">{channelStats?.docsIfDownChannelModulation ?? "n/a"}</td>
+                <td className="mono">{channelStats?.docsIfDownChannelInterleave ?? "n/a"}</td>
+                <td className="mono">{findMinMax(magnitudes)}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
         <div className="table-scroll">
           <table className="channel-metrics-table">
             <thead>
