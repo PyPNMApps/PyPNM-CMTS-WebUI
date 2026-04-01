@@ -11,6 +11,14 @@ describe("pypnm_webui_cli serve args", () => {
     expect(parsed.options.startLocalPyPnmDocsis).toBe(true);
   });
 
+  it("parses --run-background", () => {
+    const parsed = parseServeArgs(["--run-background"]);
+    if ("exitCode" in parsed) {
+      throw new Error(`unexpected exit code: ${parsed.exitCode}`);
+    }
+    expect(parsed.options.runBackground).toBe(true);
+  });
+
   it("rejects missing values for valued serve arguments", () => {
     const parsed = parseServeArgs(["--host"]);
     expect("exitCode" in parsed ? parsed.exitCode : -1).toBe(2);

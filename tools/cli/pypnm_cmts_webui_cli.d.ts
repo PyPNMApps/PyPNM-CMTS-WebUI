@@ -3,6 +3,7 @@ export interface ServeOptions {
   port: number;
   open: boolean;
   strictPort: boolean;
+  runBackground: boolean;
   startLocalPyPnmDocsis: boolean;
   logLevel: string;
   mode: string;

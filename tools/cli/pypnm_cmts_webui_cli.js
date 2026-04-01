@@ -80,14 +80,16 @@ function printServeHelp() {
       "",
       "Usage:",
       "  pypnm-cmts-webui serve [options]",
+      "  pypnm-webui serve [options]",
       "",
       "Options:",
       `  --host <host>        Host to bind (default: ${DEFAULT_HOST})`,
       `  --port <port>        Port to bind (default: ${DEFAULT_PORT})`,
       "  --open               Open the browser on startup.",
       "  --strict-port        Exit if the port is already in use.",
+      "  --run-background     Start Vite detached in background, then exit.",
       "  --start-local-pypnm-docsis",
-      "                       Start local pypnm-docsis for selected local-pypnm-agent.",
+       "                       Start local pypnm-docsis for selected local-pypnm-agent.",
       `  --log-level <level>  Vite log level: ${Array.from(VALID_LOG_LEVELS).join(", ")} (default: ${DEFAULT_LOG_LEVEL})`,
       "  --mode <mode>        Vite mode override.",
       "  --base <path>        Public base path override.",
@@ -95,7 +97,11 @@ function printServeHelp() {
       "",
       "Examples:",
       "  pypnm-cmts-webui serve",
+      "  pypnm-webui serve",
       "  pypnm-cmts-webui serve --host 0.0.0.0 --port 4175",
+      "  pypnm-webui serve --host 0.0.0.0 --port 4175",
+      "  pypnm-cmts-webui serve --run-background",
+      "  pypnm-webui serve --run-background",
       "  pypnm-cmts-webui serve --strict-port --log-level warn",
       "",
     ].join("\n"),
@@ -135,6 +141,8 @@ function printStartLocalStackHelp() {
       "  --webui-host <host>   Deprecated alias for --api-host.",
       "  --webui-port <port>   WebUI bind port (default: 4175)",
       "  --reload-api          Enable PyPNM auto-reload.",
+      "  --run-background      Start backend and WebUI detached, then exit.",
+      "  --run-backgroud       Deprecated typo alias for --run-background.",
       "",
     ].join("\n"),
   );
@@ -170,6 +178,7 @@ export function parseServeArgs(args) {
     port: DEFAULT_PORT,
     open: false,
     strictPort: false,
+    runBackground: false,
     startLocalPyPnmDocsis: false,
     logLevel: DEFAULT_LOG_LEVEL,
     mode: "",
@@ -191,6 +200,11 @@ export function parseServeArgs(args) {
 
     if (arg === "--strict-port") {
       options.strictPort = true;
+      continue;
+    }
+
+    if (arg === "--run-background") {
+      options.runBackground = true;
       continue;
     }
 
@@ -440,6 +454,13 @@ async function maybeStartLocalPyPnmDocsis(repoRoot, config, enabled) {
 async function runServe(options, metaUrl) {
   const repoRoot = repoRootFromModule(metaUrl);
   const config = ensureRuntimeConfig(repoRoot);
+  if (options.runBackground && options.startLocalPyPnmDocsis) {
+    process.stderr.write(
+      "ERROR: --run-background cannot be combined with --start-local-pypnm-docsis in serve.\n",
+    );
+    process.stderr.write("Use: pypnm-cmts-webui start-local-stack --run-background\n");
+    return EXIT_CODE_USAGE;
+  }
   const backendResult = await maybeStartLocalPyPnmDocsis(repoRoot, config, options.startLocalPyPnmDocsis);
   if (!options.startLocalPyPnmDocsis) {
     await preflightLocalAgent(config);
@@ -455,9 +476,18 @@ async function runServe(options, metaUrl) {
   const viteArgs = buildViteServeArgs(options);
   const child = spawn(process.execPath, [viteBin, ...viteArgs], {
     cwd: repoRoot,
-    stdio: "inherit",
+    stdio: options.runBackground ? "ignore" : "inherit",
     env: process.env,
+    detached: options.runBackground,
   });
+
+  if (options.runBackground) {
+    child.unref();
+    process.stdout.write(`Started PyPNM-CMTS-WebUI in background (PID ${child.pid ?? "unknown"}).\n`);
+    process.stdout.write("Use pypnm-cmts-webui kill-pypnm-webui --list/--kill/--kill-all to stop it.\n");
+    cleanupBackend();
+    return SUCCESS_EXIT_CODE;
+  }
 
   child.on("exit", (code, signal) => {
     cleanupBackend();
@@ -521,8 +551,8 @@ export async function runCli(args, metaUrl) {
     if ("exitCode" in parsed) {
       return parsed.exitCode;
     }
-    await runServe(parsed.options, metaUrl);
-    return null;
+    const exitCode = await runServe(parsed.options, metaUrl);
+    return exitCode === SUCCESS_EXIT_CODE ? null : exitCode;
   }
 
   if (command === "config-menu") {

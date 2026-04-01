@@ -38,7 +38,14 @@ get_webui_processes() {
       if (cmd ~ /^awk[[:space:]]/) next
       if (cmd ~ /^ps[[:space:]]/) next
 
-      has_webui = (cmd ~ /pypnm-webui/ || cmd ~ /vite(\.js)?/ || cmd ~ /npm run serve/ || cmd ~ /npm run dev/)
+      has_webui = (
+        cmd ~ /pypnm-webui/ ||
+        cmd ~ /pypnm-cmts-webui/ ||
+        cmd ~ /pypnm_cmts_webui_cli\.js/ ||
+        cmd ~ /vite(\.js)?/ ||
+        cmd ~ /npm run serve/ ||
+        cmd ~ /npm run dev/
+      )
       has_repo = (index(cmd, repo_root) > 0)
 
       if (has_webui && has_repo) {

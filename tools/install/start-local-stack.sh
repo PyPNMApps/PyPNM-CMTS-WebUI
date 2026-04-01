@@ -10,6 +10,12 @@ PROFILE_PCW="pypnm-cmts-webui"
 WEBUI_CLI_SCRIPT=""
 WEBUI_PORT=""
 API_RELOAD=0
+RUN_BACKGROUND=0
+STACK_STATE_DIR="${ROOT_DIR}/.pypnm-local-stack"
+BACKEND_PID_FILE="${STACK_STATE_DIR}/backend.pid"
+WEBUI_PID_FILE="${STACK_STATE_DIR}/webui.pid"
+BACKEND_LOG_FILE="${STACK_STATE_DIR}/backend.log"
+WEBUI_LOG_FILE="${STACK_STATE_DIR}/webui.log"
 
 print_help() {
   cat <<'EOF'
@@ -22,6 +28,7 @@ Options:
   --webui-host <host>   Deprecated alias for --api-host (kept for compatibility)
   --webui-port <port>   WebUI bind port (default: 4175)
   --reload-api          Enable PyPNM auto-reload.
+  --run-background      Start backend and WebUI detached, then exit.
   -h, --help            Show this help.
 EOF
 }
@@ -47,6 +54,9 @@ parse_args() {
         ;;
       --reload-api)
         API_RELOAD=1
+        ;;
+      --run-background)
+        RUN_BACKGROUND=1
         ;;
       -h|--help)
         print_help
@@ -126,6 +136,27 @@ main() {
   fi
 
   cd "${ROOT_DIR}"
+  if [ "${RUN_BACKGROUND}" -eq 1 ]; then
+    mkdir -p "${STACK_STATE_DIR}"
+    rm -f "${BACKEND_PID_FILE}" "${WEBUI_PID_FILE}"
+
+    "${backend_cli}" "${backend_args[@]}" >"${BACKEND_LOG_FILE}" 2>&1 &
+    local backend_pid=$!
+    printf '%s\n' "${backend_pid}" > "${BACKEND_PID_FILE}"
+
+    "${WEBUI_CLI_SCRIPT}" serve --host "${API_HOST}" --port "${WEBUI_PORT}" >"${WEBUI_LOG_FILE}" 2>&1 &
+    local webui_pid=$!
+    printf '%s\n' "${webui_pid}" > "${WEBUI_PID_FILE}"
+
+    printf 'Started local stack in background.\n'
+    printf '  Backend PID: %s\n' "${backend_pid}"
+    printf '  WebUI PID: %s\n' "${webui_pid}"
+    printf '  Backend log: %s\n' "${BACKEND_LOG_FILE}"
+    printf '  WebUI log: %s\n' "${WEBUI_LOG_FILE}"
+    printf 'Use pypnm-cmts-webui kill-pypnm-webui --list/--kill/--kill-all to stop WebUI processes.\n'
+    exit 0
+  fi
+
   "${backend_cli}" "${backend_args[@]}" &
   local backend_pid=$!
 
