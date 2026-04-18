@@ -6,6 +6,7 @@ import type {
   SingleHistogramCaptureResponse,
   SingleModulationProfileCaptureResponse,
   SingleRxMerCaptureResponse,
+  SingleSpectrumFriendlyCaptureResponse,
 } from "@/types/api";
 import { PnmFileType, parsePnmFileType } from "@/types/pnmFileType";
 
@@ -17,7 +18,8 @@ export type SupportedPnmFileType =
   | PnmFileType.OFDM_MODULATION_PROFILE
   | PnmFileType.DOWNSTREAM_CONSTELLATION_DISPLAY
   | PnmFileType.DOWNSTREAM_HISTOGRAM
-  | PnmFileType.OFDM_FEC_SUMMARY;
+  | PnmFileType.OFDM_FEC_SUMMARY
+  | PnmFileType.SPECTRUM_ANALYSIS;
 
 export interface StoredFileAnalysisRecord {
   transactionId: string;
@@ -81,7 +83,8 @@ export function isSupportedPnmFileType(value: string): value is SupportedPnmFile
     || parsed === PnmFileType.OFDM_MODULATION_PROFILE
     || parsed === PnmFileType.DOWNSTREAM_CONSTELLATION_DISPLAY
     || parsed === PnmFileType.DOWNSTREAM_HISTOGRAM
-    || parsed === PnmFileType.OFDM_FEC_SUMMARY;
+    || parsed === PnmFileType.OFDM_FEC_SUMMARY
+    || parsed === PnmFileType.SPECTRUM_ANALYSIS;
 }
 
 export function toVisualResponse(
@@ -93,7 +96,8 @@ export function toVisualResponse(
   | SingleModulationProfileCaptureResponse
   | SingleConstellationDisplayCaptureResponse
   | SingleHistogramCaptureResponse
-  | SingleFecSummaryCaptureResponse {
+  | SingleFecSummaryCaptureResponse
+  | SingleSpectrumFriendlyCaptureResponse {
   const systemDescription = (record.analysis.device_details as { system_description?: unknown } | undefined)?.system_description;
 
   switch (fileType) {
@@ -172,6 +176,19 @@ export function toVisualResponse(
           status: record.status === "success" ? 0 : undefined,
           message: null,
           system_description: systemDescription as SingleFecSummaryCaptureResponse["system_description"],
+          data,
+        };
+      }
+    case PnmFileType.SPECTRUM_ANALYSIS:
+      {
+        const data: SingleSpectrumFriendlyCaptureResponse["data"] = {
+          analysis: [record.analysis] as unknown as NonNullable<SingleSpectrumFriendlyCaptureResponse["data"]>["analysis"],
+        };
+        return {
+          mac_address: record.macAddress,
+          status: record.status === "success" ? 0 : undefined,
+          message: null,
+          system_description: systemDescription as SingleSpectrumFriendlyCaptureResponse["system_description"],
           data,
         };
       }

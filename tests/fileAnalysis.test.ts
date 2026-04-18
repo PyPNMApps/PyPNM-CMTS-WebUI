@@ -7,6 +7,7 @@ describe("fileAnalysis", () => {
   it("recognizes supported backend file types", () => {
     expect(isSupportedPnmFileType(PnmFileType.RECEIVE_MODULATION_ERROR_RATIO)).toBe(true);
     expect(isSupportedPnmFileType(PnmFileType.OFDM_CHANNEL_ESTIMATE_COEFFICIENT)).toBe(true);
+    expect(isSupportedPnmFileType(PnmFileType.SPECTRUM_ANALYSIS)).toBe(true);
     expect(isSupportedPnmFileType("UNSUPPORTED_TYPE")).toBe(false);
   });
 

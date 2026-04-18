@@ -9,6 +9,7 @@ import { SingleFecSummaryCaptureView } from "@/pw/features/operations/SingleFecS
 import { SingleHistogramCaptureView } from "@/pw/features/operations/SingleHistogramCaptureView";
 import { SingleModulationProfileCaptureView } from "@/pw/features/operations/SingleModulationProfileCaptureView";
 import { SingleRxMerCaptureView } from "@/pw/features/operations/SingleRxMerCaptureView";
+import { SingleSpectrumFriendlyCaptureView } from "@/pw/features/spectrum-analyzer/SingleSpectrumFriendlyCaptureView";
 import { isSupportedPnmFileType, loadFileAnalysisRecord, removeFileAnalysisRecord, toVisualResponse } from "@/lib/fileAnalysis";
 import type {
   SingleChannelEstCoeffCaptureResponse,
@@ -17,6 +18,7 @@ import type {
   SingleHistogramCaptureResponse,
   SingleModulationProfileCaptureResponse,
   SingleRxMerCaptureResponse,
+  SingleSpectrumFriendlyCaptureResponse,
 } from "@/types/api";
 import { PnmFileType } from "@/types/pnmFileType";
 
@@ -92,6 +94,10 @@ export function FileAnalysisPage() {
         ) : record.pnmFileType === PnmFileType.DOWNSTREAM_HISTOGRAM ? (
           <SingleHistogramCaptureView
             response={toVisualResponse(record.pnmFileType, record) as SingleHistogramCaptureResponse}
+          />
+        ) : record.pnmFileType === PnmFileType.SPECTRUM_ANALYSIS ? (
+          <SingleSpectrumFriendlyCaptureView
+            response={toVisualResponse(record.pnmFileType, record) as SingleSpectrumFriendlyCaptureResponse}
           />
         ) : (
           <SingleFecSummaryCaptureView
