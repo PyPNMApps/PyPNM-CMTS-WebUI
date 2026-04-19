@@ -9,14 +9,14 @@
 
 # PyPNM-CMTS-WebUI
 
-[![PyPNM-WebUI Version](https://img.shields.io/github/v/tag/PyPNMApps/PyPNM-WebUI?label=PyPNM-WebUI&sort=semver)](https://github.com/PyPNMApps/PyPNM-WebUI/tags)
-[![Ubuntu Checks](https://github.com/PyPNMApps/PyPNM-WebUI/actions/workflows/ubuntu-checks.yml/badge.svg?branch=main)](https://github.com/PyPNMApps/PyPNM-WebUI/actions/workflows/ubuntu-checks.yml)
-[![Ubuntu PyPNM Integration](https://github.com/PyPNMApps/PyPNM-WebUI/actions/workflows/ubuntu-pypnm-integration.yml/badge.svg?branch=main)](https://github.com/PyPNMApps/PyPNM-WebUI/actions/workflows/ubuntu-pypnm-integration.yml)
-![CodeQL](https://github.com/PyPNMApps/PyPNM-WebUI/actions/workflows/codeql.yml/badge.svg)
-[![Docs Publish](https://github.com/PyPNMApps/PyPNM-WebUI/actions/workflows/publish-mkdocs.yml/badge.svg?branch=main)](https://github.com/PyPNMApps/PyPNM-WebUI/actions/workflows/publish-mkdocs.yml)
-[![Node](https://img.shields.io/badge/Node-%E2%89%A520.19.0-339933?logo=node.js&logoColor=white)](https://github.com/PyPNMApps/PyPNM-WebUI)
+[![PyPNM-CMTS-WebUI Version](https://img.shields.io/github/v/tag/PyPNMApps/PyPNM-CMTS-WebUI?label=PyPNM-CMTS-WebUI&sort=semver)](https://github.com/PyPNMApps/PyPNM-CMTS-WebUI/tags)
+[![Ubuntu Checks](https://github.com/PyPNMApps/PyPNM-CMTS-WebUI/actions/workflows/ubuntu-checks.yml/badge.svg?branch=main)](https://github.com/PyPNMApps/PyPNM-CMTS-WebUI/actions/workflows/ubuntu-checks.yml)
+[![Ubuntu PyPNM Integration](https://github.com/PyPNMApps/PyPNM-CMTS-WebUI/actions/workflows/ubuntu-pypnm-integration.yml/badge.svg?branch=main)](https://github.com/PyPNMApps/PyPNM-CMTS-WebUI/actions/workflows/ubuntu-pypnm-integration.yml)
+![CodeQL](https://github.com/PyPNMApps/PyPNM-CMTS-WebUI/actions/workflows/codeql.yml/badge.svg)
+[![Docs Publish](https://github.com/PyPNMApps/PyPNM-CMTS-WebUI/actions/workflows/publish-mkdocs.yml/badge.svg?branch=main)](https://github.com/PyPNMApps/PyPNM-CMTS-WebUI/actions/workflows/publish-mkdocs.yml)
+[![Node](https://img.shields.io/badge/Node-%E2%89%A520.19.0-339933?logo=node.js&logoColor=white)](https://github.com/PyPNMApps/PyPNM-CMTS-WebUI)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](./LICENSE)
-[![Ubuntu](https://img.shields.io/badge/Ubuntu-22.04%20%7C%2024.04%20LTS-E95420?logo=ubuntu&logoColor=white)](https://github.com/PyPNMApps/PyPNM-WebUI)
+[![Ubuntu](https://img.shields.io/badge/Ubuntu-22.04%20%7C%2024.04%20LTS-E95420?logo=ubuntu&logoColor=white)](https://github.com/PyPNMApps/PyPNM-CMTS-WebUI)
 
 Frontend-only web client for CMTS-facing REST APIs.
 
