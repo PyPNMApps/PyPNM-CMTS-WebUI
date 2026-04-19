@@ -4,6 +4,7 @@ import {
   PRODUCT_PROFILE_PCW,
   PRODUCT_PROFILE_PW,
   parseProductProfile,
+  productProfileAgentLabel,
   productProfileLabel,
 } from "@/app/productProfile";
 
@@ -22,5 +23,10 @@ describe("productProfile", () => {
   it("returns display labels", () => {
     expect(productProfileLabel(PRODUCT_PROFILE_PW)).toBe("PyPNM-WebUI");
     expect(productProfileLabel(PRODUCT_PROFILE_PCW)).toBe("PyPNM-CMTS-WebUI");
+  });
+
+  it("returns agent labels", () => {
+    expect(productProfileAgentLabel(PRODUCT_PROFILE_PW)).toBe("PyPNM Agent");
+    expect(productProfileAgentLabel(PRODUCT_PROFILE_PCW)).toBe("PyPNM-CMTS Agent");
   });
 });

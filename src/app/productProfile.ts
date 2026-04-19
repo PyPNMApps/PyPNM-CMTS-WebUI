@@ -25,3 +25,7 @@ export function resolveProductProfileWithFallback(): ProductProfile {
 export function productProfileLabel(profile: ProductProfile): string {
   return profile === PRODUCT_PROFILE_PW ? "PyPNM-WebUI" : "PyPNM-CMTS-WebUI";
 }
+
+export function productProfileAgentLabel(profile: ProductProfile): string {
+  return profile === PRODUCT_PROFILE_PW ? "PyPNM Agent" : "PyPNM-CMTS Agent";
+}

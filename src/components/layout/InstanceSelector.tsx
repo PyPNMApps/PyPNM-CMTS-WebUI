@@ -1,4 +1,5 @@
 import { useInstanceConfig } from "@/app/useInstanceConfig";
+import { productProfileAgentLabel, resolveProductProfileWithFallback } from "@/app/productProfile";
 
 function toAgentDocsUrl(baseUrl: string): string {
   return new URL("/docs", `${baseUrl.replace(/\/+$/, "")}/`).toString();
@@ -6,11 +7,12 @@ function toAgentDocsUrl(baseUrl: string): string {
 
 export function InstanceSelector() {
   const { error, instances, isLoading, selectedInstance, setSelectedInstanceId } = useInstanceConfig();
+  const agentLabel = productProfileAgentLabel(resolveProductProfileWithFallback());
 
   return (
     <div className="instance-selector">
       <label className="instance-selector-label" htmlFor="instance-selector">
-        PyPNM-CMTS Agent
+        {agentLabel}
       </label>
       <select
         id="instance-selector"
