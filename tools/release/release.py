@@ -51,7 +51,13 @@ def _print_summary() -> None:
         return
     print("\nRelease step summary:")
     for key, value in SUMMARY.items():
-        print(f" {value.upper():4} {key}")
+        if value == "pass":
+            rendered = _colorize("PASS", "green")
+        elif value == "fail":
+            rendered = _colorize("FAIL", "red")
+        else:
+            rendered = _colorize("SKIP", "yellow")
+        print(f" {rendered} {key}")
     if RELEASE_LOG_DIR:
         print(f"Failure logs (if any) stored in: {RELEASE_LOG_DIR}")
 
