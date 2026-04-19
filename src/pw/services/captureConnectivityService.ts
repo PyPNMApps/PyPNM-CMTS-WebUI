@@ -5,9 +5,28 @@ import { toPwApiPath } from "@/lib/pwCompat";
 interface SysDescrCheckResponse {
   status?: number | string;
   message?: string;
+  device?: {
+    mac_address?: string;
+  };
   results?: {
     sysDescr?: string;
   };
+}
+
+function isSuccessfulConnectivityStatus(status: number | string | undefined): boolean {
+  if (typeof status === "number") {
+    return status === 0;
+  }
+
+  const normalized = String(status ?? "").trim().toLowerCase();
+  return normalized === "0" || normalized === "success";
+}
+
+function normalizeMacForCompare(value: string | undefined): string {
+  return String(value ?? "")
+    .trim()
+    .toLowerCase()
+    .replace(/[^0-9a-f]/g, "");
 }
 
 export async function checkCaptureInputsOnline(baseUrl: string, inputs: CaptureConnectivityInputs): Promise<boolean> {
@@ -28,5 +47,16 @@ export async function checkCaptureInputsOnline(baseUrl: string, inputs: CaptureC
     timeout: 10_000,
   });
 
-  return Number(response.data?.status) === 0;
+  if (!isSuccessfulConnectivityStatus(response.data?.status)) {
+    return false;
+  }
+
+  const requestedMac = normalizeMacForCompare(inputs.macAddress);
+  const resolvedMac = normalizeMacForCompare(response.data?.device?.mac_address);
+
+  if (requestedMac !== "" && resolvedMac !== "" && requestedMac !== resolvedMac) {
+    return false;
+  }
+
+  return true;
 }

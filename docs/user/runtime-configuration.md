@@ -48,6 +48,12 @@ defaults:
 instances: []
 ```
 
+The shipped repo templates are not empty. They include one profile-scoped example
+instance by default:
+
+- `pypnm-webui` template: `pypnm-agent-1` / `PyPNM Agent 1`
+- `pypnm-cmts-webui` template: `pypnm-cmts-agent-1` / `PyPNM-CMTS Agent 1`
+
 `config-menu` resolves `PRODUCT_PROFILE` from `.env` (or `VITE_PRODUCT_PROFILE`)
 and updates labels/schema hints based on the active profile:
 

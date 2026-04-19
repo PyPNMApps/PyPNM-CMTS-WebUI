@@ -36,4 +36,30 @@ describe("useAdvancedOperationMachine", () => {
     expect(result.current.lifecycleState).toBe("completed");
     expect(result.current.statusSummary?.operationId).toBe("op-42");
   });
+
+  it("fails start without polling when the backend returns no operation id", async () => {
+    const getStatus = vi.fn();
+
+    const { result } = renderHook(() => useAdvancedOperationMachine({
+      parseStart: () => ({ groupId: "", operationId: "", message: "MAC/IP precheck failed" }),
+      parseStatus: () => ({
+        operationId: "op-42",
+        state: "completed",
+        collected: 3,
+        timeRemaining: 0,
+      }),
+      startOperation: async () => ({}),
+      getStatus,
+      stopOperation: async () => ({}),
+    }));
+
+    await act(async () => {
+      await result.current.start();
+    });
+
+    expect(getStatus).not.toHaveBeenCalled();
+    expect(result.current.operationId).toBeNull();
+    expect(result.current.lifecycleState).toBe("failed");
+    expect(result.current.errorMessage).toBe("MAC/IP precheck failed");
+  });
 });

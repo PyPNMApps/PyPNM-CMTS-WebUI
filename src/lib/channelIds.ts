@@ -4,10 +4,7 @@ export interface ChannelIdValidationResult {
 }
 
 export function parseChannelIds(rawValue: string): number[] {
-  return rawValue
-    .split(",")
-    .map((entry) => Number.parseInt(entry.trim(), 10))
-    .filter((entry) => Number.isInteger(entry));
+  return validateAndNormalizeChannelIds(rawValue).channelIds;
 }
 
 export function validateAndNormalizeChannelIds(rawValue: string): ChannelIdValidationResult {

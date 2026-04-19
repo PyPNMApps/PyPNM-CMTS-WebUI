@@ -25,7 +25,7 @@
 ## YAML Shape
 ```yaml
 version: 1
-
+product_profile: pypnm-webui
 defaults:
   selected_instance: pypnm-agent-1
   poll_interval_ms: 5000
@@ -33,8 +33,32 @@ defaults:
   health_path: /health
   logging:
     level: INFO
-
-instances: []
+instances:
+  - id: pypnm-agent-1
+    label: PyPNM Agent 1
+    base_url: http://127.0.0.1:8000
+    enabled: true
+    tags:
+      - local
+      - example
+    capabilities:
+      - health
+      - analysis
+      - files
+    polling:
+      enabled: true
+      interval_ms: 5000
+    request_defaults:
+      cable_modem:
+        mac_address: ""
+        ip_address: ""
+      tftp:
+        ipv4: 127.0.0.1
+        ipv6: ::1
+      capture:
+        channel_ids: []
+      snmp:
+        rw_community: private
 ```
 
 `config-menu` can print this schema directly with:

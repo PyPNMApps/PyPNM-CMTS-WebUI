@@ -124,14 +124,26 @@ export function useAdvancedOperationMachine<TStartResponse, TStatusResponse>({
     try {
       const response = await startOperation();
       const parsed = parseStart(response);
-      setGroupId(parsed.groupId);
-      setOperationId(parsed.operationId);
-      setStartMessage(parsed.message ?? null);
+      const normalizedGroupId = typeof parsed.groupId === "string" ? parsed.groupId.trim() : "";
+      const normalizedOperationId = typeof parsed.operationId === "string" ? parsed.operationId.trim() : "";
+      const normalizedMessage = typeof parsed.message === "string" ? parsed.message.trim() || null : null;
+
+      if (!normalizedOperationId) {
+        setLifecycleState("failed");
+        setErrorMessage(normalizedMessage ?? "Failed to start operation.");
+        setStartMessage(normalizedMessage);
+        setStopEnabled(false);
+        return;
+      }
+
+      setGroupId(normalizedGroupId || null);
+      setOperationId(normalizedOperationId);
+      setStartMessage(normalizedMessage);
       setLifecycleState("running");
       stopEnableTimerRef.current = window.setTimeout(() => {
         setStopEnabled(true);
       }, stopEnableDelayMs);
-      void pollOnce(parsed.operationId);
+      void pollOnce(normalizedOperationId);
     } catch (error) {
       setLifecycleState("failed");
       setErrorMessage(error instanceof Error ? error.message : "Failed to start operation.");
