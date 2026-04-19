@@ -40,13 +40,15 @@ export function OperationsMenu() {
       <button
         type="button"
         className={isActive ? "nav-link active operations-menu-trigger" : "nav-link operations-menu-trigger"}
+        aria-haspopup="true"
+        aria-expanded={isOpen}
         onClick={() => {
           setIsOpen((current) => !current);
         }}
       >
         Operations
       </button>
-      <div className="operations-menu-popover">
+      <div className="operations-menu-popover" aria-hidden={!isOpen}>
         <div className="operations-menu-columns">
           {levelOneItems.map((levelOne) => {
             const matchingItems = operationsMenuNavigationItems.filter((item) => item.menuPath[0] === levelOne);

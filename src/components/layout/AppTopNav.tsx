@@ -3,6 +3,7 @@ import { NavLink } from "react-router-dom";
 
 import { PRODUCT_PROFILE_PW, resolveProductProfileWithFallback } from "@/app/productProfile";
 import { InstanceSelector } from "@/components/layout/InstanceSelector";
+import { OperationsMenu } from "@/pw/features/operations/components/OperationsMenu";
 
 const pcwLinks = [
   ["/serving-group/rxmer", "Serving Group"],
@@ -59,11 +60,17 @@ export function AppTopNav() {
         <h1>{appTitle}</h1>
       </NavLink>
       <nav className="top-nav-links">
-        {links.map(([to, label]) => (
-          <NavLink key={to} to={to} className={({ isActive }) => (isActive ? "nav-link active" : "nav-link")}>
-            {label}
-          </NavLink>
-        ))}
+        {links.map(([to, label]) => {
+          if (profile === PRODUCT_PROFILE_PW && to === "/operations") {
+            return <OperationsMenu key={to} />;
+          }
+
+          return (
+            <NavLink key={to} to={to} className={({ isActive }) => (isActive ? "nav-link active" : "nav-link")}>
+              {label}
+            </NavLink>
+          );
+        })}
       </nav>
       <div className="top-nav-instance">
         <button

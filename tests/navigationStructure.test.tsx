@@ -102,4 +102,19 @@ describe("navigation structure", () => {
     ).toBe(false);
   });
 
+  it("renders the operations dropdown trigger for PW profile", () => {
+    vi.stubEnv("VITE_PRODUCT_PROFILE", PRODUCT_PROFILE_PW);
+
+    render(
+      <ThemeProvider>
+        <MemoryRouter>
+          <AppTopNav />
+        </MemoryRouter>
+      </ThemeProvider>,
+    );
+
+    const nav = screen.getAllByRole("navigation")[0];
+    expect(within(nav).getAllByRole("button", { name: "Operations" })).toHaveLength(1);
+  });
+
 });
