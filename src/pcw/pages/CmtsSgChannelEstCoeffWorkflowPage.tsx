@@ -13,6 +13,7 @@ import {
   type ServingGroupCaptureRequestPayload,
 } from "@/pcw/features/serving-group/components/ServingGroupCaptureRequestForm";
 import { ServingGroupChannelEstCoeffResultsView } from "@/pcw/features/serving-group/components/ServingGroupChannelEstCoeffResultsView";
+import { servingGroupNavigationItems } from "@/pcw/features/serving-group/lib/navigation";
 import {
   formatOperationEpoch,
   parseServingGroupOperationStartResponse,
@@ -24,15 +25,6 @@ import {
   getServingGroupChannelEstCoeffResults,
   startServingGroupChannelEstCoeffCapture,
 } from "@/pcw/services/servingGroupChannelEstCoeffService";
-
-const servingGroupRoutes = [
-  { to: "/serving-group/rxmer", label: "RxMER" },
-  { to: "/serving-group/channel-est-coeff", label: "Channel Estimation" },
-  { to: "/serving-group/fec-summary", label: "FEC Summary" },
-  { to: "/serving-group/constellation-display", label: "Constellation Display" },
-  { to: "/serving-group/modulation-profile", label: "Modulation Profile" },
-  { to: "/serving-group/histogram", label: "Histogram" },
-] as const;
 
 export function CmtsSgChannelEstCoeffWorkflowPage() {
   const { selectedInstance } = useInstanceConfig();
@@ -119,7 +111,7 @@ export function CmtsSgChannelEstCoeffWorkflowPage() {
   return (
     <>
       <nav className="advanced-subnav">
-        {servingGroupRoutes.map((item) => (
+        {servingGroupNavigationItems.map((item) => (
           <NavLink key={item.to} to={item.to} className={({ isActive }) => (isActive ? "nav-link active" : "nav-link")}>
             {item.label}
           </NavLink>

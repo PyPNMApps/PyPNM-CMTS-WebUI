@@ -6,6 +6,7 @@ import {
   CMTS_SERVING_GROUP_FEC_SUMMARY_BASE_PATH,
   CMTS_SERVING_GROUP_HISTOGRAM_BASE_PATH,
   CMTS_SERVING_GROUP_MODULATION_PROFILE_BASE_PATH,
+  CMTS_SERVING_GROUP_OFDMA_PRE_EQ_BASE_PATH,
   CMTS_SERVING_GROUP_RXMER_BASE_PATH,
   CMTS_SERVING_GROUP_SPECTRUM_ANALYZER_BASE_PATH,
   buildOperationActionPath,
@@ -65,6 +66,12 @@ export const TEST_OPERATION_URLS = {
     status: buildOperationActionPath(CMTS_SERVING_GROUP_CHANNEL_EST_COEFF_BASE_PATH, "status"),
     cancel: buildOperationActionPath(CMTS_SERVING_GROUP_CHANNEL_EST_COEFF_BASE_PATH, "cancel"),
     results: buildOperationActionPath(CMTS_SERVING_GROUP_CHANNEL_EST_COEFF_BASE_PATH, "results"),
+  },
+  ofdmaPreEq: {
+    start: buildOperationActionPath(CMTS_SERVING_GROUP_OFDMA_PRE_EQ_BASE_PATH, "startCapture"),
+    status: buildOperationActionPath(CMTS_SERVING_GROUP_OFDMA_PRE_EQ_BASE_PATH, "status"),
+    cancel: buildOperationActionPath(CMTS_SERVING_GROUP_OFDMA_PRE_EQ_BASE_PATH, "cancel"),
+    results: buildOperationActionPath(CMTS_SERVING_GROUP_OFDMA_PRE_EQ_BASE_PATH, "results"),
   },
   fecSummary: {
     start: buildOperationActionPath(CMTS_SERVING_GROUP_FEC_SUMMARY_BASE_PATH, "startCapture"),

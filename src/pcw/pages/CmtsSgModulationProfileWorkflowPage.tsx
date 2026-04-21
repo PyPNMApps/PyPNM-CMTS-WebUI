@@ -13,6 +13,7 @@ import {
   type ServingGroupCaptureRequestPayload,
 } from "@/pcw/features/serving-group/components/ServingGroupCaptureRequestForm";
 import { ServingGroupModulationProfileResultsView } from "@/pcw/features/serving-group/components/ServingGroupModulationProfileResultsView";
+import { servingGroupNavigationItems } from "@/pcw/features/serving-group/lib/navigation";
 import {
   formatOperationEpoch,
   parseServingGroupOperationStartResponse,
@@ -24,15 +25,6 @@ import {
   getServingGroupModulationProfileResults,
   startServingGroupModulationProfileCapture,
 } from "@/pcw/services/servingGroupModulationProfileService";
-
-const servingGroupRoutes = [
-  { to: "/serving-group/rxmer", label: "RxMER" },
-  { to: "/serving-group/channel-est-coeff", label: "Channel Estimation" },
-  { to: "/serving-group/fec-summary", label: "FEC Summary" },
-  { to: "/serving-group/constellation-display", label: "Constellation Display" },
-  { to: "/serving-group/modulation-profile", label: "Modulation Profile" },
-  { to: "/serving-group/histogram", label: "Histogram" },
-] as const;
 
 export function CmtsSgModulationProfileWorkflowPage() {
   const { selectedInstance } = useInstanceConfig();
@@ -120,7 +112,7 @@ export function CmtsSgModulationProfileWorkflowPage() {
   return (
     <>
       <nav className="advanced-subnav">
-        {servingGroupRoutes.map((item) => (
+        {servingGroupNavigationItems.map((item) => (
           <NavLink key={item.to} to={item.to} className={({ isActive }) => (isActive ? "nav-link active" : "nav-link")}>
             {item.label}
           </NavLink>

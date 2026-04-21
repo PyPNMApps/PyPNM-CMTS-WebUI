@@ -7,12 +7,11 @@ import { Panel } from "@/components/common/Panel";
 import { ThinkingIndicator } from "@/components/common/ThinkingIndicator";
 import { OperationStatusDetailsChips } from "@/pcw/components/OperationStatusDetailsChips";
 import { OperationStatusPrimaryChips } from "@/pcw/components/OperationStatusPrimaryChips";
-import { useAdvancedOperationMachine } from "@/pw/features/advanced/useAdvancedOperationMachine";
 import {
   ServingGroupCaptureRequestForm,
   type ServingGroupCaptureRequestPayload,
 } from "@/pcw/features/serving-group/components/ServingGroupCaptureRequestForm";
-import { ServingGroupHistogramResultsView } from "@/pcw/features/serving-group/components/ServingGroupHistogramResultsView";
+import { ServingGroupOfdmaPreEqResultsView } from "@/pcw/features/serving-group/components/ServingGroupOfdmaPreEqResultsView";
 import { servingGroupNavigationItems } from "@/pcw/features/serving-group/lib/navigation";
 import {
   formatOperationEpoch,
@@ -20,13 +19,14 @@ import {
   parseServingGroupOperationStatusResponse,
 } from "@/pcw/features/serving-group/lib/operationStatus";
 import {
-  cancelServingGroupHistogramCapture,
-  getServingGroupHistogramCaptureStatus,
-  getServingGroupHistogramResults,
-  startServingGroupHistogramCapture,
-} from "@/pcw/services/servingGroupHistogramService";
+  cancelServingGroupOfdmaPreEqCapture,
+  getServingGroupOfdmaPreEqCaptureStatus,
+  getServingGroupOfdmaPreEqResults,
+  startServingGroupOfdmaPreEqCapture,
+} from "@/pcw/services/servingGroupOfdmaPreEqService";
+import { useAdvancedOperationMachine } from "@/pw/features/advanced/useAdvancedOperationMachine";
 
-export function CmtsSgHistogramWorkflowPage() {
+export function CmtsSgOfdmaPreEqWorkflowPage() {
   const { selectedInstance } = useInstanceConfig();
   const [requestPayload, setRequestPayload] = useState<ServingGroupCaptureRequestPayload | null>(null);
   const [isJsonModalOpen, setIsJsonModalOpen] = useState(false);
@@ -40,7 +40,6 @@ export function CmtsSgHistogramWorkflowPage() {
   const [isCaptureRequestCollapsed, setIsCaptureRequestCollapsed] = useState(true);
   const [isCaptureStatusCollapsed, setIsCaptureStatusCollapsed] = useState(false);
   const [operationIdInput, setOperationIdInput] = useState("");
-
   const machine = useAdvancedOperationMachine<unknown, unknown>({
     parseStart: (response) => parseServingGroupOperationStartResponse(response, "serving-group"),
     parseStatus: parseServingGroupOperationStatusResponse,
@@ -48,13 +47,13 @@ export function CmtsSgHistogramWorkflowPage() {
       if (!selectedInstance?.baseUrl || !requestPayload) {
         throw new Error("Capture request payload is not ready.");
       }
-      return startServingGroupHistogramCapture(selectedInstance.baseUrl, requestPayload);
+      return startServingGroupOfdmaPreEqCapture(selectedInstance.baseUrl, requestPayload);
     },
     getStatus: async (operationId: string) => {
       if (!selectedInstance?.baseUrl) {
         throw new Error("No instance selected.");
       }
-      const response = await getServingGroupHistogramCaptureStatus(selectedInstance.baseUrl, operationId);
+      const response = await getServingGroupOfdmaPreEqCaptureStatus(selectedInstance.baseUrl, operationId);
       setLatestStatusResponsePayload(response);
       return response;
     },
@@ -62,7 +61,7 @@ export function CmtsSgHistogramWorkflowPage() {
       if (!selectedInstance?.baseUrl) {
         throw new Error("No instance selected.");
       }
-      const response = await cancelServingGroupHistogramCapture(selectedInstance.baseUrl, operationId);
+      const response = await cancelServingGroupOfdmaPreEqCapture(selectedInstance.baseUrl, operationId);
       setLatestStatusResponsePayload(response);
       return response;
     },
@@ -80,12 +79,12 @@ export function CmtsSgHistogramWorkflowPage() {
     setIsResultsLoading(true);
     setResultsError("");
     try {
-      const response = await getServingGroupHistogramResults(selectedInstance.baseUrl, operationId);
+      const response = await getServingGroupOfdmaPreEqResults(selectedInstance.baseUrl, operationId);
       setResultsPayload(response);
       setResultsOperationId(operationId);
       setIsCaptureResultsCollapsed(false);
     } catch (error) {
-      setResultsError(error instanceof Error ? error.message : "Failed to load SG Histogram results.");
+      setResultsError(error instanceof Error ? error.message : "Failed to load SG OFDMA PreEq results.");
     } finally {
       setIsResultsLoading(false);
     }
@@ -122,7 +121,7 @@ export function CmtsSgHistogramWorkflowPage() {
         title={(
           <div className="capture-request-title-layout">
             <FoldablePanelTitle
-              id="cmts-sg-histogram-capture-request-body"
+              id="cmts-sg-ofdma-pre-eq-capture-request-body"
               label="Capture Request"
               isCollapsed={isCaptureRequestCollapsed}
               onToggle={() => setIsCaptureRequestCollapsed((current) => !current)}
@@ -167,14 +166,13 @@ export function CmtsSgHistogramWorkflowPage() {
           </div>
         )}
       >
-        <div id="cmts-sg-histogram-capture-request-body" hidden={isCaptureRequestCollapsed}>
+        <div id="cmts-sg-ofdma-pre-eq-capture-request-body" hidden={isCaptureRequestCollapsed}>
           <ServingGroupCaptureRequestForm
             baseUrl={selectedInstance?.baseUrl}
-            idPrefix="cmts-sg-histogram"
+            idPrefix="cmts-sg-ofdma-pre-eq"
             initialSnmpCommunity={selectedInstance?.requestDefaults?.snmpRwCommunity ?? ""}
             initialTftpIpv4={selectedInstance?.requestDefaults?.tftpIpv4 ?? ""}
             initialTftpIpv6={selectedInstance?.requestDefaults?.tftpIpv6 ?? ""}
-            captureSettingsMode="histogram"
             onPayloadChange={setRequestPayload}
           />
         </div>
@@ -183,7 +181,7 @@ export function CmtsSgHistogramWorkflowPage() {
         title={(
           <div className="capture-status-title-layout">
             <FoldablePanelTitle
-              id="cmts-sg-histogram-capture-status-body"
+              id="cmts-sg-ofdma-pre-eq-capture-status-body"
               label="Capture Status"
               isCollapsed={isCaptureStatusCollapsed}
               onToggle={() => setIsCaptureStatusCollapsed((current) => !current)}
@@ -199,13 +197,13 @@ export function CmtsSgHistogramWorkflowPage() {
           </div>
         )}
       >
-        <div id="cmts-sg-histogram-capture-status-body" className="operation-status-stack" hidden={isCaptureStatusCollapsed}>
+        <div id="cmts-sg-ofdma-pre-eq-capture-status-body" className="operation-status-stack" hidden={isCaptureStatusCollapsed}>
           <div className="operation-status-id-row">
             <label className="field">
               <span>Operation ID</span>
               <input
-                id="cmts-sg-histogram-operation-id-input"
-                name="cmtsSgHistogramOperationId"
+                id="cmts-sg-ofdma-pre-eq-operation-id-input"
+                name="cmtsSgOfdmaPreEqOperationId"
                 type="text"
                 value={operationIdInput}
                 placeholder="Paste pnm_capture_operation_id"
@@ -257,7 +255,7 @@ export function CmtsSgHistogramWorkflowPage() {
             formatEpoch={formatOperationEpoch}
           />
           {machine.lifecycleState === "starting" || machine.lifecycleState === "running" ? (
-            <ThinkingIndicator label="Running SG Histogram capture and polling status..." />
+            <ThinkingIndicator label="Running SG OFDMA PreEq capture and polling status..." />
           ) : null}
           {machine.statusSummary?.message ? <p className="panel-copy">{machine.statusSummary.message}</p> : null}
           {machine.errorMessage ? <p className="advanced-error-text">{machine.errorMessage}</p> : null}
@@ -267,7 +265,7 @@ export function CmtsSgHistogramWorkflowPage() {
         title={(
           <div className="capture-results-title-layout">
             <FoldablePanelTitle
-              id="cmts-sg-histogram-results-body"
+              id="cmts-sg-ofdma-pre-eq-capture-results-body"
               label="Capture Results"
               isCollapsed={isCaptureResultsCollapsed}
               onToggle={() => setIsCaptureResultsCollapsed((current) => !current)}
@@ -288,29 +286,29 @@ export function CmtsSgHistogramWorkflowPage() {
           </div>
         )}
       >
-        <div id="cmts-sg-histogram-results-body" hidden={isCaptureResultsCollapsed}>
-          {isResultsLoading ? <ThinkingIndicator label="Loading SG Histogram results..." /> : null}
+        <div id="cmts-sg-ofdma-pre-eq-capture-results-body" hidden={isCaptureResultsCollapsed}>
+          {isResultsLoading ? <ThinkingIndicator label="Loading SG OFDMA PreEq results..." /> : null}
           {resultsError ? <p className="advanced-error-text">{resultsError}</p> : null}
-          {!resultsError && !isResultsLoading && resultsPayload ? (
-            <ServingGroupHistogramResultsView payload={resultsPayload} />
+          {!isResultsLoading && !resultsError && resultsPayload ? (
+            <ServingGroupOfdmaPreEqResultsView payload={resultsPayload} />
           ) : null}
-          {!resultsError && !isResultsLoading && !resultsPayload ? (
-            <p className="panel-copy">Run capture to completion or click Get Results to load SG Histogram visuals.</p>
+          {!isResultsLoading && !resultsError && !resultsPayload ? (
+            <p className="panel-copy">Run capture to completion or click Get Results to load SG OFDMA PreEq visuals.</p>
           ) : null}
         </div>
       </Panel>
       <JsonPayloadModal
-        id="cmts-sg-histogram-request-json-modal"
-        isOpen={isJsonModalOpen}
+        id="cmts-sg-ofdma-pre-eq-request-json-modal"
         title="Capture Request JSON"
         payload={requestPayload}
+        isOpen={isJsonModalOpen}
         onClose={() => setIsJsonModalOpen(false)}
       />
       <JsonPayloadModal
-        id="cmts-sg-histogram-response-json-modal"
-        isOpen={isResponseJsonModalOpen}
+        id="cmts-sg-ofdma-pre-eq-response-json-modal"
         title="Capture Status Response JSON"
         payload={latestStatusResponsePayload}
+        isOpen={isResponseJsonModalOpen}
         onClose={() => setIsResponseJsonModalOpen(false)}
       />
     </>

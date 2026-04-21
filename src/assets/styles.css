@@ -783,7 +783,8 @@ button[aria-disabled="true"]:focus-visible,
   line-height: 1;
 }
 
-.panel-title-toggle {
+.panel-title-heading-button,
+.panel-title-state-button {
   appearance: none;
   border: 0;
   background: transparent;
@@ -793,61 +794,30 @@ button[aria-disabled="true"]:focus-visible,
   cursor: pointer;
   display: inline-flex;
   align-items: center;
-  justify-content: space-between;
   gap: 8px;
-  width: 100%;
+}
+
+.panel-title-heading-button {
+  justify-content: flex-start;
+  min-width: 0;
 }
 
 .panel-title-state {
   font-size: 12px;
   color: var(--muted);
+  white-space: nowrap;
 }
 
-.panel-title-toggle:hover .panel-title-heading,
-.panel-title-toggle:focus-visible .panel-title-heading {
+.panel-title-heading-button:hover .panel-title-heading,
+.panel-title-heading-button:focus-visible .panel-title-heading,
+.panel-title-state-button:hover .panel-title-state,
+.panel-title-state-button:focus-visible .panel-title-state {
   color: var(--accent);
-}
-
-.capture-request-title-actions {
-  margin-left: auto;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.capture-request-title-layout {
-  width: 100%;
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-items: center;
-  gap: 10px;
-}
-
-.capture-request-title-center {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-}
-
-.capture-request-title-layout .panel-title-heading {
-  justify-self: start;
-}
-
-.capture-request-title-layout .capture-request-title-actions {
-  justify-self: end;
-  margin-left: 0;
 }
 
 @media (max-width: 860px) {
   .capture-request-title-layout {
     grid-template-columns: 1fr;
-  }
-
-  .capture-request-title-layout .panel-title-heading,
-  .capture-request-title-center,
-  .capture-request-title-layout .capture-request-title-actions {
-    justify-self: start;
   }
 }
 
@@ -925,24 +895,92 @@ button[aria-disabled="true"]:focus-visible,
   }
 }
 
-.capture-status-title-layout {
+.capture-request-title-layout {
   width: 100%;
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto auto;
   align-items: center;
-  justify-content: space-between;
   gap: 10px;
 }
 
-.capture-status-title-layout .operations-json-download {
-  margin-left: auto;
-}
-
-.capture-results-title-layout {
-  width: 100%;
+.capture-request-title-center {
   display: inline-flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.capture-request-title-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.capture-request-title-layout .panel-title-heading-button {
+  grid-column: 1;
+}
+
+.capture-request-title-layout .capture-request-title-center {
+  grid-column: 2;
+}
+
+.capture-request-title-layout .capture-request-title-actions {
+  grid-column: 3;
+  justify-self: end;
+}
+
+.capture-request-title-layout .panel-title-state-button {
+  grid-column: 4;
+  justify-self: end;
+}
+
+.capture-status-title-layout,
+.capture-results-title-layout {
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
   gap: 10px;
+}
+
+.capture-status-title-layout .panel-title-heading-button,
+.capture-results-title-layout .panel-title-heading-button {
+  grid-column: 1;
+}
+
+.capture-status-title-layout .operations-json-download,
+.capture-results-title-layout .operations-json-download {
+  grid-column: 2;
+  justify-self: end;
+}
+
+.capture-status-title-layout .panel-title-state-button,
+.capture-results-title-layout .panel-title-state-button {
+  grid-column: 3;
+  justify-self: end;
+}
+
+@media (max-width: 860px) {
+  .capture-request-title-layout,
+  .capture-status-title-layout,
+  .capture-results-title-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .capture-request-title-layout .panel-title-heading-button,
+  .capture-request-title-layout .capture-request-title-center,
+  .capture-request-title-layout .capture-request-title-actions,
+  .capture-request-title-layout .panel-title-state-button,
+  .capture-status-title-layout .panel-title-heading-button,
+  .capture-status-title-layout .operations-json-download,
+  .capture-status-title-layout .panel-title-state-button,
+  .capture-results-title-layout .panel-title-heading-button,
+  .capture-results-title-layout .operations-json-download,
+  .capture-results-title-layout .panel-title-state-button {
+    grid-column: 1;
+    justify-self: start;
+  }
 }
 
 .request-panel-actions {
@@ -2123,6 +2161,7 @@ pre {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  white-space: nowrap;
   min-height: 38px;
   padding: 0 14px;
   border-radius: 10px;

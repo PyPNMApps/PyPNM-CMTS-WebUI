@@ -3,6 +3,7 @@ export const CMTS_SERVING_GROUP_CABLE_MODEMS_PATH = "/cmts/servingGroup/operatio
 
 export const CMTS_SERVING_GROUP_RXMER_BASE_PATH = "/cmts/pnm/sg/ds/ofdm/rxmer";
 export const CMTS_SERVING_GROUP_CHANNEL_EST_COEFF_BASE_PATH = "/cmts/pnm/sg/ds/ofdm/channelEstCoeff";
+export const CMTS_SERVING_GROUP_OFDMA_PRE_EQ_BASE_PATH = "/cmts/pnm/sg/us/ofdma/preEqualization";
 export const CMTS_SERVING_GROUP_FEC_SUMMARY_BASE_PATH = "/cmts/pnm/sg/ds/ofdm/fecSummary";
 export const CMTS_SERVING_GROUP_CONSTELLATION_DISPLAY_BASE_PATH = "/cmts/pnm/sg/ds/ofdm/constellationDisplay";
 export const CMTS_SERVING_GROUP_MODULATION_PROFILE_BASE_PATH = "/cmts/pnm/sg/ds/ofdm/modulationProfile";

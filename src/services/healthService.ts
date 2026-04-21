@@ -47,8 +47,9 @@ export async function reloadWebService(
     : "/pypnm/system/webService/reload",
   timeoutMs = DEFAULT_RELOAD_TIMEOUT_MS,
 ): Promise<void> {
+  const method = resolveProductProfileWithFallback() === PRODUCT_PROFILE_PCW ? "POST" : "GET";
   await requestWithBaseUrl(baseUrl, {
-    method: "POST",
+    method,
     timeout: timeoutMs,
     url: reloadPath,
   });

@@ -13,6 +13,9 @@ const CmtsSgRxMerWorkflowPage = lazy(() =>
 const CmtsSgChannelEstCoeffWorkflowPage = lazy(() =>
   import("@/pcw/pages/CmtsSgChannelEstCoeffWorkflowPage").then((module) => ({ default: module.CmtsSgChannelEstCoeffWorkflowPage })),
 );
+const CmtsSgOfdmaPreEqWorkflowPage = lazy(() =>
+  import("@/pcw/pages/CmtsSgOfdmaPreEqWorkflowPage").then((module) => ({ default: module.CmtsSgOfdmaPreEqWorkflowPage })),
+);
 const CmtsSgFecSummaryWorkflowPage = lazy(() =>
   import("@/pcw/pages/CmtsSgFecSummaryWorkflowPage").then((module) => ({ default: module.CmtsSgFecSummaryWorkflowPage })),
 );
@@ -95,6 +98,7 @@ export function AppRoutes() {
               <Route path="/serving-group" element={<Navigate to="/serving-group/rxmer" replace />} />
               <Route path="/serving-group/rxmer" element={<CmtsSgRxMerWorkflowPage />} />
               <Route path="/serving-group/channel-est-coeff" element={<CmtsSgChannelEstCoeffWorkflowPage />} />
+              <Route path="/serving-group/ofdma-pre-eq" element={<CmtsSgOfdmaPreEqWorkflowPage />} />
               <Route path="/serving-group/fec-summary" element={<CmtsSgFecSummaryWorkflowPage />} />
               <Route path="/serving-group/constellation-display" element={<CmtsSgConstellationDisplayWorkflowPage />} />
               <Route path="/serving-group/modulation-profile" element={<CmtsSgModulationProfileWorkflowPage />} />
@@ -111,6 +115,7 @@ export function AppRoutes() {
               <Route path="/operations" element={<Navigate to="/operations/cmts-sg-ds-ofdm-rxmer" replace />} />
               <Route path="/operations/cmts-sg-ds-ofdm-rxmer" element={<CmtsSgRxMerWorkflowPage />} />
               <Route path="/operations/cmts-sg-ds-ofdm-channel-est-coeff" element={<CmtsSgChannelEstCoeffWorkflowPage />} />
+              <Route path="/operations/cmts-sg-us-ofdma-pre-eq" element={<CmtsSgOfdmaPreEqWorkflowPage />} />
               <Route path="/operations/cmts-sg-ds-ofdm-fec-summary" element={<CmtsSgFecSummaryWorkflowPage />} />
               <Route path="/operations/cmts-sg-ds-ofdm-constellation-display" element={<CmtsSgConstellationDisplayWorkflowPage />} />
               <Route path="/operations/cmts-sg-ds-ofdm-modulation-profile" element={<CmtsSgModulationProfileWorkflowPage />} />

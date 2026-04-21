@@ -45,7 +45,7 @@ describe("classifyHealthError", () => {
     });
   });
 
-  it("calls the PW web service reload endpoint with POST when PW profile is active", async () => {
+  it("calls the PW web service reload endpoint with GET when PW profile is active", async () => {
     const requestWithBaseUrl = vi.mocked(httpModule.requestWithBaseUrl);
     requestWithBaseUrl.mockResolvedValueOnce({ data: null } as never);
     vi.stubEnv("VITE_PRODUCT_PROFILE", "pypnm-webui");
@@ -53,7 +53,7 @@ describe("classifyHealthError", () => {
     await reloadWebService("http://127.0.0.1:8080/");
 
     expect(requestWithBaseUrl).toHaveBeenCalledWith("http://127.0.0.1:8080/", {
-      method: "POST",
+      method: "GET",
       timeout: 15000,
       url: "/pypnm/system/webService/reload",
     });

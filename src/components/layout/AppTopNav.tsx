@@ -1,7 +1,7 @@
 import { useTheme } from "@/app/useTheme";
 import { NavLink } from "react-router-dom";
 
-import { PRODUCT_PROFILE_PW, resolveProductProfileWithFallback } from "@/app/productProfile";
+import * as productProfile from "@/app/productProfile";
 import { InstanceSelector } from "@/components/layout/InstanceSelector";
 import { OperationsMenu } from "@/pw/features/operations/components/OperationsMenu";
 
@@ -25,6 +25,10 @@ const pwLinks = [
   ["/about", "About"],
 ] as const;
 
+interface AppTopNavProps {
+  profileOverride?: productProfile.ProductProfile;
+}
+
 function PyPnmWebUiIcon() {
   return <img src="/images/PyPNM-WebUI-favicon.ico" alt="" aria-hidden="true" className="top-nav-brand-icon" />;
 }
@@ -46,12 +50,12 @@ function MoonIcon() {
   );
 }
 
-export function AppTopNav() {
+export function AppTopNav({ profileOverride }: AppTopNavProps = {}) {
   const { theme, toggleTheme } = useTheme();
-  const profile = resolveProductProfileWithFallback();
-  const links = profile === PRODUCT_PROFILE_PW ? pwLinks : pcwLinks;
-  const homePath = profile === PRODUCT_PROFILE_PW ? "/single-capture/rxmer" : "/serving-group/rxmer";
-  const appTitle = profile === PRODUCT_PROFILE_PW ? "PyPNM WebUI" : "PyPNM CMTS WebUI";
+  const profile = profileOverride ?? productProfile.resolveProductProfileWithFallback();
+  const links = profile === productProfile.PRODUCT_PROFILE_PW ? pwLinks : pcwLinks;
+  const homePath = profile === productProfile.PRODUCT_PROFILE_PW ? "/single-capture/rxmer" : "/serving-group/rxmer";
+  const appTitle = profile === productProfile.PRODUCT_PROFILE_PW ? "PyPNM WebUI" : "PyPNM CMTS WebUI";
 
   return (
     <header className="top-nav">
@@ -61,7 +65,7 @@ export function AppTopNav() {
       </NavLink>
       <nav className="top-nav-links">
         {links.map(([to, label]) => {
-          if (profile === PRODUCT_PROFILE_PW && to === "/operations") {
+          if (profile === productProfile.PRODUCT_PROFILE_PW && to === "/operations") {
             return <OperationsMenu key={to} />;
           }
 

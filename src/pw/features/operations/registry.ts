@@ -69,6 +69,13 @@ const channelEstCoeffSeriesDefinition: OperationSeriesDefinition = {
   descriptionPrefix: "serving-group downstream OFDM Channel Estimation",
 };
 
+const ofdmaPreEqSeriesDefinition: OperationSeriesDefinition = {
+  idPrefix: "cmts-sg-us-ofdma-pre-eq",
+  endpointBase: "/cmts/pnm/sg/us/ofdma/preEqualization",
+  categoryPath: ["CMTS", "PNM", "Serving Group", "Upstream OFDMA PreEq"],
+  descriptionPrefix: "serving-group upstream OFDMA PreEq",
+};
+
 const fecSummarySeriesDefinition: OperationSeriesDefinition = {
   idPrefix: "cmts-sg-ds-ofdm-fec-summary",
   endpointBase: "/cmts/pnm/sg/ds/ofdm/fecSummary",
@@ -107,6 +114,7 @@ const spectrumFriendlySeriesDefinition: OperationSeriesDefinition = {
 export const operationRegistry: OperationNode[] = [
   ...buildStartStatusResultsSeries(rxMerSeriesDefinition),
   ...buildStartStatusResultsSeries(channelEstCoeffSeriesDefinition),
+  ...buildStartStatusResultsSeries(ofdmaPreEqSeriesDefinition),
   ...buildStartStatusResultsSeries(fecSummarySeriesDefinition),
   ...buildStartStatusResultsSeries(constellationDisplaySeriesDefinition),
   ...buildStartStatusResultsSeries(modulationProfileSeriesDefinition),
@@ -128,6 +136,11 @@ export const operationFolderGroups: OperationFolderGroup[] = [
     id: "cmts-sg-channel-est-coeff-workflow",
     label: "CMTS / PNM / Serving Group / Downstream OFDM Channel Estimation",
     operations: operationRegistry.filter((operation) => operation.id.startsWith("cmts-sg-ds-ofdm-channel-est-coeff")),
+  },
+  {
+    id: "cmts-sg-ofdma-pre-eq-workflow",
+    label: "CMTS / PNM / Serving Group / Upstream OFDMA PreEq",
+    operations: operationRegistry.filter((operation) => operation.id.startsWith("cmts-sg-us-ofdma-pre-eq")),
   },
   {
     id: "cmts-sg-fec-summary-workflow",
