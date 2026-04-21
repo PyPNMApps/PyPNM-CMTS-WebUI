@@ -62,7 +62,12 @@ export interface PnmFileEntry {
   filename: string;
   pnm_test_type: string;
   timestamp: number;
+  operation_id?: string | null;
+  pnm_capture_operation_id?: string | null;
   system_description?: Record<string, string | number | boolean | null> | null;
+  device_details?: {
+    system_description?: Record<string, string | number | boolean | null> | null;
+  } | Record<string, string | number | boolean | null> | null;
 }
 
 export interface PnmFileQueryResponse {

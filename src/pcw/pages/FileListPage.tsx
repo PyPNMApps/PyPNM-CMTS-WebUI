@@ -35,6 +35,45 @@ type InspectorState =
       data: PnmFileAnalysisResponse;
     };
 
+type ArchivePickerMode = "files" | "operations" | null;
+type SortDirection = "asc" | "desc";
+type FileCatalogSortKey = "mac_address" | "timestamp" | "vendor" | "model" | "software" | "filename" | "pnm_test_type" | "transaction_id";
+type OperationCatalogSortKey = "operation_id" | "mac_addresses" | "file_count" | "latest_timestamp" | "pnm_test_types" | "vendor" | "model" | "software";
+
+interface OperationMetadataRow {
+  operation_id: string;
+  mac_addresses: string;
+  file_count: number;
+  latest_timestamp: number;
+  pnm_test_types: string;
+  vendor: string;
+  model: string;
+  software: string;
+}
+
+interface FileCatalogRow extends PnmFileEntry {
+  mac_address: string;
+}
+
+function getDeviceDetailsSystemDescription(
+  entry: Pick<PnmFileEntry, "system_description" | "device_details">,
+): Record<string, string | number | boolean | null> | null | undefined {
+  if (entry.system_description) {
+    return entry.system_description;
+  }
+
+  const deviceDetails = entry.device_details;
+  if (!deviceDetails) {
+    return undefined;
+  }
+
+  if ("system_description" in deviceDetails && typeof deviceDetails.system_description === "object") {
+    return deviceDetails.system_description;
+  }
+
+  return deviceDetails as Record<string, string | number | boolean | null>;
+}
+
 function summarizeSystemDescription(systemDescription: Record<string, string | number | boolean | null> | null | undefined): string {
   if (!systemDescription) {
     return "n/a";
@@ -44,6 +83,53 @@ function summarizeSystemDescription(systemDescription: Record<string, string | n
   const model = systemDescription.MODEL;
   const software = systemDescription.SW_REV;
   return [vendor, model, software].filter((value) => value !== undefined && value !== null && `${value}`.trim() !== "").join(" / ") || "n/a";
+}
+
+function getSystemDescriptionValue(
+  systemDescription: Record<string, string | number | boolean | null> | null | undefined,
+  key: string,
+): string {
+  const fieldAliases: Record<string, string[]> = {
+    VENDOR: ["VENDOR", "vendor"],
+    MODEL: ["MODEL", "model"],
+    SW_REV: ["SW_REV", "sw_rev", "software", "software_revision"],
+  };
+  const value = (fieldAliases[key] ?? [key]).map((alias) => systemDescription?.[alias]).find(
+    (candidate) => candidate !== undefined && candidate !== null && `${candidate}`.trim() !== "",
+  );
+  return value === undefined || value === null || `${value}`.trim() === "" ? "n/a" : `${value}`;
+}
+
+function getEntrySystemDescriptionValue(entry: Pick<PnmFileEntry, "system_description" | "device_details">, key: string): string {
+  return getSystemDescriptionValue(getDeviceDetailsSystemDescription(entry), key);
+}
+
+function getOperationId(entry: PnmFileEntry): string {
+  const nestedOperation = (entry as PnmFileEntry & {
+    operation?: {
+      operation_id?: string | null;
+      pnm_capture_operation_id?: string | null;
+    } | null;
+  }).operation;
+  return entry.operation_id?.trim()
+    || entry.pnm_capture_operation_id?.trim()
+    || nestedOperation?.operation_id?.trim()
+    || nestedOperation?.pnm_capture_operation_id?.trim()
+    || "";
+}
+
+function compareValues(left: string | number, right: string | number, direction: SortDirection): number {
+  const result = typeof left === "number" && typeof right === "number"
+    ? left - right
+    : String(left).localeCompare(String(right), undefined, { numeric: true, sensitivity: "base" });
+  return direction === "asc" ? result : -result;
+}
+
+function getFileCatalogSortValue(entry: FileCatalogRow, key: FileCatalogSortKey): string | number {
+  if (key === "vendor" || key === "model" || key === "software") {
+    return getEntrySystemDescriptionValue(entry, key === "vendor" ? "VENDOR" : key === "model" ? "MODEL" : "SW_REV");
+  }
+  return entry[key];
 }
 
 function getFileCount(files: Record<string, PnmFileEntry[]> | undefined): number {
@@ -78,6 +164,11 @@ export function FileListPage() {
   const [uploadFileInput, setUploadFileInput] = useState<File | null>(null);
   const [selectedTransactionId, setSelectedTransactionId] = useState("");
   const [inspectorState, setInspectorState] = useState<InspectorState>({ mode: "idle", transactionId: "" });
+  const [archivePickerMode, setArchivePickerMode] = useState<ArchivePickerMode>(null);
+  const [fileCatalogSortKey, setFileCatalogSortKey] = useState<FileCatalogSortKey>("timestamp");
+  const [fileCatalogSortDirection, setFileCatalogSortDirection] = useState<SortDirection>("desc");
+  const [operationCatalogSortKey, setOperationCatalogSortKey] = useState<OperationCatalogSortKey>("latest_timestamp");
+  const [operationCatalogSortDirection, setOperationCatalogSortDirection] = useState<SortDirection>("desc");
 
   const macAddressesQuery = useQuery({
     queryKey: ["pnm-file-mac-addresses", selectedInstance?.baseUrl],
@@ -104,10 +195,46 @@ export function FileListPage() {
     enabled: Boolean(selectedInstance?.baseUrl && effectiveMacAddress),
   });
 
+  const registeredMacAddresses = useMemo(
+    () => (macAddressesQuery.data?.mac_addresses ?? []).map((entry) => entry.mac_address.toLowerCase()),
+    [macAddressesQuery.data],
+  );
+
+  const systemDescriptionByMacAddress = useMemo(() => {
+    const entries = new Map<string, Record<string, string | number | boolean | null>>();
+    for (const entry of macAddressesQuery.data?.mac_addresses ?? []) {
+      if (entry.system_description) {
+        entries.set(entry.mac_address.toLowerCase(), entry.system_description);
+      }
+    }
+    return entries;
+  }, [macAddressesQuery.data]);
+
+  const fileCatalogQuery = useQuery({
+    queryKey: ["pnm-file-catalog", selectedInstance?.baseUrl, registeredMacAddresses, systemDescriptionByMacAddress],
+    queryFn: async () => {
+      const responses = await Promise.all(
+        registeredMacAddresses.map((macAddress) => searchPnmFilesByMacAddress(selectedInstance?.baseUrl ?? "", macAddress)),
+      );
+
+      return responses.flatMap((response, index) => {
+        const macAddress = registeredMacAddresses[index];
+        return (response.files?.[macAddress] ?? []).map((entry): FileCatalogRow => ({
+          ...entry,
+          mac_address: macAddress,
+          system_description: getDeviceDetailsSystemDescription(entry) ?? systemDescriptionByMacAddress.get(macAddress) ?? null,
+        }));
+      });
+    },
+    enabled: Boolean(selectedInstance?.baseUrl && registeredMacAddresses.length > 0),
+  });
+
   const selectedFiles = useMemo(
     () => fileSearchQuery.data?.files?.[effectiveMacAddress] ?? [],
     [effectiveMacAddress, fileSearchQuery.data],
   );
+
+  const fileCatalogRows = useMemo(() => fileCatalogQuery.data ?? [], [fileCatalogQuery.data]);
 
   const groupedSelectedFiles = useMemo(() => {
     const filesByType = new Map<string, PnmFileEntry[]>();
@@ -129,6 +256,46 @@ export function FileListPage() {
         entries: [...entries].sort((left, right) => right.timestamp - left.timestamp),
       }));
   }, [selectedFiles]);
+
+  const sortedFileCatalogRows = useMemo(() => {
+    return [...fileCatalogRows].sort((left, right) => {
+      const leftValue = getFileCatalogSortValue(left, fileCatalogSortKey);
+      const rightValue = getFileCatalogSortValue(right, fileCatalogSortKey);
+      return compareValues(leftValue, rightValue, fileCatalogSortDirection);
+    });
+  }, [fileCatalogRows, fileCatalogSortDirection, fileCatalogSortKey]);
+
+  const operationCatalogRows = useMemo(() => {
+    const rows = new Map<string, OperationMetadataRow>();
+
+    for (const entry of fileCatalogRows) {
+      const operationId = getOperationId(entry);
+      if (!operationId) {
+        continue;
+      }
+
+      const existing = rows.get(operationId);
+      const pnmTypes = new Set((existing?.pnm_test_types ?? "").split(", ").filter(Boolean));
+      pnmTypes.add(entry.pnm_test_type);
+      const macAddresses = new Set((existing?.mac_addresses ?? "").split(", ").filter(Boolean));
+      macAddresses.add(entry.mac_address);
+
+      rows.set(operationId, {
+        operation_id: operationId,
+        mac_addresses: Array.from(macAddresses).sort((left, right) => left.localeCompare(right)).join(", "),
+        file_count: (existing?.file_count ?? 0) + 1,
+        latest_timestamp: Math.max(existing?.latest_timestamp ?? 0, entry.timestamp),
+        pnm_test_types: Array.from(pnmTypes).sort((left, right) => left.localeCompare(right)).join(", "),
+        vendor: existing?.vendor && existing.vendor !== "n/a" ? existing.vendor : getEntrySystemDescriptionValue(entry, "VENDOR"),
+        model: existing?.model && existing.model !== "n/a" ? existing.model : getEntrySystemDescriptionValue(entry, "MODEL"),
+        software: existing?.software && existing.software !== "n/a" ? existing.software : getEntrySystemDescriptionValue(entry, "SW_REV"),
+      });
+    }
+
+    return Array.from(rows.values()).sort((left, right) => (
+      compareValues(left[operationCatalogSortKey], right[operationCatalogSortKey], operationCatalogSortDirection)
+    ));
+  }, [fileCatalogRows, operationCatalogSortDirection, operationCatalogSortKey]);
 
   function focusInspector() {
     inspectorPanelRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -202,6 +369,38 @@ export function FileListPage() {
     focusInspector();
   }
 
+  function updateFileCatalogSort(nextKey: FileCatalogSortKey) {
+    if (fileCatalogSortKey === nextKey) {
+      setFileCatalogSortDirection((current) => current === "asc" ? "desc" : "asc");
+      return;
+    }
+    setFileCatalogSortKey(nextKey);
+    setFileCatalogSortDirection(nextKey === "timestamp" ? "desc" : "asc");
+  }
+
+  function updateOperationCatalogSort(nextKey: OperationCatalogSortKey) {
+    if (operationCatalogSortKey === nextKey) {
+      setOperationCatalogSortDirection((current) => current === "asc" ? "desc" : "asc");
+      return;
+    }
+    setOperationCatalogSortKey(nextKey);
+    setOperationCatalogSortDirection(nextKey === "latest_timestamp" ? "desc" : "asc");
+  }
+
+  function fileSortLabel(label: string, key: FileCatalogSortKey): string {
+    if (fileCatalogSortKey !== key) {
+      return label;
+    }
+    return `${label}${fileCatalogSortDirection === "asc" ? " ▲" : " ▼"}`;
+  }
+
+  function operationSortLabel(label: string, key: OperationCatalogSortKey): string {
+    if (operationCatalogSortKey !== key) {
+      return label;
+    }
+    return `${label}${operationCatalogSortDirection === "asc" ? " ▲" : " ▼"}`;
+  }
+
   const uploadedFile = uploadMutation.data;
   const fileCount = getFileCount(fileSearchQuery.data?.files);
 
@@ -233,14 +432,6 @@ export function FileListPage() {
               >
                 Search
               </button>
-              {selectedInstance && effectiveMacAddress !== "" ? (
-                <a
-                  className="secondary button-link"
-                  href={getPnmFileMacArchiveDownloadUrl(selectedInstance.baseUrl, effectiveMacAddress)}
-                >
-                  Download MAC Archive
-                </a>
-              ) : null}
             </div>
           </div>
           {selectedInstance ? (
@@ -291,98 +482,135 @@ export function FileListPage() {
         </Panel>
       </div>
 
-      <div className="grid two files-grid">
-        <Panel title="Registered MAC Addresses">
-          {macAddressesQuery.isLoading ? <ThinkingIndicator label="Collecting registered MAC addresses..." /> : null}
-          {macAddressesQuery.isError ? <p className="panel-copy files-error">{(macAddressesQuery.error as Error).message}</p> : null}
-          {!macAddressesQuery.isLoading && !macAddressesQuery.isError ? (
-            <div className="table-wrap">
-              <table className="data-table">
-                <thead>
-                  <tr>
-                    <th>MAC Address</th>
-                    <th>System Description</th>
-                    <th />
-                  </tr>
-                </thead>
-                <tbody>
-                  {(macAddressesQuery.data?.mac_addresses ?? []).map((entry) => {
-                    const isSelected = entry.mac_address === effectiveMacAddress;
-                    return (
-                      <tr key={entry.mac_address} className={isSelected ? "is-selected" : undefined}>
-                        <td className="mono">{entry.mac_address}</td>
-                        <td>{summarizeSystemDescription(entry.system_description)}</td>
-                        <td>
-                          <button
-                            type="button"
-                            className="secondary"
-                            onClick={() => {
-                              setMacSearchInput(entry.mac_address);
-                              setSelectedMacAddress(entry.mac_address);
-                            }}
-                          >
-                            View Files
-                          </button>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          ) : null}
-        </Panel>
-
-        <Panel title="Archive And Direct Download">
-          <div className="files-direct-grid">
-            <div className="files-toolbar-field">
-              <FieldLabel htmlFor="files-filename-download" hint={requestFieldHints.direct_downloads}>Filename</FieldLabel>
-              <input
-                id="files-filename-download"
-                value={filenameDownloadInput}
-                onChange={(event) => setFilenameDownloadInput(event.target.value)}
-                placeholder="stored_file.bin.zst"
-              />
-            </div>
-            <div className="files-toolbar-field">
-              <FieldLabel htmlFor="files-operation-download" hint={requestFieldHints.direct_downloads}>Operation ID</FieldLabel>
-              <input
-                id="files-operation-download"
-                value={operationDownloadInput}
-                onChange={(event) => setOperationDownloadInput(event.target.value)}
-                placeholder="operation-id"
-              />
-            </div>
-            <div className="files-toolbar-actions">
-              {selectedInstance && filenameDownloadInput.trim() !== "" ? (
-                <a
-                  className="secondary button-link"
-                  href={getPnmFileFilenameDownloadUrl(selectedInstance.baseUrl, filenameDownloadInput.trim())}
-                >
-                  Download By Filename
-                </a>
-              ) : null}
-              {selectedInstance && operationDownloadInput.trim() !== "" ? (
-                <a
-                  className="secondary button-link"
-                  href={getPnmFileOperationArchiveDownloadUrl(selectedInstance.baseUrl, operationDownloadInput.trim())}
-                >
-                  Download Operation Archive
-                </a>
-              ) : null}
-            </div>
+      <Panel title="Archive And Direct Download">
+        <div className="files-picker-toolbar">
+          <button
+            type="button"
+            className="secondary"
+            disabled={fileCatalogRows.length === 0}
+            onClick={() => setArchivePickerMode("files")}
+          >
+            Files
+          </button>
+          <button
+            type="button"
+            className="secondary"
+            disabled={fileCatalogRows.length === 0}
+            onClick={() => setArchivePickerMode("operations")}
+          >
+            Operation IDs
+          </button>
+        </div>
+        {fileCatalogQuery.isLoading ? <ThinkingIndicator label="Collecting transaction file catalog..." compact /> : null}
+        {fileCatalogQuery.isError ? <p className="panel-copy files-error">{(fileCatalogQuery.error as Error).message}</p> : null}
+        <div className="files-direct-grid">
+          <div className="files-toolbar-field">
+            <FieldLabel htmlFor="files-filename-download" hint={requestFieldHints.direct_downloads}>Filename</FieldLabel>
+            <input
+              id="files-filename-download"
+              value={filenameDownloadInput}
+              onChange={(event) => setFilenameDownloadInput(event.target.value)}
+              placeholder="stored_file.bin.zst"
+            />
           </div>
-        </Panel>
-      </div>
+          <div className="files-toolbar-field">
+            <FieldLabel htmlFor="files-operation-download" hint={requestFieldHints.direct_downloads}>Operation ID</FieldLabel>
+            <input
+              id="files-operation-download"
+              value={operationDownloadInput}
+              onChange={(event) => setOperationDownloadInput(event.target.value)}
+              placeholder="operation-id"
+            />
+          </div>
+          <div className="files-toolbar-actions">
+            {selectedInstance && effectiveMacAddress !== "" ? (
+              <a
+                className="secondary button-link"
+                href={getPnmFileMacArchiveDownloadUrl(selectedInstance.baseUrl, effectiveMacAddress)}
+              >
+                Download MAC Archive
+              </a>
+            ) : null}
+            {selectedInstance && filenameDownloadInput.trim() !== "" ? (
+              <a
+                className="secondary button-link"
+                href={getPnmFileFilenameDownloadUrl(selectedInstance.baseUrl, filenameDownloadInput.trim())}
+              >
+                Download By Filename
+              </a>
+            ) : null}
+            {selectedInstance && operationDownloadInput.trim() !== "" ? (
+              <a
+                className="secondary button-link"
+                href={getPnmFileOperationArchiveDownloadUrl(selectedInstance.baseUrl, operationDownloadInput.trim())}
+              >
+                Download Operation Archive
+              </a>
+            ) : null}
+          </div>
+        </div>
+      </Panel>
 
-        <Panel
-          title={(
-            <div className="panel-title-inline">
-              <h2 className="panel-title-heading">Files For Selected MAC</h2>
-              <span className="analysis-chip"><b>MAC:</b> {effectiveMacAddress || "n/a"}</span>
-            </div>
-          )}
-        >
+      <details className="panel files-registered-macs-panel" open>
+        <summary className="files-registered-macs-summary">
+          <div className="files-type-summary-main">
+            <span className="files-type-label">Registered MAC Addresses</span>
+            <span className="analysis-chip"><b>Count</b> {macAddressesQuery.data?.mac_addresses.length ?? 0}</span>
+          </div>
+          <span className="files-type-chevron" aria-hidden="true" />
+        </summary>
+        {macAddressesQuery.isLoading ? <ThinkingIndicator label="Collecting registered MAC addresses..." /> : null}
+        {macAddressesQuery.isError ? <p className="panel-copy files-error">{(macAddressesQuery.error as Error).message}</p> : null}
+        {!macAddressesQuery.isLoading && !macAddressesQuery.isError ? (
+          <div className="table-wrap">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>MAC Address</th>
+                  <th>Vendor</th>
+                  <th>Model</th>
+                  <th>Software</th>
+                  <th />
+                </tr>
+              </thead>
+              <tbody>
+                {(macAddressesQuery.data?.mac_addresses ?? []).map((entry) => {
+                  const isSelected = entry.mac_address === effectiveMacAddress;
+                  return (
+                    <tr key={entry.mac_address} className={isSelected ? "is-selected" : undefined}>
+                      <td className="mono">{entry.mac_address}</td>
+                      <td>{getSystemDescriptionValue(entry.system_description, "VENDOR")}</td>
+                      <td>{getSystemDescriptionValue(entry.system_description, "MODEL")}</td>
+                      <td>{getSystemDescriptionValue(entry.system_description, "SW_REV")}</td>
+                      <td>
+                        <button
+                          type="button"
+                          className="secondary"
+                          onClick={() => {
+                            setMacSearchInput(entry.mac_address);
+                            setSelectedMacAddress(entry.mac_address);
+                          }}
+                        >
+                          View Files
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        ) : null}
+      </details>
+
+      <Panel
+        title={(
+          <div className="panel-title-inline">
+            <h2 className="panel-title-heading">Files For Selected MAC</h2>
+            <span className="analysis-chip"><b>MAC:</b> {effectiveMacAddress || "n/a"}</span>
+          </div>
+        )}
+      >
         {effectiveMacAddress === "" ? (
           <p className="panel-copy">Select or search for a MAC address to load file entries.</p>
         ) : null}
@@ -421,7 +649,7 @@ export function FileListPage() {
                               <td className="mono files-filename">{entry.filename}</td>
                               <td>{entry.pnm_test_type}</td>
                               <td>{formatEpochSecondsUtc(entry.timestamp) ?? "n/a"}</td>
-                              <td>{summarizeSystemDescription(entry.system_description)}</td>
+                              <td>{summarizeSystemDescription(getDeviceDetailsSystemDescription(entry))}</td>
                               <td className="files-actions-cell">
                                 <div className="files-row-actions">
                                   {selectedInstance ? (
@@ -529,6 +757,188 @@ export function FileListPage() {
         ) : null}
         </Panel>
       </div>
+
+      {archivePickerMode ? (
+        <div
+          className="selection-insights-modal-overlay"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="files-archive-picker-title"
+          onClick={() => setArchivePickerMode(null)}
+        >
+          <div className="selection-insights-modal-card files-archive-picker-modal" onClick={(event) => event.stopPropagation()}>
+            <div className="selection-insights-modal-header">
+              <h3 id="files-archive-picker-title" className="selection-insights-modal-title">
+                {archivePickerMode === "files" ? "Select File" : "Select Operation ID"}
+              </h3>
+              <button type="button" className="selection-insights-modal-close" onClick={() => setArchivePickerMode(null)}>
+                Close
+              </button>
+            </div>
+            {archivePickerMode === "files" ? (
+              <div className="table-wrap files-archive-picker-table-wrap">
+                <table className="data-table">
+                  <thead>
+                    <tr>
+                      <th>
+                        <button type="button" className="table-sort-button" onClick={() => updateFileCatalogSort("mac_address")}>
+                          {fileSortLabel("MAC", "mac_address")}
+                        </button>
+                      </th>
+                      <th>
+                        <button type="button" className="table-sort-button" onClick={() => updateFileCatalogSort("timestamp")}>
+                          {fileSortLabel("Timestamp", "timestamp")}
+                        </button>
+                      </th>
+                      <th>
+                        <button type="button" className="table-sort-button" onClick={() => updateFileCatalogSort("vendor")}>
+                          {fileSortLabel("Vendor", "vendor")}
+                        </button>
+                      </th>
+                      <th>
+                        <button type="button" className="table-sort-button" onClick={() => updateFileCatalogSort("model")}>
+                          {fileSortLabel("Model", "model")}
+                        </button>
+                      </th>
+                      <th>
+                        <button type="button" className="table-sort-button" onClick={() => updateFileCatalogSort("software")}>
+                          {fileSortLabel("Software", "software")}
+                        </button>
+                      </th>
+                      <th>
+                        <button type="button" className="table-sort-button" onClick={() => updateFileCatalogSort("filename")}>
+                          {fileSortLabel("Filename", "filename")}
+                        </button>
+                      </th>
+                      <th>
+                        <button type="button" className="table-sort-button" onClick={() => updateFileCatalogSort("pnm_test_type")}>
+                          {fileSortLabel("PNM Type", "pnm_test_type")}
+                        </button>
+                      </th>
+                      <th>
+                        <button type="button" className="table-sort-button" onClick={() => updateFileCatalogSort("transaction_id")}>
+                          {fileSortLabel("Transaction ID", "transaction_id")}
+                        </button>
+                      </th>
+                      <th className="files-picker-select-column">Select</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {sortedFileCatalogRows.map((entry) => (
+                      <tr key={entry.transaction_id}>
+                        <td className="mono">{entry.mac_address}</td>
+                        <td>{formatEpochSecondsUtc(entry.timestamp) ?? "n/a"}</td>
+                        <td>{getEntrySystemDescriptionValue(entry, "VENDOR")}</td>
+                        <td>{getEntrySystemDescriptionValue(entry, "MODEL")}</td>
+                        <td>{getEntrySystemDescriptionValue(entry, "SW_REV")}</td>
+                        <td className="mono files-filename">{entry.filename}</td>
+                        <td>{entry.pnm_test_type}</td>
+                        <td className="mono">{entry.transaction_id}</td>
+                        <td className="files-picker-select-column">
+                          <button
+                            type="button"
+                            className="secondary"
+                            onClick={() => {
+                              setFilenameDownloadInput(entry.filename);
+                              setArchivePickerMode(null);
+                            }}
+                          >
+                            Select
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <>
+                {operationCatalogRows.length === 0 ? (
+                  <p className="panel-copy">
+                    No operation IDs were present in the selected file metadata.
+                  </p>
+                ) : (
+                  <div className="table-wrap files-archive-picker-table-wrap">
+                    <table className="data-table">
+                      <thead>
+                        <tr>
+                          <th>
+                            <button type="button" className="table-sort-button" onClick={() => updateOperationCatalogSort("operation_id")}>
+                              {operationSortLabel("Operation ID", "operation_id")}
+                            </button>
+                          </th>
+                          <th>
+                            <button type="button" className="table-sort-button" onClick={() => updateOperationCatalogSort("mac_addresses")}>
+                              {operationSortLabel("MACs", "mac_addresses")}
+                            </button>
+                          </th>
+                          <th>
+                            <button type="button" className="table-sort-button" onClick={() => updateOperationCatalogSort("file_count")}>
+                              {operationSortLabel("Files", "file_count")}
+                            </button>
+                          </th>
+                          <th>
+                            <button type="button" className="table-sort-button" onClick={() => updateOperationCatalogSort("latest_timestamp")}>
+                              {operationSortLabel("Latest Timestamp", "latest_timestamp")}
+                            </button>
+                          </th>
+                          <th>
+                            <button type="button" className="table-sort-button" onClick={() => updateOperationCatalogSort("pnm_test_types")}>
+                              {operationSortLabel("PNM Types", "pnm_test_types")}
+                            </button>
+                          </th>
+                          <th>
+                            <button type="button" className="table-sort-button" onClick={() => updateOperationCatalogSort("vendor")}>
+                              {operationSortLabel("Vendor", "vendor")}
+                            </button>
+                          </th>
+                          <th>
+                            <button type="button" className="table-sort-button" onClick={() => updateOperationCatalogSort("model")}>
+                              {operationSortLabel("Model", "model")}
+                            </button>
+                          </th>
+                          <th>
+                            <button type="button" className="table-sort-button" onClick={() => updateOperationCatalogSort("software")}>
+                              {operationSortLabel("Software", "software")}
+                            </button>
+                          </th>
+                          <th className="files-picker-select-column">Select</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {operationCatalogRows.map((entry) => (
+                          <tr key={entry.operation_id}>
+                            <td className="mono">{entry.operation_id}</td>
+                            <td className="mono">{entry.mac_addresses}</td>
+                            <td>{entry.file_count}</td>
+                            <td>{formatEpochSecondsUtc(entry.latest_timestamp) ?? "n/a"}</td>
+                            <td>{entry.pnm_test_types || "n/a"}</td>
+                            <td>{entry.vendor}</td>
+                            <td>{entry.model}</td>
+                            <td>{entry.software}</td>
+                            <td className="files-picker-select-column">
+                              <button
+                                type="button"
+                                className="secondary"
+                                onClick={() => {
+                                  setOperationDownloadInput(entry.operation_id);
+                                  setArchivePickerMode(null);
+                                }}
+                              >
+                                Select
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        </div>
+      ) : null}
     </>
   );
 }

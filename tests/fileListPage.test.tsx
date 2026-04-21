@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { cleanup, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { InstanceConfigContext } from "@/app/InstanceConfigContext";
@@ -135,6 +135,7 @@ describe("FileListPage", () => {
           system_description: {
             VENDOR: "Vendor",
             MODEL: "Model",
+            SW_REV: "1.2.3",
           },
         },
       ],
@@ -148,28 +149,49 @@ describe("FileListPage", () => {
             filename: "spectrum.bin",
             pnm_test_type: "SPECTRUM_ANALYSIS",
             timestamp: 100,
-            system_description: null,
+            operation_id: "op-spectrum",
+            device_details: {
+              system_description: {
+                VENDOR: "FileVendor",
+                MODEL: "FileModel",
+                SW_REV: "9.9.9",
+              },
+            },
           },
           {
             transaction_id: "tx-fec-new",
             filename: "fec-new.bin",
             pnm_test_type: "OFDM_FEC_SUMMARY",
             timestamp: 300,
-            system_description: null,
+            operation_id: "op-fec",
+            device_details: {
+              system_description: {
+                VENDOR: "FileVendor",
+                MODEL: "FileModel",
+                SW_REV: "9.9.9",
+              },
+            },
           },
           {
             transaction_id: "tx-fec-old",
             filename: "fec-old.bin",
             pnm_test_type: "OFDM_FEC_SUMMARY",
             timestamp: 200,
-            system_description: null,
+            operation_id: "op-fec",
+            device_details: {
+              system_description: {
+                VENDOR: "FileVendor",
+                MODEL: "FileModel",
+                SW_REV: "9.9.9",
+              },
+            },
           },
         ],
       },
     });
   });
 
-  it("groups selected files into collapsed cards sorted by pnm test type", async () => {
+  it("groups registered macs and selected files into foldable cards", async () => {
     const queryClient = new QueryClient({
       defaultOptions: {
         queries: {
@@ -193,10 +215,17 @@ describe("FileListPage", () => {
       );
     });
 
+    await waitFor(() => {
+      expect(container.querySelectorAll(".files-type-card")).toHaveLength(2);
+    });
+
     const groupCards = Array.from(container.querySelectorAll(".files-type-card"));
     expect(groupCards).toHaveLength(2);
     expect(groupCards[0]?.hasAttribute("open")).toBe(false);
     expect(groupCards[1]?.hasAttribute("open")).toBe(false);
+
+    const registeredMacsPanel = container.querySelector(".files-registered-macs-panel");
+    expect(registeredMacsPanel?.hasAttribute("open")).toBe(true);
 
     const summaries = Array.from(container.querySelectorAll(".files-type-summary .files-type-label")).map(
       (element) => element.textContent,
@@ -206,6 +235,38 @@ describe("FileListPage", () => {
     const firstGroupText = groupCards[0].textContent ?? "";
     expect(firstGroupText.indexOf("fec-new.bin")).toBeLessThan(firstGroupText.indexOf("fec-old.bin"));
 
+    expect(screen.getByRole("columnheader", { name: "Vendor" })).toBeTruthy();
+    expect(screen.getByRole("columnheader", { name: "Model" })).toBeTruthy();
+    expect(screen.getByRole("columnheader", { name: "Software" })).toBeTruthy();
+    expect(screen.getAllByText("Vendor")).toHaveLength(2);
+    expect(screen.getAllByText("Model")).toHaveLength(2);
+    expect(screen.getByText("1.2.3")).toBeTruthy();
+    expect(screen.getByText("Archive And Direct Download")).toBeTruthy();
+    expect(screen.getByText("Download MAC Archive")).toBeTruthy();
     expect(screen.getByText("Files For Selected MAC")).toBeTruthy();
+    expect(registeredMacsPanel?.textContent).not.toContain("Files For Selected MAC");
+
+    await waitFor(() => {
+      expect((screen.getByRole("button", { name: "Files" }) as HTMLButtonElement).disabled).toBe(false);
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Files" }));
+    expect(screen.getByRole("dialog", { name: "Select File" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Timestamp ▼" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "MAC" })).toBeTruthy();
+    expect(screen.getAllByText("aa:bb:cc:dd:ee:ff").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("FileVendor").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("FileModel").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("9.9.9").length).toBeGreaterThan(0);
+    expect(container.querySelector(".files-archive-picker-table-wrap")).toBeTruthy();
+    expect(container.querySelector(".files-picker-select-column")).toBeTruthy();
+    fireEvent.click(screen.getAllByRole("button", { name: "Select" })[0]);
+    expect((container.querySelector("#files-filename-download") as HTMLInputElement).value).toBe("fec-new.bin");
+
+    fireEvent.click(screen.getByRole("button", { name: "Operation IDs" }));
+    expect(screen.getByRole("dialog", { name: "Select Operation ID" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Latest Timestamp ▼" })).toBeTruthy();
+    expect(screen.getByText("op-fec")).toBeTruthy();
+    fireEvent.click(screen.getAllByRole("button", { name: "Select" })[0]);
+    expect((container.querySelector("#files-operation-download") as HTMLInputElement).value).toBe("op-fec");
   });
 });
