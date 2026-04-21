@@ -1,35 +1,9 @@
 version: 1
-product_profile: pypnm-cmts-webui
 defaults:
-  selected_instance: pypnm-cmts-agent-1
+  selected_instance: default
   poll_interval_ms: 5000
   request_timeout_ms: 30000
   health_path: /health
   logging:
     level: INFO
-instances:
-  - id: commscope
-    label: CommScope Agent
-    base_url: http://172.19.8.28:8080
-    enabled: true
-    tags:
-      - local
-      - example
-    capabilities:
-      - health
-      - analysis
-      - files
-    polling:
-      enabled: true
-      interval_ms: 5000
-    request_defaults:
-      cable_modem:
-        mac_address: ""
-        ip_address: ""
-      tftp:
-        ipv4: 172.19.8.28
-        ipv6: ::1
-      capture:
-        channel_ids: []
-      snmp:
-        rw_community: private
+instances: []
