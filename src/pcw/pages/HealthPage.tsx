@@ -1,4 +1,5 @@
 import { useMutation, useQueries } from "@tanstack/react-query";
+import { useState } from "react";
 
 import { useInstanceConfig } from "@/app/useInstanceConfig";
 import { PageHeader } from "@/components/common/PageHeader";
@@ -67,8 +68,86 @@ function formatMemorySummary(
   return `${formatBytes(rssBytes)} / ${formatBytes(availableBytes)} / ${formatBytes(totalBytes)}`;
 }
 
+interface DataDirectoriesModalState {
+  agentLabel: string;
+  entries: Array<[string, number]>;
+}
+
+type SizeSortDirection = "desc" | "asc";
+
+function DataDirectoriesModal({
+  state,
+  onClose,
+}: {
+  state: DataDirectoriesModalState | null;
+  onClose: () => void;
+}) {
+  const [sizeSortDirection, setSizeSortDirection] = useState<SizeSortDirection>("desc");
+  if (!state) {
+    return null;
+  }
+  const sortedEntries = [...state.entries].sort((left, right) => (
+    sizeSortDirection === "desc" ? right[1] - left[1] : left[1] - right[1]
+  ));
+  const nextSizeSortDirection = sizeSortDirection === "desc" ? "asc" : "desc";
+  const sizeSortLabel = sizeSortDirection === "desc" ? "Size ↓" : "Size ↑";
+  const sizeSortTitle = sizeSortDirection === "desc"
+    ? "Sorted high to low by directory size. Click to sort low to high."
+    : "Sorted low to high by directory size. Click to sort high to low.";
+
+  return (
+    <div
+      className="selection-insights-modal-overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="health-data-directories-title"
+      onClick={onClose}
+    >
+      <div className="selection-insights-modal-card" onClick={(event) => event.stopPropagation()}>
+        <div className="selection-insights-modal-header">
+          <h3 id="health-data-directories-title" className="selection-insights-modal-title">
+            .data Directories · {state.agentLabel}
+          </h3>
+          <button type="button" className="operations-json-download" onClick={onClose}>
+            Close
+          </button>
+        </div>
+        <div className="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Directory</th>
+                <th>
+                  <button
+                    type="button"
+                    className="table-sort-button"
+                    title={sizeSortTitle}
+                    aria-label={`Sort by size ${nextSizeSortDirection === "desc" ? "high to low" : "low to high"}`}
+                    onClick={() => setSizeSortDirection(nextSizeSortDirection)}
+                  >
+                    {sizeSortLabel}
+                  </button>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {sortedEntries.map(([name, size]) => (
+                <tr key={`${state.agentLabel}-${name}`}>
+                  <td className="mono">{name}</td>
+                  <td className="mono">{formatBytes(size)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function HealthPage() {
   const { config, instances, selectedInstance } = useInstanceConfig();
+  const [dataDirectoriesModal, setDataDirectoriesModal] = useState<DataDirectoriesModalState | null>(null);
   const healthTimeoutMs = Math.min(config?.defaults.requestTimeoutMs ?? MAX_HEALTH_TIMEOUT_MS, MAX_HEALTH_TIMEOUT_MS);
 
   const healthQueries = useQueries({
@@ -210,19 +289,16 @@ export function HealthPage() {
                     {row.dataDirectories.length === 0 ? (
                       <span className="mono">n/a</span>
                     ) : (
-                      <details className="health-popup">
-                        <summary className="health-popup-trigger mono">
-                          View ({row.dataDirectories.length})
-                        </summary>
-                        <div className="health-popup-card">
-                          {row.dataDirectories.map(([name, size]) => (
-                            <div key={`${row.instance.id}-${name}`} className="health-popup-row mono">
-                              <span>{name}</span>
-                              <span>{formatBytes(size)}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </details>
+                      <button
+                        type="button"
+                        className="operations-json-download"
+                        onClick={() => setDataDirectoriesModal({
+                          agentLabel: row.instance.label,
+                          entries: row.dataDirectories,
+                        })}
+                      >
+                        View ({row.dataDirectories.length})
+                      </button>
                     )}
                   </td>
                 </tr>
@@ -231,6 +307,10 @@ export function HealthPage() {
           </table>
         </div>
       </Panel>
+      <DataDirectoriesModal
+        state={dataDirectoriesModal}
+        onClose={() => setDataDirectoriesModal(null)}
+      />
     </>
   );
 }

@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { cleanup, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -174,6 +174,7 @@ describe("HealthPage", () => {
         size_bytes: 1234,
         directories: {
           json: 1000,
+          logs: 2000,
         },
       },
     });
@@ -204,6 +205,46 @@ describe("HealthPage", () => {
     expect(screen.getByRole("button", { name: "Reload All Web Services" })).toBeTruthy();
     expect(screen.getAllByRole("link", { name: "Log" })).toHaveLength(2);
     expect(screen.getAllByRole("button", { name: "Reload" })).toHaveLength(2);
+  });
+
+  it("opens .data directory details in a modal", async () => {
+    const user = userEvent.setup();
+    const queryClient = new QueryClient({
+      defaultOptions: {
+        queries: {
+          retry: false,
+        },
+      },
+    });
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <InstanceConfigContext.Provider value={createContextValue()}>
+          <HealthPage />
+        </InstanceConfigContext.Provider>
+      </QueryClientProvider>,
+    );
+
+    await waitFor(() => {
+      expect(healthServiceMocks.getHealth).toHaveBeenCalledTimes(2);
+    });
+
+    const directoryButtons = await screen.findAllByRole("button", { name: "View (2)" });
+    await user.click(directoryButtons[0]);
+
+    const dialog = screen.getByRole("dialog", { name: ".data Directories · Agent 1" });
+    expect(dialog).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Sort by size low to high" })).toBeTruthy();
+    expect(screen.getByRole("columnheader", { name: "Size ↓" })).toBeTruthy();
+    expect(within(dialog).getAllByRole("row")[1].textContent).toContain("logs");
+    expect(within(dialog).getAllByRole("row")[2].textContent).toContain("json");
+
+    await user.click(screen.getByRole("button", { name: "Sort by size low to high" }));
+
+    expect(screen.getByRole("button", { name: "Sort by size high to low" })).toBeTruthy();
+    expect(screen.getByRole("columnheader", { name: "Size ↑" })).toBeTruthy();
+    expect(within(dialog).getAllByRole("row")[1].textContent).toContain("json");
+    expect(within(dialog).getAllByRole("row")[2].textContent).toContain("logs");
   });
 
   it("reloads a single agent and all agents from the page actions", async () => {

@@ -1400,6 +1400,23 @@ pre {
   min-width: 64px;
 }
 
+.table-sort-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.table-sort-button:hover,
+.table-sort-button:focus-visible {
+  color: var(--accent);
+}
+
 .health-popup {
   position: relative;
 }
