@@ -149,6 +149,7 @@ function createContextValue(): InstanceConfigContextValue {
 describe("HealthPage", () => {
   afterEach(() => {
     cleanup();
+    vi.unstubAllEnvs();
   });
 
   beforeEach(() => {
@@ -207,7 +208,8 @@ describe("HealthPage", () => {
     expect(screen.getAllByRole("button", { name: "Reload" })).toHaveLength(2);
   });
 
-  it("opens .data directory details in a modal", async () => {
+  it("opens .data directory details in a modal under the PW profile", async () => {
+    vi.stubEnv("VITE_PRODUCT_PROFILE", "pypnm-webui");
     const user = userEvent.setup();
     const queryClient = new QueryClient({
       defaultOptions: {
