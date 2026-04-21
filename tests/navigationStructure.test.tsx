@@ -63,7 +63,7 @@ describe("navigation structure", () => {
     const profile = productProfile.resolveProductProfileWithFallback();
     const expectedLabels = profile === productProfile.PRODUCT_PROFILE_PW
       ? ["Single Capture", "Spectrum Analyzer", "Operations", "Advanced", "Files", "Health", "Settings", "About"]
-      : ["Serving Group", "SingleCapture", "Spectrum Analyzer", "Health", "Settings", "About"];
+      : ["Files", "Serving Group", "SingleCapture", "Spectrum Analyzer", "Health", "Settings", "About"];
     expect(navLabels).toEqual(expectedLabels);
   });
 
@@ -82,6 +82,7 @@ describe("navigation structure", () => {
       .filter(Boolean);
     const profile = productProfile.resolveProductProfileWithFallback();
     expect(navLabels).toContain("Spectrum Analyzer");
+    expect(navLabels).toContain("Files");
     expect(navLabels).toContain("Health");
     expect(navLabels).toContain("Settings");
     expect(navLabels).toContain("About");
@@ -89,7 +90,6 @@ describe("navigation structure", () => {
       expect(navLabels).toContain("Single Capture");
       expect(navLabels).toContain("Operations");
       expect(navLabels).toContain("Advanced");
-      expect(navLabels).toContain("Files");
       expect(navLabels).not.toContain("Serving Group");
       expect(navLabels).not.toContain("SingleCapture");
     } else {
@@ -98,7 +98,6 @@ describe("navigation structure", () => {
       expect(navLabels).not.toContain("Single Capture");
       expect(navLabels).not.toContain("Operations");
       expect(navLabels).not.toContain("Advanced");
-      expect(navLabels).not.toContain("Files");
     }
   });
 

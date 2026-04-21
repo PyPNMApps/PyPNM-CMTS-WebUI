@@ -6,6 +6,7 @@ import { InstanceSelector } from "@/components/layout/InstanceSelector";
 import { OperationsMenu } from "@/pw/features/operations/components/OperationsMenu";
 
 const pcwLinks = [
+  ["/files", "Files"],
   ["/serving-group/rxmer", "Serving Group"],
   ["/single-capture/dashboard", "SingleCapture"],
   ["/spectrum-analyzer/friendly", "Spectrum Analyzer"],
